@@ -1,666 +1,285 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Car, 
-  Plus, 
-  Trash2, 
-  Search, 
-  LogOut, 
-  LayoutDashboard, 
-  Fuel, 
-  DollarSign, 
-  Edit2, 
-  Save,
-  XCircle,
-  Menu,
-  Palette,
-  FileText,
-  Settings,
-  Lock,
-  Mail,
-  Key
-} from 'lucide-react';
-import { initializeApp } from 'firebase/app';
+import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
-  onAuthStateChanged, 
-  signInAnonymously, 
-  signInWithCustomToken,
-  signOut 
-} from 'firebase/auth';
-import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  onSnapshot, 
-  deleteDoc, 
-  doc, 
-  updateDoc
-} from 'firebase/firestore';
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged,
+  AuthError
+} from "firebase/auth";
+import { AlertCircle, Lock, Mail, User, LogOut, ShieldCheck, Eye, EyeOff, Loader2 } from 'lucide-react';
 
-// --- Firebase Configuration ---
-const firebaseConfig = JSON.parse(__firebase_config);
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-// --- Components ---
-
-const InputField = ({ label, icon: Icon, ...props }) => (
-  <div className="mb-4">
-    <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
-    <div className="relative">
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <Icon className="h-5 w-5 text-slate-400" />
-      </div>
-      <input
-        className="pl-10 block w-full rounded-lg border-slate-200 border focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5 transition-colors"
-        {...props}
-      />
-    </div>
-  </div>
-);
-
-const SelectField = ({ label, options, ...props }) => (
-  <div className="mb-4">
-    <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
-    <select
-      className="block w-full rounded-lg border-slate-200 border focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5 bg-white"
-      {...props}
-    >
-      {options.map(opt => (
-        <option key={opt} value={opt}>{opt}</option>
-      ))}
-    </select>
-  </div>
-);
-
-const StatusBadge = ({ status }) => {
-  const styles = {
-    Available: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-    Rented: 'bg-blue-100 text-blue-800 border-blue-200',
-    Maintenance: 'bg-amber-100 text-amber-800 border-amber-200',
-  };
-  
-  return (
-    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status] || styles.Available}`}>
-      {status}
-    </span>
-  );
+// --- FIREBASE CONFIGURATION (Provided by User) ---
+const firebaseConfig = {
+  apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
+  authDomain: "black-iris-fleet-9c64e.firebaseapp.com",
+  projectId: "black-iris-fleet-9c64e",
+  storageBucket: "black-iris-fleet-9c64e.firebasestorage.app",
+  messagingSenderId: "875590751512",
+  appId: "1:875590751512:web:7377b8c8fe507053f7ba6d",
+  measurementId: "G-4Y7L69L9BS"
 };
 
+// --- INITIALIZE FIREBASE ---
+// We initialize this outside the component so it only happens once
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// --- MAIN APP COMPONENT ---
 export default function App() {
-  const [user, setUser] = useState(null);
-  const [view, setView] = useState('fleet');
-  const [cars, setCars] = useState([]);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
-  
-  // Login State
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loginError, setLoginError] = useState('');
-  
-  // Form State
-  const [formData, setFormData] = useState({
-    id: null,
-    name: '',           
-    transmission: 'Automatic',
-    color: '',
-    type: 'Sedan',      
-    fuelType: 'Petrol',
-    price: '',
-    status: 'Available',
-    image: '',
-    description: ''
-  });
 
-  // --- Auth & Data Fetching ---
-
+  // Listen for auth state changes (Real-time security check)
   useEffect(() => {
-    const initAuth = async () => {
-      // Check for custom token from iframe parent
-      if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-        await signInWithCustomToken(auth, __initial_auth_token);
-      }
-      setLoading(false);
-    };
-    initAuth();
-
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      if (currentUser) setLoading(false);
+      setLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (!user) return;
-
-    const q = collection(db, 'artifacts', appId, 'public', 'data', 'cars');
-    const unsubscribe = onSnapshot(q, 
-      (snapshot) => {
-        const carList = snapshot.docs.map(doc => {
-            const data = doc.data();
-            const displayName = data.name || `${data.make || ''} ${data.model || ''}`;
-            return { id: doc.id, ...data, name: displayName };
-        });
-        setCars(carList.sort((a, b) => b.createdAt - a.createdAt));
-      },
-      (error) => console.error("Error fetching cars:", error)
-    );
-
-    return () => unsubscribe();
-  }, [user]);
-
-  // --- Handlers ---
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoginError('');
-    
-    if (!email || !password) {
-        setLoginError('Please enter both email and password.');
-        return;
-    }
-
-    try {
-      // For this demo app, we use anonymous auth to ensure you can always get in,
-      // but visually it looks like an email login.
-      await signInAnonymously(auth);
-    } catch (error) {
-      console.error("Login failed", error);
-      setLoginError("Failed to sign in. Please try again.");
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleEditClick = (car) => {
-    setFormData({
-      id: car.id,
-      name: car.name || '',
-      transmission: car.transmission || 'Automatic',
-      color: car.color || '',
-      type: car.type || 'Sedan',
-      fuelType: car.fuelType || 'Petrol',
-      price: car.price || '',
-      status: car.status || 'Available',
-      image: car.image || '',
-      description: car.description || ''
-    });
-    setIsEditing(true);
-    setView('form');
-    setSidebarOpen(false);
-  };
-
-  const resetForm = () => {
-    setFormData({
-      id: null,
-      name: '',
-      transmission: 'Automatic',
-      color: '',
-      type: 'Sedan',
-      fuelType: 'Petrol',
-      price: '',
-      status: 'Available',
-      image: '',
-      description: ''
-    });
-    setIsEditing(false);
-  };
-
-  const handleNewCarClick = () => {
-    resetForm();
-    setView('form');
-    setSidebarOpen(false);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!user) return;
-
-    const carData = {
-      name: formData.name,
-      transmission: formData.transmission,
-      color: formData.color,
-      type: formData.type,
-      fuelType: formData.fuelType,
-      price: Number(formData.price),
-      status: formData.status,
-      image: formData.image || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80',
-      description: formData.description,
-      updatedAt: Date.now()
-    };
-
-    try {
-      if (isEditing && formData.id) {
-        const carRef = doc(db, 'artifacts', appId, 'public', 'data', 'cars', formData.id);
-        await updateDoc(carRef, carData);
-      } else {
-        const collectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'cars');
-        await addDoc(collectionRef, {
-          ...carData,
-          createdAt: Date.now()
-        });
-      }
-      
-      resetForm();
-      setView('fleet');
-    } catch (error) {
-      console.error("Error saving car:", error);
-      alert("Failed to save changes.");
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!user) return;
-    if (window.confirm('Delete this vehicle?')) {
-      try {
-        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cars', id));
-      } catch (error) {
-        console.error("Error deleting car:", error);
-      }
-    }
-  };
-
-  const handleSignOut = () => {
-    signOut(auth);
-    setEmail('');
-    setPassword('');
-  };
-
-  const filteredCars = cars.filter(car => 
-    car.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // --- Render ---
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100 p-4">
-        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm text-center border border-slate-200">
-          <div className="bg-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-900/20">
-            <Car className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Fleet Admin</h1>
-          <p className="text-slate-500 mb-8 text-sm">Secure access for fleet managers</p>
-          
-          <form onSubmit={handleLogin} className="text-left space-y-4">
-             <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-slate-400" />
-                  </div>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 block w-full rounded-lg border-slate-200 border focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5"
-                    placeholder="admin@company.com"
-                  />
-                </div>
-             </div>
-
-             <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Key className="h-5 w-5 text-slate-400" />
-                  </div>
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 block w-full rounded-lg border-slate-200 border focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5"
-                    placeholder="••••••••"
-                  />
-                </div>
-             </div>
-
-             {loginError && (
-               <div className="text-red-500 text-sm bg-red-50 p-2 rounded">
-                 {loginError}
-               </div>
-             )}
-
-             <button 
-              type="submit"
-              className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-3 px-4 rounded-xl hover:bg-blue-700 transition-all font-medium shadow-lg shadow-blue-900/20 hover:scale-[1.02] mt-4"
-            >
-              <Lock className="w-4 h-4" />
-              Sign In
-            </button>
-          </form>
-        </div>
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">
+        <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden font-sans relative">
-      
-      {/* Backdrop */}
-      {isSidebarOpen && (
-        <div 
-          onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-black/50 z-20 backdrop-blur-sm transition-opacity"
-        />
+    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-blue-500 selection:text-white">
+      {user ? (
+        <Dashboard user={user} />
+      ) : (
+        <AuthScreen />
       )}
-
-      {/* Sidebar Drawer */}
-      <aside 
-        className={`fixed top-0 left-0 bottom-0 z-30 w-64 bg-slate-900 text-white flex flex-col shadow-2xl transition-transform duration-300 ease-out transform ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <div className="p-6 border-b border-slate-800 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="bg-blue-600 p-2 rounded-lg">
-              <Car className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight">FleetAdmin</span>
-          </div>
-          <button onClick={() => setSidebarOpen(false)} className="text-slate-400 hover:text-white">
-            <XCircle className="w-6 h-6" />
-          </button>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-2">
-          <button
-            onClick={() => { setView('fleet'); setSidebarOpen(false); }}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-              view === 'fleet' 
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' 
-                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-            }`}
-          >
-            <LayoutDashboard className="w-5 h-5" />
-            <span className="font-medium">Fleet Overview</span>
-          </button>
-
-          <button
-            onClick={handleNewCarClick}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-              view === 'form' 
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' 
-                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-            }`}
-          >
-            <Plus className="w-5 h-5" />
-            <span className="font-medium">
-              {isEditing ? 'Edit Vehicle' : 'Add Vehicle'}
-            </span>
-          </button>
-        </nav>
-
-        <div className="p-4 border-t border-slate-800">
-          <button 
-            onClick={handleSignOut}
-            className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-xl transition-colors shadow-lg shadow-red-900/20"
-          >
-            <LogOut className="w-4 h-4" />
-            <span className="font-medium">Sign Out</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden w-full bg-slate-50">
-        <header className="bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex items-center justify-between z-10 shadow-sm">
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setSidebarOpen(true)}
-              className="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition-colors"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-            <h2 className="text-xl font-bold text-slate-800 truncate">
-              {view === 'fleet' ? 'Fleet Management' : (isEditing ? 'Edit Vehicle' : 'New Vehicle')}
-            </h2>
-          </div>
-          
-          {view === 'fleet' && (
-            <div className="relative w-40 md:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-slate-100 border-transparent focus:bg-white focus:ring-2 focus:ring-blue-500 rounded-lg text-sm transition-all"
-              />
-            </div>
-          )}
-        </header>
-
-        <div className="flex-1 overflow-y-auto p-4 md:p-8">
-          {view === 'fleet' ? (
-            /* Fleet View */
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredCars.map(car => (
-                <div key={car.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-all group">
-                  <div className="aspect-video bg-slate-100 relative overflow-hidden">
-                    <img 
-                      src={car.image} 
-                      alt={car.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={(e) => {
-                         e.target.onerror = null; 
-                         e.target.src = 'https://placehold.co/600x400?text=No+Image';
-                      }}
-                    />
-                    <div className="absolute top-3 right-3">
-                      <StatusBadge status={car.status} />
-                    </div>
-                  </div>
-                  
-                  <div className="p-5">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="font-bold text-lg text-slate-900">{car.name}</h3>
-                        <p className="text-slate-500 text-sm flex items-center gap-2">
-                           {car.transmission}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                         <span className="block font-bold text-blue-600 text-lg">${car.price}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2 text-xs text-slate-500 mb-4 flex-wrap">
-                      <span className="bg-slate-100 px-2 py-1 rounded">{car.fuelType}</span>
-                      <span className="bg-slate-100 px-2 py-1 rounded">{car.type}</span>
-                      {car.color && <span className="bg-slate-100 px-2 py-1 rounded">{car.color}</span>}
-                    </div>
-                    
-                    <div className="pt-4 border-t border-slate-100 flex gap-2">
-                       <button 
-                        onClick={() => handleEditClick(car)}
-                        className="flex-1 flex items-center justify-center gap-2 bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-blue-600 py-2 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                        Edit
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(car.id)}
-                        className="flex-1 flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 py-2 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              <button 
-                onClick={handleNewCarClick}
-                className="border-2 border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center p-6 text-slate-400 hover:border-blue-500 hover:text-blue-500 hover:bg-blue-50/50 transition-all group min-h-[320px]"
-              >
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-blue-100 transition-colors">
-                  <Plus className="w-8 h-8" />
-                </div>
-                <span className="font-medium">Add New Vehicle</span>
-              </button>
-            </div>
-          ) : (
-            /* Add/Edit Form View */
-            <div className="max-w-3xl mx-auto">
-              <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div className="p-6 md:p-8 space-y-6">
-                  
-                  {/* Basic Info */}
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                      <Car className="w-5 h-5 text-blue-600" />
-                      Vehicle Information
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <InputField 
-                        label="Car Name" 
-                        name="name" 
-                        placeholder="e.g. 2024 Toyota Camry XSE" 
-                        icon={Car} 
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        required
-                      />
-                      <InputField 
-                        label="Price (Daily Rate)" 
-                        name="price" 
-                        type="number" 
-                        placeholder="50" 
-                        icon={DollarSign}
-                        value={formData.price}
-                        onChange={handleInputChange}
-                        required
-                      />
-                      <SelectField
-                        label="Car Type"
-                        name="type"
-                        value={formData.type}
-                        onChange={handleInputChange}
-                        options={['Sedan', 'SUV', 'Luxury SUV', 'Coupe', 'Hatchback', 'Convertible', 'Van', 'Truck', 'Luxury']}
-                      />
-                      <SelectField
-                        label="Transmission"
-                        name="transmission"
-                        value={formData.transmission}
-                        onChange={handleInputChange}
-                        options={['Automatic', 'Manual', 'CVT']}
-                      />
-                      <SelectField
-                        label="Fuel Type"
-                        name="fuelType"
-                        value={formData.fuelType}
-                        onChange={handleInputChange}
-                        options={['Petrol', 'Diesel', 'Electric', 'Hybrid']}
-                      />
-                       <InputField 
-                        label="Color" 
-                        name="color" 
-                        placeholder="e.g. Silver" 
-                        icon={Palette}
-                        value={formData.color}
-                        onChange={handleInputChange}
-                      />
-                       <SelectField
-                        label="Status"
-                        name="status"
-                        value={formData.status}
-                        onChange={handleInputChange}
-                        options={['Available', 'Rented', 'Maintenance']}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Media & Desc */}
-                  <div className="border-t border-slate-100 pt-6">
-                    <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                      <FileText className="w-5 h-5 text-blue-600" />
-                      Details
-                    </h3>
-                    
-                    <div className="mb-6">
-                       <InputField 
-                        label="Image Link" 
-                        name="image" 
-                        placeholder="https://..." 
-                        icon={Fuel}
-                        value={formData.image}
-                        onChange={handleInputChange}
-                      />
-                      {formData.image && (
-                        <div className="mt-2 h-48 w-full md:w-1/2 rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
-                          <img 
-                            src={formData.image} 
-                            alt="Preview" 
-                            className="w-full h-full object-cover"
-                            onError={(e) => e.target.style.display = 'none'}
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
-                      <textarea
-                        name="description"
-                        rows="4"
-                        className="block w-full rounded-lg border-slate-200 border focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-3 transition-colors"
-                        placeholder="Vehicle description..."
-                        value={formData.description}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Footer */}
-                <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-4">
-                   <button
-                    type="button"
-                    onClick={() => {
-                        resetForm();
-                        setView('fleet');
-                    }}
-                    className="flex items-center gap-2 px-6 py-2.5 border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-100 font-medium transition-colors"
-                  >
-                    <XCircle className="w-5 h-5" />
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-medium shadow-lg shadow-blue-900/20 transition-all hover:scale-[1.02]"
-                  >
-                    <Save className="w-5 h-5" />
-                    {isEditing ? 'Save Changes' : 'Add to Fleet'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-        </div>
-      </main>
     </div>
   );
 }
 
+// --- AUTH SCREEN (Login / Signup) ---
+function AuthScreen() {
+  const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      if (isLogin) {
+        // REAL FIREBASE LOGIN
+        await signInWithEmailAndPassword(auth, email, password);
+      } else {
+        // REAL FIREBASE SIGNUP
+        await createUserWithEmailAndPassword(auth, email, password);
+      }
+    } catch (err: any) {
+      console.error("Auth Error:", err);
+      // Map Firebase error codes to user-friendly messages
+      let msg = "An error occurred.";
+      if (err.code === 'auth/invalid-credential') msg = "Incorrect email or password.";
+      if (err.code === 'auth/user-not-found') msg = "No user found with this email.";
+      if (err.code === 'auth/wrong-password') msg = "Incorrect password.";
+      if (err.code === 'auth/email-already-in-use') msg = "This email is already registered.";
+      if (err.code === 'auth/weak-password') msg = "Password should be at least 6 characters.";
+      if (err.code === 'auth/invalid-email') msg = "Please enter a valid email address.";
+      setError(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <div className="w-full max-w-md bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
+        
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-8 text-center">
+          <div className="mx-auto bg-white/10 w-16 h-16 rounded-full flex items-center justify-center backdrop-blur-sm mb-4 border border-white/20">
+            <Lock className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-1">
+            {isLogin ? 'Secure Portal Login' : 'Create Secure Account'}
+          </h1>
+          <p className="text-blue-200 text-sm">
+            {isLogin ? 'Enter your credentials to access the system' : 'Register for access to the database'}
+          </p>
+        </div>
+
+        {/* Form */}
+        <div className="p-8">
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg flex items-start gap-3 text-red-200 text-sm">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-slate-400 mb-1.5 ml-1">Email Address</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-blue-500 transition-colors">
+                  <Mail className="w-5 h-5" />
+                </div>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="block w-full pl-10 pr-3 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-slate-200 placeholder-slate-600"
+                  placeholder="name@company.com"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-400 mb-1.5 ml-1">Password</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-blue-500 transition-colors">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="block w-full pl-10 pr-10 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-slate-200 placeholder-slate-600"
+                  placeholder="••••••••"
+                />
+                 <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg shadow-lg shadow-blue-600/30 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                isLogin ? 'Sign In' : 'Create Account'
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-slate-400 text-sm">
+              {isLogin ? "Don't have an account?" : "Already have an account?"}
+              <button
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setError(null);
+                }}
+                className="ml-2 text-blue-400 hover:text-blue-300 font-medium transition-colors"
+              >
+                {isLogin ? 'Sign Up' : 'Log In'}
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- DASHBOARD (Protected Route) ---
+function Dashboard({ user }: { user: any }) {
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Error signing out", error);
+    }
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      {/* Navbar */}
+      <nav className="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center shadow-md">
+        <div className="flex items-center gap-3">
+          <div className="bg-green-500/10 p-2 rounded-lg border border-green-500/20">
+            <ShieldCheck className="w-6 h-6 text-green-500" />
+          </div>
+          <span className="font-bold text-lg tracking-tight">Secure Dashboard</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="hidden md:flex flex-col items-end">
+            <span className="text-sm font-medium text-slate-200">{user.email}</span>
+            <span className="text-xs text-green-400 flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+              Authenticated
+            </span>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="bg-slate-700 hover:bg-slate-600 text-slate-200 hover:text-white p-2 md:px-4 md:py-2 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium border border-slate-600"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="hidden md:inline">Sign Out</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <main className="flex-1 p-6 md:p-12 max-w-7xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl">
+            <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
+              <User className="w-5 h-5 text-blue-400" />
+              User Profile
+            </h2>
+            <div className="space-y-3">
+              <div className="flex justify-between py-2 border-b border-slate-700/50">
+                <span className="text-slate-400">User ID (UID)</span>
+                <span className="text-slate-200 font-mono text-sm bg-slate-900 px-2 py-1 rounded">{user.uid}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-700/50">
+                <span className="text-slate-400">Email</span>
+                <span className="text-slate-200">{user.email}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-700/50">
+                <span className="text-slate-400">Email Verified</span>
+                <span className={`px-2 py-0.5 rounded text-xs font-bold ${user.emailVerified ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                  {user.emailVerified ? 'YES' : 'NO'}
+                </span>
+              </div>
+              <div className="flex justify-between py-2">
+                <span className="text-slate-400">Last Login</span>
+                <span className="text-slate-200 text-sm">{user.metadata.lastSignInTime}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl flex flex-col justify-center items-center text-center">
+            <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-4 border border-green-500/20 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
+               <ShieldCheck className="w-10 h-10 text-green-500" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Access Granted</h3>
+            <p className="text-slate-400 text-sm max-w-xs">
+              You have successfully authenticated with the Firebase Database. This area is protected and only visible to logged-in users.
+            </p>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  );
+}
 
