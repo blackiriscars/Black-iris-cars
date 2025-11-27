@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Available Cars | Black Iris Cars</title>
 
+    <!-- Meta Description -->
     <meta name="description" content="View our full fleet of available rental cars. From economy hatchbacks to luxury SUVs, find the perfect car for your trip in Morocco.">
 
+    <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="data.js"></script>
@@ -73,6 +75,7 @@
 </head>
 <body class="antialiased" dir="ltr">
 
+    <!-- Header -->
     <header class="bg-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
@@ -98,18 +101,15 @@
                         <a href="index.html#why-us" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-why">Why Choose Us</a>
                         <a href="index.html#contact" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-contact">Contact</a>
                     </nav>
-                    <!-- Filter Button (Visible on Mobile) -->
                     <button id="filter-menu-button" class="md:hidden text-gray-600 hover:text-accent-blue p-2 rounded-lg transition">
                         <i data-lucide="filter" class="w-6 h-6"></i>
                     </button>
-                    <!-- Menu Button (Visible on Mobile) -->
                     <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-accent-blue p-2 rounded-lg transition">
                         <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
                 </div>
             </div>
         </div>
-        <!-- Mobile Menu -->
         <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 opacity-0 -translate-y-2 transform transition-all duration-300 ease-out fixed top-16 left-0 right-0 z-40" style="pointer-events: none;">
             <div class="px-4 pt-4 pb-3 space-y-4">
                 <div class="flex items-center space-x-4">
@@ -147,8 +147,9 @@
                 <form id="filter-form" class="space-y-6">
                     <div>
                         <label for="price-range" class="block text-sm font-semibold text-gray-700 mb-2" data-i18n="label-price">Price Range (DH/day)</label>
-                        <input type="range" id="price-range" min="200" max="1500" value="1500" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer text-primary-dark">
-                        <span id="price-value" class="text-sm text-gray-600 mt-1 block">Up to 1500 DH</span>
+                        <!-- === FIXED: MAX 10000 === -->
+                        <input type="range" id="price-range" min="0" max="10000" value="10000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer text-primary-dark">
+                        <span id="price-value" class="text-sm text-gray-600 mt-1 block">Up to 10000 DH</span>
                     </div>
                     <div>
                         <p class="text-sm font-semibold text-gray-700 mb-2">Transmission</p>
@@ -249,7 +250,7 @@
                 </div>
             </div>
             <div class="text-center text-sm text-gray-500 pt-4">
-                &copy; <span data-i18n="copy-right">2024 BLACK IRIS cars. All rights reserved.</span>
+                &copy; <span data-i18n="copy-right">2024 Black Iris Cars. All rights reserved.</span>
             </div>
         </div>
     </footer>
@@ -390,7 +391,15 @@
                     
                     allCars = [];
                     querySnapshot.forEach((doc) => {
-                        allCars.push({ ...doc.data(), id: doc.id });
+                        // SAFE DATA LOADING: Fallbacks for missing fields
+                        const d = doc.data();
+                        allCars.push({ 
+                            ...d, 
+                            id: doc.id,
+                            price: Number(d.price) || 0, 
+                            transmission: (d.transmission || '').toLowerCase(),
+                            type: (d.type || '').toLowerCase()
+                        });
                     });
                     
                     if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
@@ -399,21 +408,25 @@
                 } catch (error) {
                     console.error("Error:", error);
                     if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
+                    // Keep silent for user experience, or show friendly message
                 }
             }
 
             function renderAllCars() {
-                while (resultsContainer.children.length > 1) resultsContainer.removeChild(resultsContainer.lastChild);
+                // Remove old cards (keep count header)
+                while (resultsContainer.children.length > 1) {
+                    resultsContainer.removeChild(resultsContainer.lastChild);
+                }
 
-                const maxPrice = parseInt(priceRange.value) || 2000;
+                // === FIXED FILTER LOGIC ===
+                const maxPrice = parseInt(priceRange.value) || 10000;
                 const selectedTrans = Array.from(transmissionFilters).filter(c => c.checked).map(c => c.value.toLowerCase());
                 const selectedTypes = Array.from(typeFilters).filter(c => c.checked).map(c => c.value.toLowerCase());
 
                 const filteredCars = allCars.filter(car => {
-                    const p = Number(car.price);
-                    const t = car.transmission.toLowerCase();
-                    const type = car.type.toLowerCase();
-                    return p <= maxPrice && (selectedTrans.length === 0 || selectedTrans.includes(t)) && (selectedTypes.length === 0 || selectedTypes.includes(type));
+                    return car.price <= maxPrice &&
+                           (selectedTrans.length === 0 || selectedTrans.includes(car.transmission)) &&
+                           (selectedTypes.length === 0 || selectedTypes.includes(car.type));
                 });
 
                 updateCarCount(filteredCars.length);
@@ -427,7 +440,7 @@
                 }
 
                 filteredCars.forEach(car => {
-                    const transmissionText = getTranslation(car.transmission.toLowerCase());
+                    const transmissionText = getTranslation(car.transmission);
                     const seatsKey = car.seats === 6 ? 'car-seats-6' : 'car-seats';
                     const seatsText = getTranslation(seatsKey);
                     const { price, symbol } = calculatePrice(car.price);
@@ -459,10 +472,10 @@
                         </div>
                         <div class="p-6 md:w-2/3 flex flex-col justify-between">
                             <div>
-                                <h3 class="text-2xl font-bold text-gray-900">${car.name} (<span data-i18n="${car.transmission.toLowerCase()}">${transmissionText}</span>)</h3>
+                                <h3 class="text-2xl font-bold text-gray-900">${car.name} (<span data-i18n="${car.transmission}">${transmissionText}</span>)</h3>
                                 <p class="text-gray-500 mb-4">${car.desc}</p>
                                 <div class="grid grid-cols-2 gap-2 text-sm text-gray-700 mb-4">
-                                    <span class="flex items-center ltr:justify-start"><i data-lucide="${car.transmission === 'Automatic' ? 'car' : 'gauge'}" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span>${transmissionText}</span></span>
+                                    <span class="flex items-center ltr:justify-start"><i data-lucide="${car.transmission === 'automatic' ? 'car' : 'gauge'}" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span>${transmissionText}</span></span>
                                     <span class="flex items-center ltr:justify-start"><i data-lucide="snowflake" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> A/C</span>
                                     <span class="flex items-center ltr:justify-start"><i data-lucide="users" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span data-i18n="${seatsKey}">${seatsText}</span></span>
                                     <span class="flex items-center ltr:justify-start"><i data-lucide="paint-bucket" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> ${car.color}</span>
@@ -581,6 +594,7 @@
             });
 
             // --- Init ---
+            lucide.createIcons(); // INSTANT ICON LOAD
             getLocalStorageData(); 
             const savedLang = localStorage.getItem('languagePreference') || 'en';
             const savedCurrency = localStorage.getItem('currencyPreference') || 'DH';
@@ -596,5 +610,3 @@
     </script>
 </body>
 </html>
-
-
