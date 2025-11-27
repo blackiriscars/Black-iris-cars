@@ -4,41 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Black Iris Fleet</title>
-    
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <!-- Firebase Compat Libraries (Works better in simple HTML files) -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
         .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #2563eb; width: 20px; height: 20px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        /* Ensure overlay doesn't block clicks when hidden */
-        .overlay-hidden { display: none !important; pointer-events: none !important; }
+        .hidden { display: none !important; }
+        
+        /* CRITICAL FIX: Ensure hidden overlay never blocks clicks */
+        .overlay-hidden { opacity: 0; pointer-events: none !important; z-index: -1 !important; }
     </style>
 </head>
-<body class="bg-gray-100 h-screen overflow-hidden text-gray-800">
+<body class="bg-gray-100 h-screen overflow-hidden">
 
     <!-- LOGIN OVERLAY -->
-    <div id="login-overlay" class="fixed inset-0 bg-gray-900 z-[100] flex items-center justify-center transition-opacity duration-300">
-        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md mx-4 relative z-[101]">
+    <!-- Added transition for smoother exit, and ID for JS targeting -->
+    <div id="login-overlay" class="fixed inset-0 bg-gray-900 z-[999] flex items-center justify-center transition-opacity duration-300">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md mx-4">
             <div class="text-center mb-8">
                 <div class="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center border border-gray-300">
                     <i data-lucide="lock" class="w-8 h-8 text-gray-500"></i>
                 </div>
                 <h2 class="text-2xl font-bold text-gray-800">Admin Login</h2>
+                <p class="text-gray-500 text-sm">Authorized personnel only</p>
             </div>
             <form id="login-form" class="space-y-4">
-                <input type="email" id="login-email" placeholder="Email" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
-                <input type="password" id="login-password" placeholder="Password" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                <input type="email" id="login-email" placeholder="Email" class="w-full p-3 border rounded-lg" required>
+                <input type="password" id="login-password" placeholder="Password" class="w-full p-3 border rounded-lg" required>
                 <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-lg">Sign In</button>
                 <p id="login-error" class="text-red-500 text-sm text-center hidden mt-2"></p>
             </form>
@@ -46,53 +40,60 @@
     </div>
 
     <!-- DASHBOARD -->
-    <div id="dashboard" class="flex h-screen opacity-0 transition-opacity duration-300">
+    <div id="dashboard" class="flex h-screen hidden">
         
-        <!-- Sidebar -->
-        <aside class="w-64 bg-gray-900 text-white hidden md:flex flex-col shadow-xl z-20 relative">
-            <div class="p-6 text-2xl font-bold text-center border-b border-gray-700 tracking-wider">Black Iris</div>
+        <!-- Sidebar (Added ID 'main-sidebar' and mobile classes) -->
+        <aside id="main-sidebar" class="w-64 bg-gray-900 text-white hidden md:flex flex-col fixed md:relative z-50 h-full transition-transform transform md:translate-x-0 -translate-x-full">
+            <div class="p-6 text-2xl font-bold text-center border-b border-gray-700 flex justify-between md:justify-center items-center">
+                <span>Black Iris</span>
+                <!-- Close button for mobile only -->
+                <button onclick="window.toggleSidebar()" class="md:hidden text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
             <nav class="flex-1 p-4 space-y-2">
-                <button id="nav-all-cars" onclick="switchTab('list')" class="w-full flex items-center px-4 py-3 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition cursor-pointer">
+                <button id="nav-all-cars" onclick="window.switchTab('list')" class="w-full flex items-center px-4 py-3 bg-blue-600 text-white rounded-lg shadow-lg transition">
                     <i data-lucide="car" class="w-5 h-5 mr-3"></i> Fleet List
                 </button>
-                <button id="nav-add-car" onclick="resetForm()" class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition cursor-pointer">
+                <button id="nav-add-car" onclick="window.resetForm()" class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition">
                     <i data-lucide="plus-circle" class="w-5 h-5 mr-3"></i> Add/Edit Car
                 </button>
             </nav>
             <div class="p-4 border-t border-gray-700 bg-gray-800">
-                <button id="logout-btn" class="w-full flex items-center justify-center px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold transition shadow cursor-pointer">
+                <button id="logout-btn" class="w-full flex items-center justify-center px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold transition shadow">
                     <i data-lucide="log-out" class="w-5 h-5 mr-2"></i> LOGOUT
                 </button>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto relative bg-gray-50 z-10">
-            <!-- Mobile Header -->
-            <header class="md:hidden bg-gray-900 text-white p-4 flex justify-between items-center sticky top-0 z-30 shadow-md">
-                <span class="font-bold text-lg">Admin Panel</span>
-                <button onclick="handleLogout()" class="text-red-400 p-2"><i data-lucide="log-out" class="w-6 h-6"></i></button>
+        <main class="flex-1 overflow-y-auto relative bg-gray-50 w-full">
+            <!-- Mobile Header (Added menu toggle logic) -->
+            <header class="md:hidden bg-gray-900 text-white p-4 flex justify-between items-center sticky top-0 z-40 shadow-md">
+                <div class="flex items-center gap-3">
+                    <button onclick="window.toggleSidebar()" class="text-white hover:text-gray-300">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                    <span class="font-bold">Admin Panel</span>
+                </div>
+                <button id="mobile-logout" class="text-red-400"><i data-lucide="log-out" class="w-6 h-6"></i></button>
             </header>
 
             <!-- LIST VIEW -->
-            <div id="view-all-cars" class="p-4 md:p-8 max-w-7xl mx-auto">
+            <div id="view-all-cars" class="p-4 md:p-8 max-w-6xl mx-auto">
                 <header class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-800">Current Fleet</h2>
-                    <button onclick="resetForm()" class="hidden md:block bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 shadow transition transform hover:scale-105">+ Add Car</button>
+                    <button onclick="window.resetForm()" class="hidden md:block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 shadow">+ Add New Car</button>
                 </header>
-                
-                <div id="loading-cars" class="text-center py-20 text-gray-500">
-                    <div class="loader mx-auto mb-4"></div> Loading database...
-                </div>
-                
-                <div id="cars-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20"></div>
+                <div id="loading-cars" class="text-center py-20 text-gray-500"><div class="loader mx-auto mb-4"></div> Loading database...</div>
+                <div id="cars-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20"></div>
             </div>
 
             <!-- ADD/EDIT FORM -->
-            <div id="view-add-car" class="p-4 md:p-8 max-w-5xl mx-auto hidden">
+            <div id="view-add-car" class="p-4 md:p-8 max-w-5xl mx-auto" style="display: none;">
                 <header class="flex justify-between items-center mb-6">
                     <h2 id="form-title" class="text-2xl font-bold text-gray-800">Add New Vehicle</h2>
-                    <button onclick="switchTab('list')" class="text-gray-500 hover:text-gray-700 font-medium px-4 py-2 hover:bg-gray-100 rounded-lg">Cancel</button>
+                    <button onclick="window.switchTab('list')" class="text-gray-500 hover:text-gray-700 font-medium">Cancel</button>
                 </header>
 
                 <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-gray-100 mb-20">
@@ -111,17 +112,17 @@
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-sm font-bold text-gray-700 mb-2">Price (DH/day)</label>
-                                        <input type="number" id="car-price" placeholder="1400" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                        <input type="number" id="car-price" placeholder="1400" required class="w-full p-3 border border-gray-300 rounded-lg">
                                     </div>
                                     <div>
                                         <label class="block text-sm font-bold text-gray-700 mb-2">Seats</label>
-                                        <input type="number" id="car-seats" placeholder="5" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                        <input type="number" id="car-seats" placeholder="5" required class="w-full p-3 border border-gray-300 rounded-lg">
                                     </div>
                                 </div>
 
                                 <div>
                                     <label class="block text-sm font-bold text-gray-700 mb-2">Car Model / Category</label>
-                                    <select id="car-type" class="w-full p-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <select id="car-type" class="w-full p-3 border border-gray-300 rounded-lg bg-white">
                                         <option value="suv">SUV</option>
                                         <option value="sedan">Sedan</option>
                                         <option value="hatchback">Hatchback</option>
@@ -151,6 +152,7 @@
                                     </div>
                                 </div>
 
+                                <!-- Hidden but required for website functionality -->
                                 <div class="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
                                     <div>
                                         <label class="block text-xs font-bold text-gray-500 mb-1">Transmission</label>
@@ -170,16 +172,16 @@
                                     <div class="p-3 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800 mb-2">
                                         Upload to <a href="https://postimages.org/" target="_blank" class="underline font-bold">PostImages.org</a> & paste "Direct Link".
                                     </div>
-                                    <input type="url" id="car-image-url" placeholder="https://i.postimg.cc/..." required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <input type="url" id="car-image-url" placeholder="https://i.postimg.cc/..." required class="w-full p-3 border border-gray-300 rounded-lg">
                                 </div>
 
                                 <div>
                                     <label class="block text-sm font-bold text-gray-700 mb-2">Description</label>
-                                    <textarea id="car-desc" rows="5" placeholder="Full-size luxury SUV, offering ultimate comfort..." required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                                    <textarea id="car-desc" rows="5" placeholder="Full-size luxury SUV, offering ultimate comfort..." required class="w-full p-3 border border-gray-300 rounded-lg"></textarea>
                                 </div>
 
                                 <div class="pt-4">
-                                    <button type="submit" id="save-btn" class="w-full bg-green-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-700 transition shadow-lg flex items-center justify-center text-lg transform active:scale-95">
+                                    <button type="submit" id="save-btn" class="w-full bg-green-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-700 transition shadow-lg flex items-center justify-center text-lg">
                                         <span id="save-text">Publish Car</span>
                                         <div id="save-loader" class="loader ml-3 hidden border-white border-t-transparent"></div>
                                     </button>
@@ -192,9 +194,11 @@
         </main>
     </div>
 
-    <!-- INITIALIZATION SCRIPT -->
-    <script>
-        // Initialize Firebase
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, updateDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
         const firebaseConfig = {
           apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
           authDomain: "black-iris-fleet-9c64e.firebaseapp.com",
@@ -205,162 +209,148 @@
           measurementId: "G-4Y7L69L9BS"
         };
 
-        // Initialize compat apps
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
         
-        // Initialize Icons
-        lucide.createIcons();
+        // Wrap icons in try/catch to prevent crashes
+        try { lucide.createIcons(); } catch(e) { console.log("Icons loading..."); }
 
         let allCarsData = [];
 
-        // --- GLOBAL FUNCTIONS (Must be defined for onclick HTML attributes) ---
-        
-        function switchTab(tab) {
-            if (tab === 'list') {
-                document.getElementById('view-all-cars').classList.remove('hidden');
-                document.getElementById('view-add-car').classList.add('hidden');
-                
-                // Update styling of nav buttons
-                document.getElementById('nav-all-cars').classList.add('bg-blue-600', 'text-white', 'shadow-lg');
-                document.getElementById('nav-all-cars').classList.remove('text-gray-300', 'hover:bg-gray-800');
-                
-                document.getElementById('nav-add-car').classList.remove('bg-blue-600', 'text-white', 'shadow-lg');
-                document.getElementById('nav-add-car').classList.add('text-gray-300', 'hover:bg-gray-800');
-                
-                loadCars();
-            } else {
-                document.getElementById('view-all-cars').classList.add('hidden');
-                document.getElementById('view-add-car').classList.remove('hidden');
-                
-                // Update styling of nav buttons
-                document.getElementById('nav-all-cars').classList.remove('bg-blue-600', 'text-white', 'shadow-lg');
-                document.getElementById('nav-all-cars').classList.add('text-gray-300', 'hover:bg-gray-800');
-                
-                document.getElementById('nav-add-car').classList.add('bg-blue-600', 'text-white', 'shadow-lg');
-                document.getElementById('nav-add-car').classList.remove('text-gray-300', 'hover:bg-gray-800');
-            }
-        }
-
-        function resetForm() {
-            document.getElementById('add-car-form').reset();
-            document.getElementById('edit-doc-id').value = '';
-            document.getElementById('form-title').textContent = 'Add New Vehicle';
-            document.getElementById('save-text').textContent = 'Publish Car';
-            
-            const btn = document.getElementById('save-btn');
-            btn.className = "w-full bg-green-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-700 transition shadow-lg flex items-center justify-center text-lg transform active:scale-95";
-            
-            switchTab('add');
-        }
-
-        async function handleLogout() {
-            try {
-                await auth.signOut();
-            } catch(e) {
-                console.error(e);
-            }
-        }
-
-        // --- AUTH LOGIC ---
-        auth.onAuthStateChanged((user) => {
+        // --- AUTH & OVERLAY LOGIC (The Fix) ---
+        onAuthStateChanged(auth, (user) => {
             const overlay = document.getElementById('login-overlay');
             const dashboard = document.getElementById('dashboard');
 
             if (user) {
-                // HIDE Overlay completely
-                overlay.classList.add('opacity-0', 'overlay-hidden'); 
+                // FORCE hide the overlay and disable clicks on it
+                overlay.classList.add('overlay-hidden');
+                overlay.style.display = 'none'; 
                 
-                // SHOW Dashboard
-                dashboard.classList.remove('opacity-0');
-                dashboard.style.display = 'flex'; // Ensure flex layout
+                // Show dashboard
+                dashboard.classList.remove('hidden');
                 
                 loadCars();
             } else {
-                // SHOW Overlay
-                overlay.classList.remove('opacity-0', 'overlay-hidden');
+                // Show overlay
+                overlay.classList.remove('overlay-hidden');
+                overlay.style.display = 'flex';
                 
-                // HIDE Dashboard
-                dashboard.classList.add('opacity-0');
-                // Optional: delay display:none to allow fade out
+                // Hide dashboard
+                dashboard.classList.add('hidden');
             }
         });
 
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const errEl = document.getElementById('login-error');
-            
-            errEl.classList.add('hidden');
-            
             try {
-                await auth.signInWithEmailAndPassword(email, password);
-                // Listener handles transition
+                await signInWithEmailAndPassword(auth, 
+                    document.getElementById('login-email').value, 
+                    document.getElementById('login-password').value
+                );
             } catch (err) {
-                errEl.textContent = "Invalid login credentials: " + err.message;
+                const errEl = document.getElementById('login-error');
+                errEl.textContent = "Invalid login credentials.";
                 errEl.classList.remove('hidden');
             }
         });
 
+        const handleLogout = () => signOut(auth);
         document.getElementById('logout-btn').addEventListener('click', handleLogout);
+        document.getElementById('mobile-logout').addEventListener('click', handleLogout);
 
-        // --- DATA LOGIC ---
+        // --- MOBILE MENU LOGIC ---
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('main-sidebar');
+            const isHidden = sidebar.classList.contains('-translate-x-full');
+            
+            if (isHidden) {
+                sidebar.classList.remove('hidden');
+                // Small timeout to allow removing 'hidden' before animating
+                setTimeout(() => sidebar.classList.remove('-translate-x-full'), 10);
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                setTimeout(() => sidebar.classList.add('hidden'), 300);
+            }
+        }
+
+        // --- TABS & EDITING ---
+        window.switchTab = (tab) => {
+            if (tab === 'list') {
+                document.getElementById('view-all-cars').style.display = 'block';
+                document.getElementById('view-add-car').style.display = 'none';
+                
+                // Close mobile menu if open
+                const sidebar = document.getElementById('main-sidebar');
+                if (!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
+                    window.toggleSidebar();
+                }
+                
+                loadCars();
+            } else {
+                document.getElementById('view-all-cars').style.display = 'none';
+                document.getElementById('view-add-car').style.display = 'block';
+                
+                 // Close mobile menu if open
+                const sidebar = document.getElementById('main-sidebar');
+                if (!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
+                    window.toggleSidebar();
+                }
+            }
+        }
+
+        window.resetForm = () => {
+            document.getElementById('add-car-form').reset();
+            document.getElementById('edit-doc-id').value = '';
+            document.getElementById('form-title').textContent = 'Add New Vehicle';
+            document.getElementById('save-text').textContent = 'Publish Car';
+            document.getElementById('save-btn').classList.replace('bg-blue-600', 'bg-green-600');
+            document.getElementById('save-btn').classList.replace('hover:bg-blue-700', 'hover:bg-green-700');
+            window.switchTab('add');
+        }
+
+        // --- LOAD CARS ---
         async function loadCars() {
             const container = document.getElementById('cars-container');
-            const loader = document.getElementById('loading-cars');
-            
-            loader.classList.remove('hidden');
+            container.innerHTML = '';
+            document.getElementById('loading-cars').classList.remove('hidden');
             
             try {
-                const snapshot = await db.collection('cars').orderBy('createdAt', 'desc').get();
-                
-                loader.classList.add('hidden');
-                container.innerHTML = '';
+                const q = query(collection(db, "cars"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                document.getElementById('loading-cars').classList.add('hidden');
                 allCarsData = [];
 
-                if (snapshot.empty) {
-                    container.innerHTML = '<div class="col-span-full text-center text-gray-400 py-10 bg-white rounded border border-dashed border-gray-300">No cars found. Click "Add Car" to start.</div>';
+                if (querySnapshot.empty) {
+                    container.innerHTML = '<p class="text-gray-500 col-span-3 text-center">No cars in fleet. Add one!</p>';
                     return;
                 }
 
-                snapshot.forEach((doc) => {
-                    const car = doc.data();
-                    car.id = doc.id;
+                querySnapshot.forEach((docSnap) => {
+                    const car = docSnap.data();
+                    car.id = docSnap.id; 
                     allCarsData.push(car);
 
                     const div = document.createElement('div');
-                    div.className = "bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow duration-200";
+                    div.className = "bg-white p-4 rounded-lg shadow border border-gray-100 flex flex-col";
                     
-                    const statusColor = car.status === 'Available' ? 'bg-green-100 text-green-700' : 
-                                      car.status === 'Booked' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700';
+                    const statusColor = car.status === 'Available' ? 'text-green-600' : 'text-red-600';
                     
                     div.innerHTML = `
-                        <div class="relative h-48 mb-4 overflow-hidden rounded-lg bg-gray-100 group">
-                            <img src="${car.img}" onerror="this.src='https://placehold.co/400x300?text=No+Image'" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                            <div class="absolute top-2 right-2">
-                                <span class="text-xs font-bold ${statusColor} px-2 py-1 rounded-full shadow-sm uppercase tracking-wide">${car.status}</span>
-                            </div>
+                        <img src="${car.img}" class="w-full h-32 object-cover rounded mb-3 bg-gray-50" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-bold text-gray-800">${car.name}</h3>
+                            <span class="text-xs font-bold ${statusColor} bg-gray-100 px-2 py-1 rounded">${car.status || 'Available'}</span>
                         </div>
-                        
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-bold text-gray-900 text-lg leading-tight">${car.name}</h3>
-                            <span class="font-bold text-blue-600">${car.price} <span class="text-xs text-gray-500 font-normal">DH/day</span></span>
-                        </div>
-                        
-                        <div class="text-xs text-gray-500 mb-4 flex gap-2">
-                            <span class="bg-gray-100 px-2 py-1 rounded">${car.type}</span>
-                            <span class="bg-gray-100 px-2 py-1 rounded">${car.fuel}</span>
-                            <span class="bg-gray-100 px-2 py-1 rounded">${car.transmission || 'Auto'}</span>
-                        </div>
-                        
-                        <div class="mt-auto grid grid-cols-2 gap-2">
-                            <button onclick="editCar('${car.id}')" class="py-2 bg-white text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-50 border border-gray-200 hover:border-gray-300 transition flex items-center justify-center gap-1">
-                                <i data-lucide="edit-2" class="w-3 h-3"></i> Edit
+                        <p class="text-sm text-gray-600">${car.price} DH / day</p>
+                        <p class="text-xs text-gray-400 mt-1">${car.type} • ${car.fuel || 'Fuel N/A'}</p>
+                        <div class="mt-auto pt-3 flex gap-2">
+                            <button onclick="window.editCar('${car.id}')" class="flex-1 py-2 bg-blue-50 text-blue-600 rounded text-sm font-bold hover:bg-blue-100 border border-blue-200">
+                                <i data-lucide="edit-2" class="w-4 h-4 inline mr-1"></i> Edit
                             </button>
-                            <button onclick="deleteCar('${car.id}')" class="py-2 bg-white text-red-600 rounded-lg text-sm font-semibold hover:bg-red-50 border border-gray-200 hover:border-red-200 transition flex items-center justify-center gap-1">
-                                <i data-lucide="trash" class="w-3 h-3"></i> Delete
+                            <button onclick="window.deleteCar('${car.id}')" class="flex-1 py-2 bg-red-50 text-red-600 rounded text-sm font-bold hover:bg-red-100 border border-red-200">
+                                <i data-lucide="trash" class="w-4 h-4 inline mr-1"></i> Delete
                             </button>
                         </div>
                     `;
@@ -370,15 +360,16 @@
 
             } catch (err) {
                 console.error(err);
-                container.innerHTML = `<div class="col-span-full text-red-500 bg-red-50 p-4 rounded text-center">Error loading data: ${err.message}</div>`;
+                container.innerHTML = `<div class="col-span-3 text-center text-red-500">Error loading cars. Check console.</div>`;
             }
         }
 
-        // --- ACTION FUNCTIONS ---
-        window.editCar = function(id) {
+        // --- EDIT & DELETE LOGIC (Attached to window explicitly) ---
+        window.editCar = (id) => {
             const car = allCarsData.find(c => c.id === id);
             if(!car) return;
 
+            // Populate Fields
             document.getElementById('edit-doc-id').value = id;
             document.getElementById('car-name').value = car.name;
             document.getElementById('car-price').value = car.price;
@@ -391,27 +382,26 @@
             document.getElementById('car-image-url').value = car.img;
             document.getElementById('car-desc').value = car.desc;
 
+            // Change UI to Edit Mode
             document.getElementById('form-title').textContent = 'Edit Vehicle';
             document.getElementById('save-text').textContent = 'Update Car';
             
+            // Change button color to Blue to indicate Edit
             const btn = document.getElementById('save-btn');
-            btn.className = "w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-lg flex items-center justify-center text-lg transform active:scale-95";
+            btn.classList.replace('bg-green-600', 'bg-blue-600');
+            btn.classList.replace('hover:bg-green-700', 'hover:bg-blue-700');
 
-            switchTab('add');
-        };
+            window.switchTab('add');
+        }
 
-        window.deleteCar = async function(id) {
-            if(confirm("Are you sure you want to delete this car? This action cannot be undone.")) {
-                try {
-                    await db.collection('cars').doc(id).delete();
-                    loadCars();
-                } catch(e) {
-                    alert("Delete failed: " + e.message);
-                }
+        window.deleteCar = async (id) => {
+            if(confirm("Are you sure you want to delete this car?")) {
+                await deleteDoc(doc(db, "cars", id));
+                loadCars();
             }
-        };
+        }
 
-        // SAVE LOGIC
+        // --- SAVE LOGIC ---
         document.getElementById('add-car-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('save-btn');
@@ -419,7 +409,6 @@
             const editId = document.getElementById('edit-doc-id').value;
 
             btn.disabled = true;
-            btn.classList.add('opacity-75', 'cursor-not-allowed');
             loader.classList.remove('hidden');
             
             const carData = {
@@ -433,28 +422,26 @@
                 fuel: document.getElementById('car-fuel').value,
                 img: document.getElementById('car-image-url').value,
                 desc: document.getElementById('car-desc').value,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp() // Better timestamp
+                createdAt: new Date() // You might want serverTimestamp() here but this works fine
             };
 
             try {
                 if (editId) {
-                    await db.collection('cars').doc(editId).update(carData);
+                    await updateDoc(doc(db, "cars", editId), carData);
                     alert("Car Updated Successfully!");
                 } else {
-                    await db.collection('cars').add(carData);
+                    await addDoc(collection(db, "cars"), carData);
                     alert("Car Published Successfully!");
                 }
-                resetForm();
+                window.resetForm();
                 loadCars();
             } catch (err) {
                 alert("Error: " + err.message);
             } finally {
                 btn.disabled = false;
-                btn.classList.remove('opacity-75', 'cursor-not-allowed');
                 loader.classList.add('hidden');
             }
         });
-
     </script>
 </body>
 </html>
