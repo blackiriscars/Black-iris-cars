@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Black Iris Fleet</title>
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-    <script src="[https://unpkg.com/lucide@latest](https://unpkg.com/lucide@latest)"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('[https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap](https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap)');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
         
         /* Loading Spinner */
@@ -18,12 +18,15 @@
 <body class="bg-gray-100 h-screen overflow-hidden">
 
     <!-- ====================== 
-         LOGIN OVERLAY 
+         LOGIN OVERLAY (Visible by Default)
     ======================= -->
-    <div id="login-overlay" class="fixed inset-0 bg-gray-900 z-50 flex items-center justify-center">
-        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md">
+    <div id="login-overlay" class="fixed inset-0 bg-gray-900 z-50 flex items-center justify-center" style="display: flex;">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md mx-4">
             <div class="text-center mb-8">
-                <img src="[https://i.postimg.cc/B6LWwXNL/923d79fe-5117-4849-9761-57e1fe5a8d96.jpg](https://i.postimg.cc/B6LWwXNL/923d79fe-5117-4849-9761-57e1fe5a8d96.jpg)" alt="Logo" class="w-16 h-16 rounded-full mx-auto mb-4 border border-gray-200">
+                <!-- Placeholder Logo -->
+                <div class="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center border border-gray-300">
+                    <i data-lucide="shield" class="w-8 h-8 text-gray-500"></i>
+                </div>
                 <h2 class="text-2xl font-bold text-gray-800">Admin Login</h2>
                 <p class="text-gray-500 text-sm">Authorized personnel only</p>
             </div>
@@ -47,11 +50,12 @@
 
 
     <!-- ====================== 
-         MAIN DASHBOARD 
+         MAIN DASHBOARD (Hidden by Default)
+         We use style="display: none" to force it hidden until login
     ======================= -->
-    <div id="dashboard" class="hidden flex h-screen">
+    <div id="dashboard" class="flex h-screen" style="display: none;">
         
-        <!-- Sidebar -->
+        <!-- Sidebar (Desktop) -->
         <aside class="w-64 bg-gray-900 text-white hidden md:flex flex-col">
             <div class="p-6 text-2xl font-bold text-center border-b border-gray-700 flex items-center justify-center">
                 <span>Black Iris</span>
@@ -72,19 +76,25 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto relative">
+        <main class="flex-1 overflow-y-auto relative bg-gray-50">
             
             <!-- Mobile Header -->
-            <header class="md:hidden bg-gray-900 text-white p-4 flex justify-between items-center">
+            <header class="md:hidden bg-gray-900 text-white p-4 flex justify-between items-center sticky top-0 z-20">
                 <span class="font-bold">Admin Panel</span>
                 <button id="mobile-logout" class="text-red-400"><i data-lucide="log-out" class="w-5 h-5"></i></button>
             </header>
             
+            <!-- Mobile Tabs (Visible only on mobile) -->
+            <div class="md:hidden bg-white border-b border-gray-200 p-2 flex justify-around sticky top-14 z-10">
+                 <button onclick="window.switchTab('list')" class="flex-1 text-center py-2 text-sm font-bold text-blue-600 border-b-2 border-blue-600">Fleet</button>
+                 <button onclick="window.switchTab('add')" class="flex-1 text-center py-2 text-sm font-bold text-gray-500">Add Car</button>
+            </div>
+
             <!-- View: All Cars List -->
-            <div id="view-all-cars" class="p-8 max-w-6xl mx-auto">
-                <header class="flex justify-between items-center mb-8">
+            <div id="view-all-cars" class="p-4 md:p-8 max-w-6xl mx-auto">
+                <header class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-800">Current Fleet</h2>
-                    <button onclick="document.getElementById('nav-add-car').click()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition shadow">
+                    <button onclick="window.switchTab('add')" class="hidden md:block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition shadow">
                         + Add Car
                     </button>
                 </header>
@@ -93,19 +103,19 @@
                     <div class="loader mx-auto mb-4"></div> Loading your fleet...
                 </div>
 
-                <div id="cars-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div id="cars-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
                     <!-- Cars will be injected here -->
                 </div>
             </div>
 
-            <!-- View: Add New Car Form -->
-            <div id="view-add-car" class="hidden p-8 max-w-5xl mx-auto">
-                <header class="flex justify-between items-center mb-8">
+            <!-- View: Add New Car Form (Hidden by default) -->
+            <div id="view-add-car" class="p-4 md:p-8 max-w-5xl mx-auto" style="display: none;">
+                <header class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-800">Add New Vehicle</h2>
-                    <button onclick="document.getElementById('nav-all-cars').click()" class="text-gray-500 hover:text-gray-700">Cancel</button>
+                    <button onclick="window.switchTab('list')" class="text-gray-500 hover:text-gray-700 md:hidden">Cancel</button>
                 </header>
 
-                <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
+                <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-gray-100 mb-20">
                     <form id="add-car-form">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             
@@ -194,7 +204,7 @@
                                 </div>
 
                                 <div class="pt-4 flex justify-end">
-                                    <button type="submit" id="save-btn" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition shadow-lg flex items-center">
+                                    <button type="submit" id="save-btn" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition shadow-lg flex items-center justify-center w-full md:w-auto">
                                         <span id="save-text">Publish Car</span>
                                         <div id="save-loader" class="loader ml-2 hidden border-white border-t-transparent"></div>
                                     </button>
@@ -209,150 +219,134 @@
         </main>
     </div>
 
-    <!-- FIREBASE LOGIC -->
+    <!-- ====================== 
+         FIREBASE LOGIC 
+    ======================= -->
     <script type="module">
-        import { auth, db, storage } from './firebase-config.js';
-        import { onAuthStateChanged, signInWithEmailAndPassword, signOut } 
-            from "[https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js](https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js)";
-        import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } 
-            from "[https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js](https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js)";
-        import { ref, uploadBytes, getDownloadURL } 
-            from "[https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js](https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js)";
+        // --- 1. CONFIGURATION ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDL34igUlLH0EE_PI2oKUey-lRXwCSePPI",
+          authDomain: "black-iris-fleet.firebaseapp.com",
+          projectId: "black-iris-fleet",
+          storageBucket: "black-iris-fleet.firebasestorage.app",
+          messagingSenderId: "731321972770",
+          appId: "1:731321972770:web:9e6661dc622c82a801f27b",
+          measurementId: "G-6K1PGMXLX7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
 
         lucide.createIcons();
 
-        // --- Global Tab Switching ---
-        const viewCarsTab = document.getElementById('nav-all-cars');
-        const addCarTab = document.getElementById('nav-add-car');
-        const listSection = document.getElementById('view-all-cars');
-        const addSection = document.getElementById('view-add-car');
-
-        window.switchTab = function(tab) {
-            if (tab === 'list') {
-                listSection.classList.remove('hidden');
-                addSection.classList.add('hidden');
-                
-                viewCarsTab.classList.add('bg-blue-600', 'text-white');
-                viewCarsTab.classList.remove('text-gray-300', 'hover:bg-gray-800');
-                
-                addCarTab.classList.remove('bg-blue-600', 'text-white');
-                addCarTab.classList.add('text-gray-300', 'hover:bg-gray-800');
-                
-                loadCars(); 
-            } else {
-                listSection.classList.add('hidden');
-                addSection.classList.remove('hidden');
-                
-                addCarTab.classList.add('bg-blue-600', 'text-white');
-                addCarTab.classList.remove('text-gray-300', 'hover:bg-gray-800');
-                
-                viewCarsTab.classList.remove('bg-blue-600', 'text-white');
-                viewCarsTab.classList.add('text-gray-300', 'hover:bg-gray-800');
-            }
-        }
-
-        viewCarsTab.addEventListener('click', () => window.switchTab('list'));
-        addCarTab.addEventListener('click', () => window.switchTab('add'));
-
-        // --- Auth Logic ---
+        // --- 2. APP LOGIC ---
         const loginOverlay = document.getElementById('login-overlay');
         const dashboard = document.getElementById('dashboard');
+        const viewCarsSection = document.getElementById('view-all-cars');
+        const viewAddSection = document.getElementById('view-add-car');
 
+        // Check Login State
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                loginOverlay.classList.add('hidden');
-                dashboard.classList.remove('hidden');
+                loginOverlay.style.display = 'none'; // Hide login
+                dashboard.style.display = 'flex';    // Show dashboard
                 loadCars();
             } else {
-                loginOverlay.classList.remove('hidden');
-                dashboard.classList.add('hidden');
+                loginOverlay.style.display = 'flex'; // Show login
+                dashboard.style.display = 'none';    // Hide dashboard
             }
         });
 
+        // Tab Switcher
+        window.switchTab = function(tab) {
+            if (tab === 'list') {
+                viewCarsSection.style.display = 'block';
+                viewAddSection.style.display = 'none';
+                loadCars(); 
+            } else {
+                viewCarsSection.style.display = 'none';
+                viewAddSection.style.display = 'block';
+            }
+        }
+
+        // Login
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
-            const errEl = document.getElementById('login-error');
-            
             try {
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
-                errEl.textContent = "Access Denied: Wrong email or password.";
+                const errEl = document.getElementById('login-error');
+                errEl.textContent = "Login Failed: " + error.message;
                 errEl.classList.remove('hidden');
             }
         });
 
-        document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
-        document.getElementById('mobile-logout').addEventListener('click', () => signOut(auth));
+        // Logout
+        const handleLogout = () => signOut(auth);
+        document.getElementById('logout-btn').addEventListener('click', handleLogout);
+        document.getElementById('mobile-logout').addEventListener('click', handleLogout);
 
-        // --- File Input Handling ---
-        const fileInput = document.getElementById('car-image-file');
-        const fileNameDisplay = document.getElementById('file-name-display');
-        
-        fileInput.addEventListener('change', (e) => {
-            if(e.target.files[0]) fileNameDisplay.textContent = "Selected: " + e.target.files[0].name;
-        });
-
-        // --- Add Car Logic ---
+        // Add Car
         document.getElementById('add-car-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('save-btn');
-            const loader = document.getElementById('save-loader');
             const text = document.getElementById('save-text');
+            const loader = document.getElementById('save-loader');
             
             btn.disabled = true;
-            loader.classList.remove('hidden');
             text.textContent = "Uploading...";
+            loader.classList.remove('hidden');
 
             try {
-                // Gather Data
                 const name = document.getElementById('car-name').value;
                 const price = Number(document.getElementById('car-price').value);
                 const color = document.getElementById('car-color').value;
                 const seats = Number(document.getElementById('car-seats').value);
                 const transmission = document.getElementById('car-transmission').value;
-                
-                // Get radio value
-                const typeElement = document.querySelector('input[name="car-type"]:checked');
-                const type = typeElement ? typeElement.value : 'suv';
-                
+                const type = document.querySelector('input[name="car-type"]:checked').value;
                 const desc = document.getElementById('car-desc').value;
+                
                 let imageUrl = document.getElementById('car-image-url').value;
+                const file = document.getElementById('car-image-file').files[0];
 
-                // Upload Image
-                const file = fileInput.files[0];
                 if (file) {
                     const storageRef = ref(storage, 'cars/' + file.name + '-' + Date.now());
                     await uploadBytes(storageRef, file);
                     imageUrl = await getDownloadURL(storageRef);
                 }
 
-                if (!imageUrl) throw new Error("Please provide an image file or URL.");
+                if (!imageUrl) throw new Error("Image is required!");
 
-                // Save to DB
                 await addDoc(collection(db, "cars"), {
-                    id: Date.now(), // Sort ID
+                    id: Date.now(),
                     name, price, color, seats, transmission, type, desc, img: imageUrl,
                     createdAt: new Date()
                 });
 
-                alert("Car Published Successfully!");
+                alert("Success! Car added.");
                 document.getElementById('add-car-form').reset();
-                fileNameDisplay.textContent = "Click or Drag photo here";
+                document.getElementById('file-name-display').textContent = "Click or Drag photo here";
                 window.switchTab('list');
 
             } catch (error) {
-                console.error(error);
                 alert("Error: " + error.message);
             } finally {
                 btn.disabled = false;
-                loader.classList.add('hidden');
                 text.textContent = "Publish Car";
+                loader.classList.add('hidden');
             }
         });
 
-        // --- Load Cars Logic ---
+        // Load Cars
         async function loadCars() {
             const container = document.getElementById('cars-container');
             container.innerHTML = '';
@@ -365,43 +359,29 @@
                 document.getElementById('loading-cars').classList.add('hidden');
 
                 if (querySnapshot.empty) {
-                    container.innerHTML = '<p class="text-gray-500 col-span-3 text-center">No cars in fleet yet. Click "Add Car" to start.</p>';
+                    container.innerHTML = '<p class="text-gray-500">No cars found.</p>';
                     return;
                 }
 
                 querySnapshot.forEach((docSnapshot) => {
                     const car = docSnapshot.data();
                     const carEl = document.createElement('div');
-                    carEl.className = "bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col hover:shadow-md transition";
+                    carEl.className = "bg-white p-4 rounded-lg shadow border border-gray-100";
                     carEl.innerHTML = `
-                        <img src="${car.img}" class="w-full h-40 object-cover rounded-lg mb-4 bg-gray-100">
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start">
-                                <h3 class="font-bold text-lg text-gray-900">${car.name}</h3>
-                                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded uppercase">${car.type}</span>
-                            </div>
-                            <p class="text-lg font-bold text-gray-900 mt-1">${car.price} DH <span class="text-sm font-normal text-gray-500">/ day</span></p>
-                            <div class="text-xs text-gray-500 mt-3 space-x-2 flex items-center">
-                                <span class="bg-gray-100 px-2 py-1 rounded">${car.transmission}</span>
-                                <span class="bg-gray-100 px-2 py-1 rounded">${car.color}</span>
-                                <span class="bg-gray-100 px-2 py-1 rounded">${car.seats} Seats</span>
-                            </div>
-                        </div>
-                        <button class="delete-btn mt-4 w-full py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg text-sm font-semibold transition flex items-center justify-center" data-id="${docSnapshot.id}">
-                            <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i> Delete Car
+                        <img src="${car.img}" class="w-full h-32 object-cover rounded mb-3">
+                        <h3 class="font-bold text-lg">${car.name}</h3>
+                        <p class="text-sm text-gray-500">${car.price} DH/day</p>
+                        <button class="delete-btn mt-3 w-full py-2 bg-red-50 text-red-600 rounded text-sm font-bold" data-id="${docSnapshot.id}">
+                            Delete
                         </button>
                     `;
                     container.appendChild(carEl);
                 });
-                
-                lucide.createIcons(); // Re-run icons for dynamic content
 
                 document.querySelectorAll('.delete-btn').forEach(btn => {
                     btn.addEventListener('click', async (e) => {
-                        if(confirm("Are you sure you want to delete this car from the fleet? This cannot be undone.")) {
-                            // Find the button element even if icon was clicked
-                            const button = e.target.closest('button');
-                            await deleteDoc(doc(db, "cars", button.dataset.id));
+                        if(confirm("Delete this car?")) {
+                            await deleteDoc(doc(db, "cars", e.target.dataset.id));
                             loadCars();
                         }
                     });
@@ -409,14 +389,14 @@
 
             } catch (error) {
                 console.error(error);
-                // Only show error if it's not a permission error on first load
-                if(error.code !== 'permission-denied') {
-                     alert("Error loading cars. Check console.");
-                }
+                alert("Failed to load cars. Check console.");
             }
         }
+
+        // File Input UX
+        document.getElementById('car-image-file').addEventListener('change', (e) => {
+            if(e.target.files[0]) document.getElementById('file-name-display').textContent = e.target.files[0].name;
+        });
     </script>
 </body>
 </html>
-
-
