@@ -76,7 +76,7 @@
         input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0); }
         select option { color: #000000; }
 
-        /* Compact Selectors */
+        /* === COMPACT SELECTORS (DEFAULT / MOBILE) === */
         .compact-select {
             font-size: 0.875rem; font-weight: 600; color: #1a1a1a;
             background-color: transparent; border: 1px solid #d1d5db; border-radius: 0.375rem;
@@ -85,8 +85,17 @@
             background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.2em 1.2em;
             appearance: none; padding-right: 2.5rem;
         }
-        .hidden.md\:flex .compact-select { border: none; padding: 6px 1.5rem 6px 0.5rem; background-position: right 0.2rem center; font-weight: 700; color: #4b5563; transition: color 0.2s; }
-        .hidden.md\:flex .compact-select:hover { color: #4169e1; }
+
+        /* === NEW: DESKTOP SELECTORS (CLEAN DESIGN) === */
+        .hidden.md\:flex .compact-select { 
+            border: none; 
+            padding: 6px 1.5rem 6px 0.5rem; 
+            background-position: right 0.2rem center; 
+            font-weight: 700; /* Bolder */
+            color: #4b5563; /* Dark Grey */
+            transition: color 0.2s; 
+        }
+        .hidden.md\:flex .compact-select:hover { color: #4169e1; } /* Blue on hover */
         
         /* RTL Support */
         [dir="rtl"] .ltr\:mr-2 { margin-right: 0; margin-left: 0.5rem; }
@@ -116,6 +125,7 @@
                     <span class="text-2xl font-extrabold text-primary-dark">BLACK IRIS cars</span>
                 </a>
                 <div class="flex items-center space-x-3 sm:space-x-4">
+                    <!-- Desktop Controls (Redesigned) -->
                     <div class="hidden md:flex items-center space-x-3 border-r border-gray-200 pr-3 sm:pr-4">
                         <select id="currency-selector" class="compact-select">
                             <option value="DH">DH</option>
@@ -196,6 +206,7 @@
                             <option value="Essaouira">Essaouira City</option>
                             <option value="Kenitra">Kenitra</option>
                             <option value="Temara">Temara</option>
+                            <option value="Tetouan">Tetouan</option>
                         </select>
                     </div>
                     <div>
@@ -215,7 +226,7 @@
         </div>
     </section>
 
-    <!-- How It Works Section -->
+    <!-- === NEW: How It Works Section === -->
     <section class="py-16 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
@@ -289,7 +300,7 @@
         </div>
     </section>
 
-    <!-- FAQ Section -->
+    <!-- === NEW: FAQ Section (Accordion) === -->
     <section id="faq" class="py-16 bg-white">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-extrabold text-primary-dark text-center mb-12" data-i18n="h2-faq">Frequently Asked Questions</h2>
@@ -373,7 +384,7 @@
                     </a>
                     <p class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start"><i data-lucide="mail" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> <a href="mailto:blackiriscars@gmail.com" class="hover:text-accent-blue">blackiriscars@gmail.com</a></p>
                     
-                    <!-- Google Maps Link -->
+                    <!-- Maps Link -->
                     <a href="PASTE_YOUR_GOOGLE_MAPS_LINK_HERE" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
                         <i data-lucide="map-pin" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 
                         <span data-i18n="address-text">10 rue ouarzazat hassan rabat</span>
@@ -519,6 +530,12 @@
                 loadCars();
             }
 
+            function getLocalStorageData() {
+                rentalLocation = localStorage.getItem('rentalLocation') || '';
+                rentalPickupDate = localStorage.getItem('rentalPickupDate') || '';
+                rentalReturnDate = localStorage.getItem('rentalReturnDate') || '';
+            }
+
             // --- FIREBASE LOADING ---
             async function loadCars() {
                 const container = document.getElementById('featured-car-grid');
@@ -632,7 +649,7 @@
             }
 
             function closeModal() {
-                modalDetailContent.classList.add('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-95', 'opacity-0');
                 setTimeout(() => { detailModal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }, 300); 
             }
 
@@ -687,6 +704,7 @@
                     localStorage.setItem('languagePreference', event.target.value);
                 });
             });
+
             currencySelectors.forEach(selector => {
                 selector.addEventListener('change', (event) => {
                     setCurrency(event.target.value);
@@ -706,6 +724,7 @@
             setLanguage(savedLang);
             
             fetchRates();
+            attachCloseListeners();
         });
     </script>
 </body>
