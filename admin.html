@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Portal - Restricted Access</title>
+    <title>Black Iris Admin - Fleet Manager</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- React & ReactDOM -->
@@ -14,8 +14,14 @@
     
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; }
-        .fade-in { animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
     </style>
 </head>
 <body class="text-slate-100">
@@ -30,21 +36,29 @@
             signOut, 
             onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            updateDoc, 
+            deleteDoc, 
+            doc, 
+            onSnapshot,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // --- ICONS ---
         const Icons = {
-            Lock: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
-            Mail: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
-            Eye: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>,
-            EyeOff: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>,
-            ShieldCheck: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>,
-            AlertCircle: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>,
-            User: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
-            LogOut: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>,
-            Loader: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+            Plus: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>,
+            Trash: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>,
+            Edit: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>,
+            Car: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12a6 6 0 0 0 6 6h12a6 6 0 0 0 6-6c0-1.7-.13-2.6-.13-2.6a2 2 0 0 0-1.87-1.4z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
+            LogOut: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>,
+            X: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 18 18"/></svg>,
+            Save: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
         };
 
-        // --- FIREBASE CONFIG (Your Real Config) ---
+        // --- CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
             authDomain: "black-iris-fleet-9c64e.firebaseapp.com",
@@ -55,232 +69,292 @@
             measurementId: "G-4Y7L69L9BS"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // --- AUTH SCREEN COMPONENT (Login Only) ---
+        // --- CAR MANAGER COMPONENT ---
+        function CarManager({ user }) {
+            const [cars, setCars] = React.useState([]);
+            const [showModal, setShowModal] = React.useState(false);
+            const [editingCar, setEditingCar] = React.useState(null);
+            
+            // Form State
+            const [formData, setFormData] = React.useState({
+                make: '', model: '', year: '', price: '', imageUrl: '', status: 'Available'
+            });
+
+            // 1. REAL-TIME DATA FETCHING
+            React.useEffect(() => {
+                const unsubscribe = onSnapshot(collection(db, "cars"), (snapshot) => {
+                    const carList = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    setCars(carList);
+                });
+                return () => unsubscribe();
+            }, []);
+
+            // 2. HANDLE INPUT CHANGE
+            const handleChange = (e) => {
+                setFormData({ ...formData, [e.target.name]: e.target.value });
+            };
+
+            // 3. ADD OR UPDATE CAR
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                try {
+                    if (editingCar) {
+                        // Update existing
+                        await updateDoc(doc(db, "cars", editingCar.id), {
+                            ...formData,
+                            updatedAt: serverTimestamp()
+                        });
+                    } else {
+                        // Add new
+                        await addDoc(collection(db, "cars"), {
+                            ...formData,
+                            createdAt: serverTimestamp()
+                        });
+                    }
+                    closeModal();
+                } catch (error) {
+                    alert("Error saving car: " + error.message);
+                }
+            };
+
+            // 4. DELETE CAR
+            const handleDelete = async (id) => {
+                if (confirm("Are you sure you want to delete this car?")) {
+                    await deleteDoc(doc(db, "cars", id));
+                }
+            };
+
+            // Helpers
+            const openAddModal = () => {
+                setEditingCar(null);
+                setFormData({ make: '', model: '', year: '', price: '', imageUrl: '', status: 'Available' });
+                setShowModal(true);
+            };
+
+            const openEditModal = (car) => {
+                setEditingCar(car);
+                setFormData({ ...car });
+                setShowModal(true);
+            };
+
+            const closeModal = () => {
+                setShowModal(false);
+                setEditingCar(null);
+            };
+
+            return (
+                <div className="flex flex-col min-h-screen bg-slate-900 fade-in">
+                    
+                    {/* Top Bar */}
+                    <div className="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-10 shadow-md flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                            <span className="bg-blue-600 p-2 rounded-lg text-white"><Icons.Car /></span>
+                            <h1 className="text-xl font-bold text-white hidden sm:block">Fleet Manager</h1>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <span className="text-sm text-slate-400 hidden sm:block">{user.email}</span>
+                            <button onClick={() => signOut(auth)} className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg text-sm transition-colors">
+                                <Icons.LogOut /> Logout
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Main Content */}
+                    <div className="flex-1 p-6 max-w-7xl mx-auto w-full">
+                        
+                        {/* Header & Add Button */}
+                        <div className="flex justify-between items-center mb-8">
+                            <div>
+                                <h2 className="text-2xl font-bold text-white">Inventory</h2>
+                                <p className="text-slate-400 text-sm">Manage your vehicle listings</p>
+                            </div>
+                            <button 
+                                onClick={openAddModal}
+                                className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl shadow-lg shadow-blue-600/20 flex items-center gap-2 font-bold transition-transform active:scale-95"
+                            >
+                                <Icons.Plus /> Add New Car
+                            </button>
+                        </div>
+
+                        {/* Car Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {cars.map(car => (
+                                <div key={car.id} className="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 shadow-xl flex flex-col group hover:border-blue-500/50 transition-colors">
+                                    {/* Image */}
+                                    <div className="h-48 bg-slate-900 relative overflow-hidden">
+                                        {car.imageUrl ? (
+                                            <img src={car.imageUrl} alt={car.model} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => e.target.src = 'https://via.placeholder.com/400x300?text=No+Image'} />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-slate-600">No Image</div>
+                                        )}
+                                        <div className="absolute top-2 right-2">
+                                            <span className={`px-2 py-1 rounded text-xs font-bold shadow-md ${car.status === 'Available' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                                                {car.status}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Info */}
+                                    <div className="p-5 flex-1 flex flex-col">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div>
+                                                <h3 className="text-lg font-bold text-white">{car.year} {car.make} {car.model}</h3>
+                                                <p className="text-blue-400 font-mono font-bold text-xl">${Number(car.price).toLocaleString()}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="mt-auto pt-4 flex gap-2 border-t border-slate-700/50">
+                                            <button 
+                                                onClick={() => openEditModal(car)}
+                                                className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg flex items-center justify-center gap-2 text-sm transition-colors"
+                                            >
+                                                <Icons.Edit /> Edit
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDelete(car.id)}
+                                                className="bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-400 px-3 rounded-lg flex items-center justify-center transition-colors"
+                                            >
+                                                <Icons.Trash />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            
+                            {/* Empty State */}
+                            {cars.length === 0 && (
+                                <div className="col-span-full py-20 text-center text-slate-500 bg-slate-800/50 rounded-2xl border-2 border-dashed border-slate-700">
+                                    <p className="text-lg">No cars in database yet.</p>
+                                    <button onClick={openAddModal} className="mt-4 text-blue-400 hover:text-blue-300 font-medium">Add your first car</button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* MODAL */}
+                    {showModal && (
+                        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 fade-in">
+                            <div className="bg-slate-800 w-full max-w-lg rounded-2xl border border-slate-700 shadow-2xl overflow-hidden">
+                                <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800">
+                                    <h3 className="text-xl font-bold text-white">{editingCar ? 'Edit Car' : 'Add New Car'}</h3>
+                                    <button onClick={closeModal} className="text-slate-400 hover:text-white transition-colors"><Icons.X /></button>
+                                </div>
+                                <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm text-slate-400 mb-1">Make</label>
+                                            <input name="make" value={formData.make} onChange={handleChange} placeholder="e.g. BMW" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" required />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm text-slate-400 mb-1">Model</label>
+                                            <input name="model" value={formData.model} onChange={handleChange} placeholder="e.g. M5" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" required />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm text-slate-400 mb-1">Year</label>
+                                            <input name="year" type="number" value={formData.year} onChange={handleChange} placeholder="2024" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" required />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm text-slate-400 mb-1">Price ($)</label>
+                                            <input name="price" type="number" value={formData.price} onChange={handleChange} placeholder="50000" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" required />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm text-slate-400 mb-1">Image URL</label>
+                                        <input name="imageUrl" value={formData.imageUrl} onChange={handleChange} placeholder="https://..." className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm text-slate-400 mb-1">Status</label>
+                                        <select name="status" value={formData.status} onChange={handleChange} className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none">
+                                            <option value="Available">Available</option>
+                                            <option value="Sold">Sold</option>
+                                            <option value="Reserved">Reserved</option>
+                                        </select>
+                                    </div>
+                                    <div className="pt-4 flex gap-3">
+                                        <button type="button" onClick={closeModal} className="flex-1 py-3 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-700 transition-colors">Cancel</button>
+                                        <button type="submit" className="flex-1 py-3 rounded-lg bg-blue-600 text-white font-bold hover:bg-blue-500 shadow-lg shadow-blue-600/20 transition-colors flex justify-center items-center gap-2">
+                                            <Icons.Save /> Save Car
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // --- AUTH COMPONENT (Login Only) ---
         function AuthScreen() {
             const [email, setEmail] = React.useState('');
             const [password, setPassword] = React.useState('');
             const [error, setError] = React.useState(null);
-            const [isSubmitting, setIsSubmitting] = React.useState(false);
-            const [showPassword, setShowPassword] = React.useState(false);
+            const [loading, setLoading] = React.useState(false);
 
-            const handleSubmit = async (e) => {
+            const handleLogin = async (e) => {
                 e.preventDefault();
+                setLoading(true);
                 setError(null);
-                setIsSubmitting(true);
-
                 try {
-                    // ONLY Login Allowed
                     await signInWithEmailAndPassword(auth, email, password);
                 } catch (err) {
-                    console.error("Auth Error:", err);
-                    let msg = "Access Denied.";
-                    if (err.code === 'auth/invalid-credential') msg = "Invalid admin credentials.";
-                    if (err.code === 'auth/user-not-found') msg = "User not found in admin database.";
-                    if (err.code === 'auth/wrong-password') msg = "Incorrect password.";
-                    if (err.code === 'auth/invalid-email') msg = "Please enter a valid email address.";
-                    if (err.code === 'auth/too-many-requests') msg = "Too many failed attempts. Try again later.";
-                    setError(msg);
-                } finally {
-                    setIsSubmitting(false);
+                    setError("Invalid email or password.");
+                    setLoading(false);
                 }
             };
 
             return (
-                <div className="flex flex-col items-center justify-center min-h-screen p-4 fade-in">
-                    <div className="w-full max-w-md bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
-                        
-                        <div className="bg-gradient-to-r from-red-600 to-red-800 p-8 text-center">
-                            <div className="mx-auto bg-white/10 w-16 h-16 rounded-full flex items-center justify-center backdrop-blur-sm mb-4 border border-white/20">
-                                <span className="text-white"><Icons.Lock /></span>
+                <div className="flex items-center justify-center min-h-screen p-4 bg-slate-900 fade-in">
+                    <div className="w-full max-w-md bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-2xl">
+                        <div className="text-center mb-8">
+                            <div className="inline-block p-4 bg-blue-600/10 rounded-full mb-4"><Icons.Car /></div>
+                            <h1 className="text-2xl font-bold text-white">Black Iris Admin</h1>
+                            <p className="text-slate-400 mt-2">Fleet Management Portal</p>
+                        </div>
+                        {error && <div className="bg-red-500/10 text-red-400 p-3 rounded-lg mb-4 text-sm border border-red-500/20 text-center">{error}</div>}
+                        <form onSubmit={handleLogin} className="space-y-4">
+                            <div>
+                                <label className="block text-slate-400 text-sm mb-1">Email</label>
+                                <input type="email" value={email} onChange={e=>setEmail(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white outline-none focus:border-blue-500" required />
                             </div>
-                            <h1 className="text-2xl font-bold text-white mb-1">
-                                Restricted Access
-                            </h1>
-                            <p className="text-red-100 text-sm">
-                                Authorized Personnel Only
-                            </p>
-                        </div>
-
-                        <div className="p-8">
-                            {error && (
-                                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg flex items-start gap-3 text-red-200 text-sm">
-                                    <span className="flex-shrink-0 text-red-400 mt-0.5"><Icons.AlertCircle /></span>
-                                    <span>{error}</span>
-                                </div>
-                            )}
-
-                            <form onSubmit={handleSubmit} className="space-y-5">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-400 mb-1.5 ml-1">Admin Email</label>
-                                    <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-red-500 transition-colors">
-                                            <span className="w-5 h-5"><Icons.Mail /></span>
-                                        </div>
-                                        <input
-                                            type="email"
-                                            required
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            className="block w-full pl-10 pr-3 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all text-slate-200 placeholder-slate-600"
-                                            placeholder="admin@blackiris.com"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-400 mb-1.5 ml-1">Password</label>
-                                    <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-red-500 transition-colors">
-                                            <span className="w-5 h-5"><Icons.Lock /></span>
-                                        </div>
-                                        <input
-                                            type={showPassword ? "text" : "password"}
-                                            required
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            className="block w-full pl-10 pr-10 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all text-slate-200 placeholder-slate-600"
-                                            placeholder="••••••••"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
-                                        >
-                                            {showPassword ? <span className="w-5 h-5"><Icons.EyeOff /></span> : <span className="w-5 h-5"><Icons.Eye /></span>}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-lg shadow-lg shadow-red-600/30 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2"
-                                >
-                                    {isSubmitting ? (
-                                        <span className="w-5 h-5 text-white"><Icons.Loader /></span>
-                                    ) : (
-                                        'Authenticate'
-                                    )}
-                                </button>
-                            </form>
-                        </div>
-                        <div className="bg-slate-900/50 p-4 text-center border-t border-slate-700/50">
-                             <p className="text-xs text-slate-500">
-                                This system is monitored. Unauthorized access attempts will be logged.
-                            </p>
-                        </div>
+                            <div>
+                                <label className="block text-slate-400 text-sm mb-1">Password</label>
+                                <input type="password" value={password} onChange={e=>setPassword(e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white outline-none focus:border-blue-500" required />
+                            </div>
+                            <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition-colors shadow-lg shadow-blue-600/20">
+                                {loading ? 'Checking Access...' : 'Login to Dashboard'}
+                            </button>
+                        </form>
                     </div>
                 </div>
             );
         }
 
-        // --- DASHBOARD COMPONENT ---
-        function Dashboard({ user }) {
-            const handleLogout = async () => {
-                try {
-                    await signOut(auth);
-                } catch (error) {
-                    console.error("Error signing out", error);
-                }
-            };
-
-            return (
-                <div className="flex flex-col min-h-screen fade-in">
-                    {/* Navbar */}
-                    <nav className="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center shadow-md">
-                        <div className="flex items-center gap-3">
-                            <div className="bg-red-500/10 p-2 rounded-lg border border-red-500/20">
-                                <span className="text-red-500"><Icons.ShieldCheck /></span>
-                            </div>
-                            <span className="font-bold text-lg tracking-tight">Admin Dashboard</span>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className="hidden md:flex flex-col items-end">
-                                <span className="text-sm font-medium text-slate-200">{user.email}</span>
-                                <span className="text-xs text-green-400 flex items-center gap-1">
-                                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                    Online
-                                </span>
-                            </div>
-                            <button
-                                onClick={handleLogout}
-                                className="bg-slate-700 hover:bg-slate-600 text-slate-200 hover:text-white p-2 md:px-4 md:py-2 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium border border-slate-600"
-                            >
-                                <span className="w-4 h-4"><Icons.LogOut /></span>
-                                <span className="hidden md:inline">Sign Out</span>
-                            </button>
-                        </div>
-                    </nav>
-
-                    {/* Main Content */}
-                    <main className="flex-1 p-6 md:p-12 max-w-7xl mx-auto w-full">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                            <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl">
-                                <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
-                                    <span className="text-blue-400"><Icons.User /></span>
-                                    Admin Profile
-                                </h2>
-                                <div className="space-y-3">
-                                    <div className="flex justify-between py-2 border-b border-slate-700/50">
-                                        <span className="text-slate-400">Admin ID</span>
-                                        <span className="text-slate-200 font-mono text-sm bg-slate-900 px-2 py-1 rounded">{user.uid}</span>
-                                    </div>
-                                    <div className="flex justify-between py-2 border-b border-slate-700/50">
-                                        <span className="text-slate-400">Email</span>
-                                        <span className="text-slate-200">{user.email}</span>
-                                    </div>
-                                    <div className="flex justify-between py-2">
-                                        <span className="text-slate-400">Last Login</span>
-                                        <span className="text-slate-200 text-sm">{new Date(user.metadata.lastSignInTime).toLocaleString()}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl flex flex-col justify-center items-center text-center">
-                                <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-4 border border-green-500/20 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
-                                    <span className="text-green-500 w-10 h-10 block scale-150"><Icons.ShieldCheck /></span>
-                                </div>
-                                <h3 className="text-xl font-bold text-white mb-2">Admin Access Granted</h3>
-                                <p className="text-slate-400 text-sm max-w-xs">
-                                    Secure connection to Black Iris Fleet database established.
-                                </p>
-                            </div>
-                        </div>
-                    </main>
-                </div>
-            );
-        }
-
-        // --- ROOT COMPONENT ---
+        // --- ROOT ---
         function App() {
             const [user, setUser] = React.useState(null);
             const [loading, setLoading] = React.useState(true);
 
             React.useEffect(() => {
-                const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-                    setUser(currentUser);
+                const unsubscribe = onAuthStateChanged(auth, (u) => {
+                    setUser(u);
                     setLoading(false);
                 });
                 return () => unsubscribe();
             }, []);
 
-            if (loading) {
-                return (
-                    <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">
-                        <span className="w-10 h-10 text-blue-500"><Icons.Loader /></span>
-                    </div>
-                );
-            }
+            if (loading) return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-blue-500">Loading...</div>;
 
-            return (
-                <div className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-blue-500 selection:text-white">
-                    {user ? <Dashboard user={user} /> : <AuthScreen />}
-                </div>
-            );
+            return user ? <CarManager user={user} /> : <AuthScreen />;
         }
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
