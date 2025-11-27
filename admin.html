@@ -3,433 +3,519 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Black Iris Admin</title>
-    <!-- Tailwind CSS -->
+    <title>Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React & ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; }
-        .fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
         
-        /* Sidebar Animation */
-        .slide-in { animation: slideIn 0.25s ease-out forwards; }
-        @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+        .nav-item.active {
+            background-color: rgb(67 56 202); /* Indigo 700 */
+            border-left: 4px solid rgb(199 210 254); /* Indigo 200 */
+        }
         
-        /* Spinner */
-        .loader { width: 24px; height: 24px; border: 3px solid #3b82f6; border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body>
+<body class="bg-gray-100 text-gray-800 font-sans h-screen flex overflow-hidden">
 
-    <div id="root"></div>
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-indigo-900 text-white flex-col shadow-xl hidden md:flex z-20">
+        <!-- Brand -->
+        <div class="h-16 flex items-center px-6 bg-indigo-950 border-b border-indigo-800">
+            <i class="fas fa-shield-alt text-2xl mr-3 text-indigo-400"></i>
+            <span class="text-xl font-bold tracking-wide">AdminPanel</span>
+        </div>
 
-    <script type="text/babel" data-type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { 
-            getAuth, 
-            signInWithEmailAndPassword, 
-            signOut, 
-            onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { 
-            getFirestore, 
-            collection, 
-            addDoc, 
-            updateDoc, 
-            deleteDoc, 
-            doc, 
-            onSnapshot,
-            serverTimestamp 
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        <!-- Menu -->
+        <nav class="flex-1 py-4 overflow-y-auto no-scrollbar flex flex-col">
+            <ul class="space-y-1 flex-1">
+                <li>
+                    <button onclick="window.switchTab('dashboard')" id="nav-dashboard" class="nav-item active w-full flex items-center px-6 py-3 hover:bg-indigo-800 transition-colors text-left">
+                        <i class="fas fa-chart-line w-6"></i>
+                        <span class="font-medium">Dashboard</span>
+                    </button>
+                </li>
+                <li class="pt-4 pb-1 px-6 text-xs font-semibold text-indigo-400 uppercase tracking-wider">Inventory</li>
+                <li>
+                    <button onclick="window.switchTab('fleet')" id="nav-fleet" class="nav-item w-full flex items-center px-6 py-3 hover:bg-indigo-800 transition-colors text-left">
+                        <i class="fas fa-car w-6"></i>
+                        <span class="font-medium">Fleet Inventory</span>
+                    </button>
+                </li>
+                <li>
+                    <button onclick="window.switchTab('add-car')" id="nav-add-car" class="nav-item w-full flex items-center px-6 py-3 hover:bg-indigo-800 transition-colors text-left">
+                        <i class="fas fa-plus-circle w-6"></i>
+                        <span class="font-medium">Add New Car</span>
+                    </button>
+                </li>
+                <li class="pt-4 pb-1 px-6 text-xs font-semibold text-indigo-400 uppercase tracking-wider">Operations</li>
+                <li>
+                    <button onclick="window.switchTab('bookings')" id="nav-bookings" class="nav-item w-full flex items-center px-6 py-3 hover:bg-indigo-800 transition-colors text-left">
+                        <i class="fas fa-calendar-alt w-6"></i>
+                        <span class="font-medium">Bookings</span>
+                    </button>
+                </li>
+            </ul>
 
-        // --- ICONS ---
-        const Icons = {
-            Menu: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>,
-            Plus: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>,
-            Trash: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>,
-            Edit: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>,
-            X: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>,
-            LogOut: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>,
-            Car: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12a6 6 0 0 0 6 6h12a6 6 0 0 0 6-6c0-1.7-.13-2.6-.13-2.6a2 2 0 0 0-1.87-1.4z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-        };
+            <!-- Exit Button -->
+            <div class="px-4 py-4 border-t border-indigo-800 mt-auto">
+                <button onclick="window.location.reload()" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition-colors shadow-lg">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Exit Admin Panel
+                </button>
+            </div>
+        </nav>
 
-        // --- FIREBASE CONFIG ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
-            authDomain: "black-iris-fleet-9c64e.firebaseapp.com",
-            projectId: "black-iris-fleet-9c64e",
-            storageBucket: "black-iris-fleet-9c64e.firebasestorage.app",
-            messagingSenderId: "875590751512",
-            appId: "1:875590751512:web:7377b8c8fe507053f7ba6d",
-            measurementId: "G-4Y7L69L9BS"
-        };
+        <!-- User Footer -->
+        <div class="p-4 bg-indigo-950 border-t border-indigo-800">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-xs font-bold shadow-lg">A</div>
+                <div class="overflow-hidden">
+                    <p class="text-sm font-semibold truncate">Admin User</p>
+                    <p class="text-xs text-indigo-300 truncate">System Administrator</p>
+                </div>
+            </div>
+        </div>
+    </aside>
 
+    <!-- MOBILE HEADER -->
+    <div class="md:hidden fixed top-0 w-full bg-indigo-900 text-white h-16 z-50 flex items-center justify-between px-4 shadow-md">
+        <span class="font-bold text-lg">AdminPanel</span>
+        <button onclick="alert('Use desktop for full admin features')" class="p-2"><i class="fas fa-bars"></i></button>
+    </div>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-gray-50">
+        
+        <!-- TOP HEADER -->
+        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8 border-b border-gray-200 shrink-0 z-10 md:mt-0 mt-16">
+            <h2 id="pageTitle" class="text-xl font-bold text-gray-800">Dashboard Overview</h2>
+            <div class="flex items-center gap-4">
+                <div class="text-sm text-gray-500">
+                    <span id="dateDisplay">Loading date...</span>
+                </div>
+                <!-- Notification icon removed as requested -->
+            </div>
+        </header>
+
+        <!-- SCROLLABLE CONTENT AREA -->
+        <div class="flex-1 overflow-y-auto p-8">
+            
+            <!-- 1. DASHBOARD VIEW -->
+            <div id="view-dashboard" class="page-view animate-fade-in block">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Stat 1 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Fleet</span>
+                        <div class="flex justify-between items-end mt-2">
+                            <h3 class="text-3xl font-bold text-gray-800" id="stat-total">0</h3>
+                            <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg"><i class="fas fa-car"></i></div>
+                        </div>
+                    </div>
+                    <!-- Stat 2 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Available</span>
+                        <div class="flex justify-between items-end mt-2">
+                            <h3 class="text-3xl font-bold text-green-600" id="stat-available">0</h3>
+                            <div class="p-2 bg-green-50 text-green-600 rounded-lg"><i class="fas fa-check"></i></div>
+                        </div>
+                    </div>
+                    <!-- Stat 3 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Rented</span>
+                        <div class="flex justify-between items-end mt-2">
+                            <h3 class="text-3xl font-bold text-orange-600" id="stat-rented">0</h3>
+                            <div class="p-2 bg-orange-50 text-orange-600 rounded-lg"><i class="fas fa-key"></i></div>
+                        </div>
+                    </div>
+                    <!-- Stat 4 -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Maintenance</span>
+                        <div class="flex justify-between items-end mt-2">
+                            <h3 class="text-3xl font-bold text-red-600" id="stat-maintenance">0</h3>
+                            <div class="p-2 bg-red-50 text-red-600 rounded-lg"><i class="fas fa-tools"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity / Welcome -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 flex flex-col items-center justify-center text-center">
+                    <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-chart-pie text-indigo-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">System Overview</h3>
+                    <p class="text-gray-500 max-w-lg mt-2 mb-6">Your dashboard is active. Navigate to "Fleet Inventory" to manage existing cars or "Add New Car" to expand your catalog.</p>
+                    <div class="flex gap-4">
+                        <button onclick="window.switchTab('fleet')" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition">View Inventory</button>
+                        <button onclick="window.switchTab('add-car')" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition">Add Vehicle</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. FLEET INVENTORY VIEW -->
+            <div id="view-fleet" class="page-view hidden">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="p-5 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50/50">
+                        <h3 class="font-bold text-gray-800">All Vehicles</h3>
+                        <div class="relative w-full sm:w-64">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                            <input type="text" id="searchInput" placeholder="Search by name..." class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow">
+                        </div>
+                    </div>
+
+                    <div id="loading" class="text-center py-12">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-2"></div>
+                        <p class="text-gray-400 text-sm">Syncing with database...</p>
+                    </div>
+
+                    <!-- Cars Grid -->
+                    <div id="carsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-6">
+                        <!-- Cards injected via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. ADD CAR VIEW (Form Page) -->
+            <div id="view-add-car" class="page-view hidden">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+                        <div class="p-6 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-gray-800">Register New Vehicle</h3>
+                            <button onclick="document.getElementById('addCarForm').reset()" class="text-sm text-gray-500 hover:text-indigo-600 underline">Reset Form</button>
+                        </div>
+                        
+                        <div class="p-6 md:p-8">
+                            <form id="addCarForm" class="space-y-6">
+                                
+                                <!-- Row 1 (Modified: Name only, Model removed) -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Name of Car</label>
+                                    <input type="text" id="carName" required placeholder="e.g. Mercedes-Benz C-Class" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+                                </div>
+
+                                <!-- Row 2 -->
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                                        <div class="relative">
+                                            <select id="carCategory" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none appearance-none">
+                                                <option value="Sedan">Sedan</option>
+                                                <option value="SUV">SUV</option>
+                                                <option value="Luxury">Luxury</option>
+                                                <option value="Convertible">Convertible</option>
+                                                <option value="Sports">Sports</option>
+                                                <option value="Hatchback">Hatchback</option>
+                                                <option value="Van">Van</option>
+                                                <option value="Truck">Truck</option>
+                                            </select>
+                                            <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Price / Day ($)</label>
+                                        <input type="number" id="carPrice" required placeholder="0.00" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Seats</label>
+                                        <input type="number" id="carSeats" value="5" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    </div>
+                                </div>
+
+                                <!-- Row 3 -->
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Transmission</label>
+                                        <div class="relative">
+                                            <select id="carTransmission" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none appearance-none">
+                                                <option value="Automatic">Automatic</option>
+                                                <option value="Manual">Manual</option>
+                                            </select>
+                                            <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Fuel Type</label>
+                                        <div class="relative">
+                                            <select id="carFuel" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none appearance-none">
+                                                <option value="Petrol">Petrol</option>
+                                                <option value="Diesel">Diesel</option>
+                                                <option value="Electric">Electric</option>
+                                                <option value="Hybrid">Hybrid</option>
+                                            </select>
+                                            <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                                        <div class="relative">
+                                            <select id="carStatus" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none appearance-none">
+                                                <option value="Available">Available</option>
+                                                <option value="Rented">Rented</option>
+                                                <option value="Maintenance">Maintenance</option>
+                                            </select>
+                                            <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Row 4 -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Image URL</label>
+                                    <input type="url" id="carImage" placeholder="https://..." class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    <p class="text-xs text-gray-500 mt-1">Provide a direct link to a JPG or PNG image.</p>
+                                </div>
+
+                                <!-- Row 5 -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                                    <textarea id="carDescription" rows="4" placeholder="Enter key features, condition, and details..." class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
+                                </div>
+
+                                <!-- Actions -->
+                                <div class="pt-4 border-t border-gray-100 flex justify-end">
+                                    <button type="submit" class="bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                                        <i class="fas fa-save"></i> Save Vehicle
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. BOOKINGS VIEW -->
+            <div id="view-bookings" class="page-view hidden">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-10 text-center max-w-2xl mx-auto mt-10">
+                    <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-500">
+                        <i class="fas fa-calendar-alt text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Booking Management</h2>
+                    <p class="text-gray-500 mt-2">View and manage customer reservations.</p>
+                    <div class="mt-8 p-4 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg inline-block text-sm font-medium">
+                        <i class="fas fa-info-circle mr-2"></i> No active bookings found in the system.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Firebase Init ---
+        const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-        // --- DASHBOARD COMPONENT ---
-        function Dashboard({ user }) {
-            const [view, setView] = React.useState('inventory'); // 'inventory' or 'add'
-            const [menuOpen, setMenuOpen] = React.useState(false);
-            const [cars, setCars] = React.useState([]);
-            const [editingCar, setEditingCar] = React.useState(null);
-            
-            // Form State
-            const [formData, setFormData] = React.useState({
-                make: '', model: '', year: '', price: '', imageUrl: '', status: 'Available'
-            });
+        let currentUser = null;
+        let carsData = [];
 
-            // 1. DATA FETCHING (Real-time)
-            React.useEffect(() => {
-                const unsubscribe = onSnapshot(collection(db, "cars"), (snapshot) => {
-                    const carList = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                    setCars(carList);
+        // --- Navigation Logic (Exposed to Window) ---
+        window.switchTab = (tabName) => {
+            document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            const view = document.getElementById(`view-${tabName}`);
+            if (view) view.classList.remove('hidden');
+
+            const btn = document.getElementById(`nav-${tabName}`);
+            if (btn) btn.classList.add('active');
+
+            const titles = {
+                'dashboard': 'Dashboard Overview',
+                'fleet': 'Fleet Inventory',
+                'add-car': 'Add New Vehicle',
+                'bookings': 'Booking Management'
+            };
+            document.getElementById('pageTitle').innerText = titles[tabName] || 'Admin Panel';
+        };
+
+        // --- Date Display ---
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('en-US', dateOptions);
+
+        // --- Auth & Data Loading ---
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Auth error", error);
+            }
+        }
+        initAuth();
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loadCars();
+            }
+        });
+
+        // --- Firestore Listener ---
+        function loadCars() {
+            const loading = document.getElementById('loading');
+            const q = collection(db, 'artifacts', appId, 'public', 'data', 'cars');
+
+            onSnapshot(q, (snapshot) => {
+                loading.classList.add('hidden');
+                carsData = [];
+                snapshot.forEach(doc => {
+                    carsData.push({ id: doc.id, ...doc.data() });
                 });
-                return () => unsubscribe();
-            }, []);
-
-            // 2. HANDLERS
-            const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-
-            const handleSubmit = async (e) => {
-                e.preventDefault();
-                try {
-                    // Validate basic fields
-                    if(!formData.make || !formData.model) return alert("Make and Model are required");
-
-                    if (editingCar) {
-                        // UPDATE
-                        const carRef = doc(db, "cars", editingCar.id);
-                        await updateDoc(carRef, {
-                            ...formData,
-                            updatedAt: serverTimestamp()
-                        });
-                        alert("Vehicle updated!");
-                    } else {
-                        // CREATE
-                        await addDoc(collection(db, "cars"), {
-                            ...formData,
-                            createdAt: serverTimestamp()
-                        });
-                        alert("Vehicle added to inventory!");
-                    }
-                    
-                    // Reset and go to list
-                    setFormData({ make: '', model: '', year: '', price: '', imageUrl: '', status: 'Available' });
-                    setEditingCar(null);
-                    setView('inventory'); 
-                } catch (error) {
-                    console.error("Save error:", error);
-                    alert("Error saving: " + error.message);
-                }
-            };
-
-            const handleEdit = (car) => {
-                setEditingCar(car);
-                setFormData({ ...car });
-                setView('add'); // Reuse 'add' screen for editing
-                setMenuOpen(false);
-            };
-
-            const handleDelete = async (id) => {
-                // Double check ID exists
-                if (!id) return alert("Error: No ID found for this item.");
                 
-                if (confirm("Permanently delete this car? This action cannot be undone.")) {
-                    try {
-                        await deleteDoc(doc(db, "cars", id));
-                    } catch(err) {
-                        console.error("Delete Error:", err);
-                        alert("Delete failed. Please refresh and try again.");
-                    }
-                }
-            };
+                updateStats();
+                renderCars(carsData);
+            }, (err) => {
+                console.error(err);
+                loading.innerHTML = `<p class="text-red-500">Failed to load data.</p>`;
+            });
+        }
 
-            // Menu Logic
-            const toggleMenu = () => setMenuOpen(!menuOpen);
-            const navigateTo = (destination) => {
-                if (destination === 'add') {
-                    // Reset form when going to Add New
-                    setEditingCar(null);
-                    setFormData({ make: '', model: '', year: '', price: '', imageUrl: '', status: 'Available' });
-                }
-                setView(destination);
-                setMenuOpen(false);
-            };
+        function updateStats() {
+            document.getElementById('stat-total').innerText = carsData.length;
+            document.getElementById('stat-available').innerText = carsData.filter(c => c.status === 'Available').length;
+            document.getElementById('stat-rented').innerText = carsData.filter(c => c.status === 'Rented').length;
+            document.getElementById('stat-maintenance').innerText = carsData.filter(c => c.status === 'Maintenance').length;
+        }
 
-            return (
-                <div className="min-h-screen bg-slate-900 text-white relative overflow-x-hidden">
-                    
-                    {/* Header */}
-                    <div className="bg-slate-800 border-b border-slate-700 p-4 flex items-center justify-between sticky top-0 z-20 shadow-md">
-                        <div className="flex items-center gap-4">
-                            <button onClick={toggleMenu} className="p-2 hover:bg-slate-700 rounded-full transition-colors z-30">
-                                {menuOpen ? <Icons.X /> : <Icons.Menu />}
-                            </button>
-                            <span className="font-bold text-lg tracking-wide flex items-center gap-2">
-                                <span className="text-blue-500"><Icons.Car /></span>
-                                Black Iris Fleet
+        function renderCars(list) {
+            const grid = document.getElementById('carsGrid');
+            grid.innerHTML = '';
+
+            if (list.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-10 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                        <p class="text-gray-500">No cars found.</p>
+                    </div>`;
+                return;
+            }
+
+            list.forEach(car => {
+                const statusStyles = {
+                    'Available': 'bg-green-100 text-green-700 border-green-200',
+                    'Rented': 'bg-orange-100 text-orange-700 border-orange-200',
+                    'Maintenance': 'bg-red-100 text-red-700 border-red-200'
+                };
+                const badge = statusStyles[car.status] || 'bg-gray-100 text-gray-700';
+                const img = car.imageUrl || 'https://placehold.co/600x400?text=No+Image';
+
+                const card = document.createElement('div');
+                card.className = "bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow flex flex-col group";
+                card.innerHTML = `
+                    <div class="relative h-48 bg-gray-100 overflow-hidden">
+                        <img src="${img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/600x400?text=Error'">
+                        <div class="absolute top-3 right-3">
+                            <span class="px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider border ${badge} shadow-sm">
+                                ${car.status}
+                            </span>
+                        </div>
+                        <div class="absolute bottom-3 left-3">
+                            <span class="px-2 py-1 rounded-md text-xs font-bold bg-white/90 text-gray-800 shadow-sm backdrop-blur-sm">
+                                ${car.category}
                             </span>
                         </div>
                     </div>
-
-                    {/* Sidebar Overlay (Click to close) */}
-                    {menuOpen && (
-                        <div 
-                            className="fixed inset-0 bg-black/60 z-30 backdrop-blur-sm transition-opacity"
-                            onClick={() => setMenuOpen(false)}
-                        ></div>
-                    )}
-
-                    {/* Sidebar Menu */}
-                    <div className={`fixed inset-y-0 left-0 w-72 bg-slate-800 border-r border-slate-700 z-40 transform transition-transform duration-300 ease-out shadow-2xl flex flex-col ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                        <div className="p-6 border-b border-slate-700 bg-slate-900/50">
-                            <h2 className="text-xl font-bold text-white">Admin Menu</h2>
-                            <p className="text-xs text-slate-400 mt-1">{user.email}</p>
-                        </div>
-                        <nav className="flex-1 p-4 space-y-2">
-                            <button 
-                                onClick={() => navigateTo('inventory')}
-                                className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all ${view === 'inventory' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-300 hover:bg-slate-700'}`}
-                            >
-                                <Icons.Car /> Inventory List
-                            </button>
-                            <button 
-                                onClick={() => navigateTo('add')}
-                                className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all ${view === 'add' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-300 hover:bg-slate-700'}`}
-                            >
-                                <Icons.Plus /> Add New Car
-                            </button>
-                        </nav>
-                        <div className="p-4 border-t border-slate-700">
-                            <button onClick={() => signOut(auth)} className="w-full py-2 px-4 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors flex items-center justify-center gap-2">
-                                <Icons.LogOut /> Sign Out
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* MAIN CONTENT */}
-                    <div className="p-4 md:p-6 max-w-5xl mx-auto fade-in">
-                        
-                        {/* VIEW: INVENTORY */}
-                        {view === 'inventory' && (
+                    <div class="p-5 flex-1 flex flex-col">
+                        <div class="flex justify-between items-start mb-3">
                             <div>
-                                <div className="flex justify-between items-end mb-6">
-                                    <h2 className="text-2xl font-bold text-white">Vehicle Inventory</h2>
-                                    <span className="text-slate-400 text-sm">{cars.length} Total</span>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {cars.map(car => (
-                                        <div key={car.id} className="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 shadow-lg hover:shadow-xl hover:border-slate-600 transition-all group">
-                                            {/* Image Area */}
-                                            <div className="h-48 bg-slate-900 relative">
-                                                {car.imageUrl ? (
-                                                    <img 
-                                                        src={car.imageUrl} 
-                                                        alt="Car" 
-                                                        className="w-full h-full object-cover"
-                                                        onError={(e) => {
-                                                            e.target.onerror = null;
-                                                            // Hide broken image icon, show placeholder div
-                                                            e.target.style.display = 'none';
-                                                            e.target.nextSibling.style.display = 'flex';
-                                                        }}
-                                                    />
-                                                ) : null}
-                                                {/* Fallback Placeholder (Hidden by default unless image fails or is missing) */}
-                                                <div 
-                                                    className="absolute inset-0 flex items-center justify-center bg-slate-900 text-slate-600"
-                                                    style={{display: car.imageUrl ? 'none' : 'flex'}}
-                                                >
-                                                    <span className="text-sm font-medium">No Image</span>
-                                                </div>
-
-                                                <div className="absolute top-2 right-2">
-                                                    <span className={`px-2 py-1 rounded text-xs font-bold uppercase shadow-sm ${
-                                                        car.status === 'Available' ? 'bg-green-500 text-white' : 
-                                                        car.status === 'Sold' ? 'bg-red-500 text-white' : 'bg-orange-500 text-white'
-                                                    }`}>
-                                                        {car.status}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            {/* Info Area */}
-                                            <div className="p-4">
-                                                <h3 className="font-bold text-lg text-white mb-1">{car.year} {car.make} {car.model}</h3>
-                                                <p className="text-blue-400 font-mono text-xl font-bold mb-4">${Number(car.price).toLocaleString()}</p>
-                                                
-                                                <div className="flex gap-2 pt-3 border-t border-slate-700">
-                                                    <button 
-                                                        onClick={() => handleEdit(car)}
-                                                        className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg text-sm font-medium transition-colors"
-                                                    >
-                                                        Edit
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => handleDelete(car.id)}
-                                                        className="px-3 bg-red-500/10 hover:bg-red-600 hover:text-white text-red-500 rounded-lg transition-colors border border-red-500/20"
-                                                    >
-                                                        <Icons.Trash />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-
-                                    {cars.length === 0 && (
-                                        <div className="col-span-full py-12 text-center bg-slate-800/50 rounded-xl border border-dashed border-slate-700">
-                                            <p className="text-slate-400">Inventory is empty.</p>
-                                            <button onClick={() => navigateTo('add')} className="text-blue-400 mt-2 hover:underline">Add your first car</button>
-                                        </div>
-                                    )}
-                                </div>
+                                <h4 class="font-bold text-gray-900 text-lg leading-tight">${car.name}</h4>
                             </div>
-                        )}
-
-                        {/* VIEW: ADD / EDIT */}
-                        {view === 'add' && (
-                            <div className="max-w-xl mx-auto">
-                                <div className="mb-6 flex items-center justify-between">
-                                    <h2 className="text-2xl font-bold text-white">{editingCar ? 'Edit Vehicle' : 'Add New Vehicle'}</h2>
-                                    {editingCar && <button onClick={() => setView('inventory')} className="text-sm text-slate-400 hover:text-white">Cancel</button>}
-                                </div>
-                                
-                                <form onSubmit={handleSubmit} className="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl space-y-5">
-                                    
-                                    {/* Live Preview */}
-                                    <div className="aspect-video bg-slate-900 rounded-xl overflow-hidden border border-slate-700 flex items-center justify-center relative group">
-                                        {formData.imageUrl ? (
-                                            <img src={formData.imageUrl} className="w-full h-full object-cover" alt="Preview" onError={(e) => e.target.style.display='none'} />
-                                        ) : null}
-                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{display: formData.imageUrl ? 'none' : 'flex'}}>
-                                            <span className="text-slate-600">Image Preview</span>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Image URL</label>
-                                        <input 
-                                            name="imageUrl" 
-                                            value={formData.imageUrl} 
-                                            onChange={handleChange} 
-                                            placeholder="https://..." 
-                                            className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none transition-colors"
-                                        />
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Make</label>
-                                            <input name="make" value={formData.make} onChange={handleChange} required placeholder="e.g. BMW" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Model</label>
-                                            <input name="model" value={formData.model} onChange={handleChange} required placeholder="e.g. M5" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Year</label>
-                                            <input name="year" type="number" value={formData.year} onChange={handleChange} required placeholder="2024" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Price ($)</label>
-                                            <input name="price" type="number" value={formData.price} onChange={handleChange} required placeholder="50000" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" />
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Status</label>
-                                        <select name="status" value={formData.status} onChange={handleChange} className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none">
-                                            <option value="Available">Available</option>
-                                            <option value="Sold">Sold</option>
-                                            <option value="Reserved">Reserved</option>
-                                        </select>
-                                    </div>
-
-                                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-600/30 transition-transform active:scale-[0.98] mt-4">
-                                        {editingCar ? 'Save Changes' : 'Add to Inventory'}
-                                    </button>
-                                </form>
+                            <div class="text-right">
+                                <div class="font-bold text-indigo-600 text-lg">$${car.price}</div>
+                                <div class="text-xs text-gray-400">/day</div>
                             </div>
-                        )}
-                    </div>
-                </div>
-            );
-        }
-
-        // --- AUTH ---
-        function AuthScreen() {
-            const [email, setEmail] = React.useState('');
-            const [password, setPassword] = React.useState('');
-            const [error, setError] = React.useState(null);
-            const [loading, setLoading] = React.useState(false);
-
-            const handleLogin = async (e) => {
-                e.preventDefault();
-                setLoading(true);
-                setError(null);
-                try {
-                    await signInWithEmailAndPassword(auth, email, password);
-                } catch (err) {
-                    setError("Access Denied. Check your email/password.");
-                    setLoading(false);
-                }
-            };
-
-            return (
-                <div className="flex items-center justify-center min-h-screen bg-slate-900 p-4 fade-in">
-                    <div className="w-full max-w-sm bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-2xl">
-                        <div className="text-center mb-8">
-                            <h1 className="text-2xl font-bold text-white">Admin Portal</h1>
-                            <p className="text-slate-500 text-sm mt-1">Black Iris Fleet</p>
                         </div>
-                        {error && <div className="bg-red-500/10 text-red-400 p-3 rounded-lg mb-4 text-sm text-center border border-red-500/20">{error}</div>}
-                        <form onSubmit={handleLogin} className="space-y-4">
-                            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Admin Email" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" required />
-                            <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" required />
-                            <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition-colors shadow-lg shadow-blue-600/20">
-                                {loading ? <span className="loader"></span> : 'Login'}
-                            </button>
-                        </form>
+                        
+                        <div class="grid grid-cols-2 gap-y-2 gap-x-1 text-sm text-gray-500 mb-4 bg-gray-50 p-3 rounded-lg">
+                            <div class="flex items-center"><i class="fas fa-chair w-5 text-gray-400"></i> ${car.seats} Seats</div>
+                            <div class="flex items-center"><i class="fas fa-cog w-5 text-gray-400"></i> ${car.transmission}</div>
+                            <div class="flex items-center col-span-2"><i class="fas fa-gas-pump w-5 text-gray-400"></i> ${car.fuelType}</div>
+                        </div>
+
+                        <button onclick="window.deleteCar('${car.id}')" class="mt-auto w-full py-2.5 rounded-lg border border-red-200 text-red-600 font-medium text-sm hover:bg-red-50 transition-colors flex items-center justify-center gap-2">
+                            <i class="fas fa-trash-alt"></i> Delete Vehicle
+                        </button>
                     </div>
-                </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // --- Search ---
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = carsData.filter(c => 
+                c.name.toLowerCase().includes(term) || 
+                c.category.toLowerCase().includes(term)
             );
-        }
+            renderCars(filtered);
+        });
 
-        function App() {
-            const [user, setUser] = React.useState(null);
-            const [loading, setLoading] = React.useState(true);
+        // --- Add Car Submit ---
+        document.getElementById('addCarForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
 
-            React.useEffect(() => {
-                const unsubscribe = onAuthStateChanged(auth, (u) => {
-                    setUser(u);
-                    setLoading(false);
-                });
-                return () => unsubscribe();
-            }, []);
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Saving...';
+            btn.disabled = true;
 
-            if (loading) return <div className="min-h-screen bg-slate-900 flex items-center justify-center"><div className="loader"></div></div>;
+            try {
+                const newCar = {
+                    name: document.getElementById('carName').value,
+                    // Model removed
+                    category: document.getElementById('carCategory').value,
+                    price: Number(document.getElementById('carPrice').value),
+                    seats: Number(document.getElementById('carSeats').value),
+                    transmission: document.getElementById('carTransmission').value,
+                    fuelType: document.getElementById('carFuel').value,
+                    status: document.getElementById('carStatus').value,
+                    imageUrl: document.getElementById('carImage').value,
+                    description: document.getElementById('carDescription').value,
+                    createdAt: serverTimestamp()
+                };
 
-            return user ? <Dashboard user={user} /> : <AuthScreen />;
-        }
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'cars'), newCar);
+                
+                e.target.reset();
+                document.getElementById('carSeats').value = 5;
+                window.switchTab('fleet'); 
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+            } catch (err) {
+                console.error(err);
+                alert("Failed to save car. See console.");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // --- Delete Car (Global) ---
+        window.deleteCar = async (id) => {
+            if(confirm('Are you sure you want to permanently delete this vehicle?')) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cars', id));
+                } catch (err) {
+                    console.error("Delete failed", err);
+                }
+            }
+        };
+
     </script>
 </body>
 </html>
