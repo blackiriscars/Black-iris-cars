@@ -2,446 +2,502 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Black Iris Fleet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
-        .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #2563eb; width: 20px; height: 20px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .hidden { display: none !important; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        /* CRITICAL FIX: Ensure hidden overlay never blocks clicks */
-        .overlay-hidden { opacity: 0; pointer-events: none !important; z-index: -1 !important; }
+        .nav-item.active {
+            background-color: rgb(67 56 202); 
+            border-left: 4px solid rgb(199 210 254);
+        }
+
+        /* Slide Transition */
+        #sidebar { transition: transform 0.3s ease-in-out; }
+        
+        /* Utility */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Ensure clicks pass through empty spaces if any */
+        .pointer-events-none { pointer-events: none; }
+        .pointer-events-auto { pointer-events: auto; }
     </style>
 </head>
-<body class="bg-gray-100 h-screen overflow-hidden">
+<body class="bg-gray-50 text-gray-800 font-sans h-[100dvh] w-full overflow-hidden flex flex-col md:flex-row">
 
-    <!-- LOGIN OVERLAY -->
-    <!-- Added transition for smoother exit, and ID for JS targeting -->
-    <div id="login-overlay" class="fixed inset-0 bg-gray-900 z-[999] flex items-center justify-center transition-opacity duration-300">
-        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md mx-4">
-            <div class="text-center mb-8">
-                <div class="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center border border-gray-300">
-                    <i data-lucide="lock" class="w-8 h-8 text-gray-500"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-gray-800">Admin Login</h2>
-                <p class="text-gray-500 text-sm">Authorized personnel only</p>
-            </div>
-            <form id="login-form" class="space-y-4">
-                <input type="email" id="login-email" placeholder="Email" class="w-full p-3 border rounded-lg" required>
-                <input type="password" id="login-password" placeholder="Password" class="w-full p-3 border rounded-lg" required>
-                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-lg">Sign In</button>
-                <p id="login-error" class="text-red-500 text-sm text-center hidden mt-2"></p>
-            </form>
+    <!-- 1. MOBILE HEADER (Fixed Top, Z-Index 40) -->
+    <header class="md:hidden h-16 bg-indigo-900 text-white flex items-center justify-between px-4 fixed top-0 w-full z-40 shadow-md">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-shield-alt text-indigo-300"></i>
+            <span class="font-bold text-lg tracking-wide">AdminPanel</span>
         </div>
-    </div>
+        <!-- Menu Toggle Button -->
+        <button type="button" onclick="toggleMenu()" class="p-2 active:bg-indigo-800 rounded-lg transition-colors cursor-pointer z-50">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+    </header>
 
-    <!-- DASHBOARD -->
-    <div id="dashboard" class="flex h-screen hidden">
+    <!-- 2. SIDEBAR (Fixed Mobile, Z-Index 50) -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-indigo-900 text-white shadow-2xl z-50 flex flex-col transform -translate-x-full md:translate-x-0 md:relative md:w-64">
         
-        <!-- Sidebar (Added ID 'main-sidebar' and mobile classes) -->
-        <aside id="main-sidebar" class="w-64 bg-gray-900 text-white hidden md:flex flex-col fixed md:relative z-50 h-full transition-transform transform md:translate-x-0 -translate-x-full">
-            <div class="p-6 text-2xl font-bold text-center border-b border-gray-700 flex justify-between md:justify-center items-center">
-                <span>Black Iris</span>
-                <!-- Close button for mobile only -->
-                <button onclick="window.toggleSidebar()" class="md:hidden text-gray-400 hover:text-white">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-            </div>
-            <nav class="flex-1 p-4 space-y-2">
-                <button id="nav-all-cars" onclick="window.switchTab('list')" class="w-full flex items-center px-4 py-3 bg-blue-600 text-white rounded-lg shadow-lg transition">
-                    <i data-lucide="car" class="w-5 h-5 mr-3"></i> Fleet List
-                </button>
-                <button id="nav-add-car" onclick="window.resetForm()" class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition">
-                    <i data-lucide="plus-circle" class="w-5 h-5 mr-3"></i> Add/Edit Car
-                </button>
-            </nav>
-            <div class="p-4 border-t border-gray-700 bg-gray-800">
-                <button id="logout-btn" class="w-full flex items-center justify-center px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold transition shadow">
-                    <i data-lucide="log-out" class="w-5 h-5 mr-2"></i> LOGOUT
-                </button>
-            </div>
-        </aside>
+        <!-- Sidebar Header -->
+        <div class="h-16 flex items-center justify-between px-6 bg-indigo-950 border-b border-indigo-800 shrink-0">
+            <span class="text-xl font-bold tracking-wide">Menu</span>
+            <button type="button" onclick="toggleMenu()" class="md:hidden p-2 text-indigo-300 hover:text-white cursor-pointer">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
 
-        <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto relative bg-gray-50 w-full">
-            <!-- Mobile Header (Added menu toggle logic) -->
-            <header class="md:hidden bg-gray-900 text-white p-4 flex justify-between items-center sticky top-0 z-40 shadow-md">
-                <div class="flex items-center gap-3">
-                    <button onclick="window.toggleSidebar()" class="text-white hover:text-gray-300">
-                        <i data-lucide="menu" class="w-6 h-6"></i>
+        <!-- Nav Items -->
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-2">
+                <li>
+                    <button type="button" onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item active w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer">
+                        <i class="fas fa-chart-line w-5 text-center"></i>
+                        <span class="font-medium">Dashboard</span>
                     </button>
-                    <span class="font-bold">Admin Panel</span>
-                </div>
-                <button id="mobile-logout" class="text-red-400"><i data-lucide="log-out" class="w-6 h-6"></i></button>
-            </header>
+                </li>
+                <li class="px-6 pt-4 pb-1 text-xs font-bold text-indigo-400 uppercase">Inventory</li>
+                <li>
+                    <button type="button" onclick="switchTab('fleet')" id="nav-fleet" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer">
+                        <i class="fas fa-car w-5 text-center"></i>
+                        <span class="font-medium">Fleet Inventory</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" onclick="switchTab('add-car')" id="nav-add-car" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer">
+                        <i class="fas fa-plus-circle w-5 text-center"></i>
+                        <span class="font-medium">Add New Car</span>
+                    </button>
+                </li>
+                <li class="px-6 pt-4 pb-1 text-xs font-bold text-indigo-400 uppercase">Operations</li>
+                <li>
+                    <button type="button" onclick="switchTab('bookings')" id="nav-bookings" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer">
+                        <i class="fas fa-calendar-alt w-5 text-center"></i>
+                        <span class="font-medium">Bookings</span>
+                    </button>
+                </li>
+            </ul>
+        </nav>
 
-            <!-- LIST VIEW -->
-            <div id="view-all-cars" class="p-4 md:p-8 max-w-6xl mx-auto">
-                <header class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800">Current Fleet</h2>
-                    <button onclick="window.resetForm()" class="hidden md:block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 shadow">+ Add New Car</button>
-                </header>
-                <div id="loading-cars" class="text-center py-20 text-gray-500"><div class="loader mx-auto mb-4"></div> Loading database...</div>
-                <div id="cars-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20"></div>
+        <!-- Exit Button -->
+        <div class="p-4 border-t border-indigo-800 bg-indigo-950 shrink-0">
+            <button type="button" onclick="window.location.reload()" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-medium shadow-md flex items-center justify-center gap-2 cursor-pointer">
+                <i class="fas fa-sign-out-alt"></i> Exit Panel
+            </button>
+        </div>
+    </aside>
+
+    <!-- 3. OVERLAY (Z-Index 45) -->
+    <div id="mobileOverlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/50 z-45 hidden md:hidden backdrop-blur-sm"></div>
+
+    <!-- 4. MAIN CONTENT (Z-Index 0) -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full bg-gray-50 z-0">
+        
+        <!-- Desktop Header -->
+        <header class="hidden md:flex h-16 bg-white shadow-sm items-center justify-between px-8 border-b border-gray-200 shrink-0 z-10">
+            <h2 id="desktopTitle" class="text-xl font-bold text-gray-800">Dashboard Overview</h2>
+        </header>
+
+        <!-- SCROLLABLE AREA -->
+        <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 pt-20 md:p-8 md:pt-8 w-full">
+            
+            <!-- VIEW: DASHBOARD -->
+            <div id="view-dashboard" class="page-view animate-fade-in block space-y-6">
+                
+                <h2 class="md:hidden text-2xl font-bold text-gray-800 mb-4">Dashboard Overview</h2>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase">Total Fleet</p>
+                            <h3 class="text-3xl font-bold text-gray-800 mt-1" id="stat-total">0</h3>
+                        </div>
+                        <div class="h-10 w-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center"><i class="fas fa-car"></i></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase">Available</p>
+                            <h3 class="text-3xl font-bold text-green-600 mt-1" id="stat-available">0</h3>
+                        </div>
+                        <div class="h-10 w-10 rounded-full bg-green-50 text-green-600 flex items-center justify-center"><i class="fas fa-check"></i></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase">Rented</p>
+                            <h3 class="text-3xl font-bold text-orange-600 mt-1" id="stat-rented">0</h3>
+                        </div>
+                        <div class="h-10 w-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center"><i class="fas fa-key"></i></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase">Maintenance</p>
+                            <h3 class="text-3xl font-bold text-red-600 mt-1" id="stat-maintenance">0</h3>
+                        </div>
+                        <div class="h-10 w-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center"><i class="fas fa-tools"></i></div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions (Previously Unclickable Buttons) -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 mb-4">
+                        <i class="fas fa-chart-pie text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900">Quick Actions</h3>
+                    <p class="text-gray-500 mb-6 max-w-sm mx-auto text-sm">Manage your fleet directly from here.</p>
+                    
+                    <div class="flex flex-col sm:flex-row justify-center gap-3">
+                        <button type="button" onclick="switchTab('fleet')" class="w-full sm:w-auto px-6 py-3 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg shadow-sm active:bg-gray-50 hover:bg-gray-50 transition-colors cursor-pointer relative z-10">
+                            View Inventory
+                        </button>
+                        <button type="button" onclick="switchTab('add-car')" class="w-full sm:w-auto px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg shadow-md active:bg-indigo-700 hover:bg-indigo-700 transition-colors cursor-pointer relative z-10">
+                            Add Vehicle
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <!-- ADD/EDIT FORM -->
-            <div id="view-add-car" class="p-4 md:p-8 max-w-5xl mx-auto" style="display: none;">
-                <header class="flex justify-between items-center mb-6">
-                    <h2 id="form-title" class="text-2xl font-bold text-gray-800">Add New Vehicle</h2>
-                    <button onclick="window.switchTab('list')" class="text-gray-500 hover:text-gray-700 font-medium">Cancel</button>
-                </header>
+            <!-- VIEW: FLEET INVENTORY -->
+            <div id="view-fleet" class="page-view hidden space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <h2 class="text-2xl font-bold text-gray-800">Fleet Inventory</h2>
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="searchInput" placeholder="Search cars..." class="w-full md:w-64 pl-10 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                </div>
 
-                <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-gray-100 mb-20">
-                    <form id="add-car-form">
-                        <input type="hidden" id="edit-doc-id"> <!-- Hidden ID for editing -->
+                <div id="loading" class="py-12 text-center">
+                    <i class="fas fa-spinner fa-spin text-3xl text-indigo-600 mb-2"></i>
+                    <p class="text-gray-500">Loading fleet...</p>
+                </div>
+
+                <div id="carsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-20">
+                    <!-- Cars injected here -->
+                </div>
+            </div>
+
+            <!-- VIEW: ADD CAR -->
+            <div id="view-add-car" class="page-view hidden space-y-4">
+                <h2 class="text-2xl font-bold text-gray-800">Add New Vehicle</h2>
+                
+                <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+                    <form id="addCarForm" class="p-5 md:p-8 space-y-6">
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            
-                            <!-- Left Column -->
-                            <div class="space-y-6">
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Car Name</label>
-                                    <input type="text" id="car-name" placeholder="e.g. VW Touareg" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                                </div>
+                        <!-- Name -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Name of Car</label>
+                            <input type="text" id="carName" required class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="e.g. BMW X5">
+                        </div>
 
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">Price (DH/day)</label>
-                                        <input type="number" id="car-price" placeholder="1400" required class="w-full p-3 border border-gray-300 rounded-lg">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">Seats</label>
-                                        <input type="number" id="car-seats" placeholder="5" required class="w-full p-3 border border-gray-300 rounded-lg">
-                                    </div>
-                                </div>
+                        <!-- Category -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Category</label>
+                            <div class="relative">
+                                <select id="carCategory" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    <option value="Sedan">Sedan</option>
+                                    <option value="SUV">SUV</option>
+                                    <option value="Luxury">Luxury</option>
+                                    <option value="Sports">Sports</option>
+                                    <option value="Convertible">Convertible</option>
+                                    <option value="Van">Van</option>
+                                    <option value="Truck">Truck</option>
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
+                            </div>
+                        </div>
 
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Car Model / Category</label>
-                                    <select id="car-type" class="w-full p-3 border border-gray-300 rounded-lg bg-white">
-                                        <option value="suv">SUV</option>
-                                        <option value="sedan">Sedan</option>
-                                        <option value="hatchback">Hatchback</option>
-                                        <option value="luxury-suv">Luxury SUV</option>
-                                        <option value="luxury-sedan">Luxury Sedan</option>
-                                        <option value="van">Van / 7+ Seats</option>
+                        <!-- Price & Seats -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Price/Day</label>
+                                <input type="number" id="carPrice" required class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Seats</label>
+                                <input type="number" id="carSeats" value="5" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                            </div>
+                        </div>
+
+                        <!-- Trans & Fuel -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Transmission</label>
+                                <div class="relative">
+                                    <select id="carTransmission" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none">
+                                        <option value="Automatic">Auto</option>
+                                        <option value="Manual">Manual</option>
                                     </select>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">Status</label>
-                                        <select id="car-status" class="w-full p-3 border border-gray-300 rounded-lg bg-white font-medium text-gray-700">
-                                            <option value="Available">✅ Available</option>
-                                            <option value="Booked">🔴 Booked</option>
-                                            <option value="Maintenance">⚠️ Maintenance</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">Fuel Type</label>
-                                        <select id="car-fuel" class="w-full p-3 border border-gray-300 rounded-lg bg-white">
-                                            <option value="Diesel">Diesel</option>
-                                            <option value="Petrol">Petrol</option>
-                                            <option value="Hybrid">Hybrid</option>
-                                            <option value="Electric">Electric</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <!-- Hidden but required for website functionality -->
-                                <div class="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-500 mb-1">Transmission</label>
-                                        <select id="car-transmission" class="w-full p-2 border rounded text-sm bg-white"><option>Automatic</option><option>Manual</option></select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-bold text-gray-500 mb-1">Color</label>
-                                        <input type="text" id="car-color" placeholder="Black" class="w-full p-2 border rounded text-sm">
-                                    </div>
+                                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
                                 </div>
                             </div>
-
-                            <!-- Right Column -->
-                            <div class="space-y-6">
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Car Image Link</label>
-                                    <div class="p-3 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800 mb-2">
-                                        Upload to <a href="https://postimages.org/" target="_blank" class="underline font-bold">PostImages.org</a> & paste "Direct Link".
-                                    </div>
-                                    <input type="url" id="car-image-url" placeholder="https://i.postimg.cc/..." required class="w-full p-3 border border-gray-300 rounded-lg">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Description</label>
-                                    <textarea id="car-desc" rows="5" placeholder="Full-size luxury SUV, offering ultimate comfort..." required class="w-full p-3 border border-gray-300 rounded-lg"></textarea>
-                                </div>
-
-                                <div class="pt-4">
-                                    <button type="submit" id="save-btn" class="w-full bg-green-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-700 transition shadow-lg flex items-center justify-center text-lg">
-                                        <span id="save-text">Publish Car</span>
-                                        <div id="save-loader" class="loader ml-3 hidden border-white border-t-transparent"></div>
-                                    </button>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Fuel</label>
+                                <div class="relative">
+                                    <select id="carFuel" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none">
+                                        <option value="Petrol">Petrol</option>
+                                        <option value="Diesel">Diesel</option>
+                                        <option value="Electric">Electric</option>
+                                        <option value="Hybrid">Hybrid</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Status -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Status</label>
+                            <div class="relative">
+                                <select id="carStatus" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    <option value="Available">Available</option>
+                                    <option value="Rented">Rented</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
+                            </div>
+                        </div>
+
+                        <!-- Image -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Image URL</label>
+                            <input type="url" id="carImage" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="https://...">
+                        </div>
+
+                        <!-- Desc -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Description</label>
+                            <textarea id="carDescription" rows="3" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg active:scale-[0.98] transition-transform cursor-pointer">
+                            Save Vehicle
+                        </button>
                     </form>
                 </div>
             </div>
-        </main>
-    </div>
 
+            <!-- VIEW: BOOKINGS -->
+            <div id="view-bookings" class="page-view hidden space-y-4">
+                <h2 class="text-2xl font-bold text-gray-800">Bookings</h2>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+                     <i class="fas fa-calendar-times text-4xl text-gray-300 mb-4"></i>
+                     <p class="text-gray-500">No active bookings.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- UI Logic (Defined Globally FIRST so clicks work instantly) -->
+    <script>
+        // Toggle Sidebar
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            if (sidebar.classList.contains('-translate-x-full')) {
+                // Open
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                // Close
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // Switch Tab
+        function switchTab(tabName) {
+            // Close mobile menu first
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            if (!sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+
+            // UI Switching
+            document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            const target = document.getElementById('view-' + tabName);
+            if(target) target.classList.remove('hidden');
+
+            const navBtn = document.getElementById('nav-' + tabName);
+            if(navBtn) navBtn.classList.add('active');
+
+            const titles = {
+                'dashboard': 'Dashboard Overview',
+                'fleet': 'Fleet Inventory',
+                'add-car': 'Add New Vehicle',
+                'bookings': 'Booking Management'
+            };
+            const titleEl = document.getElementById('desktopTitle');
+            if(titleEl) titleEl.innerText = titles[tabName] || 'Admin Panel';
+        }
+    </script>
+
+    <!-- Database Logic (Module - Loads separately) -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, updateDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-          apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
-          authDomain: "black-iris-fleet-9c64e.firebaseapp.com",
-          projectId: "black-iris-fleet-9c64e",
-          storageBucket: "black-iris-fleet-9c64e.firebasestorage.app",
-          messagingSenderId: "875590751512",
-          appId: "1:875590751512:web:7377b8c8fe507053f7ba6d",
-          measurementId: "G-4Y7L69L9BS"
-        };
-
+        const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        
-        // Wrap icons in try/catch to prevent crashes
-        try { lucide.createIcons(); } catch(e) { console.log("Icons loading..."); }
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-        let allCarsData = [];
+        let currentUser = null;
+        let carsData = [];
 
-        // --- AUTH & OVERLAY LOGIC (The Fix) ---
-        onAuthStateChanged(auth, (user) => {
-            const overlay = document.getElementById('login-overlay');
-            const dashboard = document.getElementById('dashboard');
-
-            if (user) {
-                // FORCE hide the overlay and disable clicks on it
-                overlay.classList.add('overlay-hidden');
-                overlay.style.display = 'none'; 
-                
-                // Show dashboard
-                dashboard.classList.remove('hidden');
-                
-                loadCars();
-            } else {
-                // Show overlay
-                overlay.classList.remove('overlay-hidden');
-                overlay.style.display = 'flex';
-                
-                // Hide dashboard
-                dashboard.classList.add('hidden');
-            }
-        });
-
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            try {
-                await signInWithEmailAndPassword(auth, 
-                    document.getElementById('login-email').value, 
-                    document.getElementById('login-password').value
-                );
-            } catch (err) {
-                const errEl = document.getElementById('login-error');
-                errEl.textContent = "Invalid login credentials.";
-                errEl.classList.remove('hidden');
-            }
-        });
-
-        const handleLogout = () => signOut(auth);
-        document.getElementById('logout-btn').addEventListener('click', handleLogout);
-        document.getElementById('mobile-logout').addEventListener('click', handleLogout);
-
-        // --- MOBILE MENU LOGIC ---
-        window.toggleSidebar = () => {
-            const sidebar = document.getElementById('main-sidebar');
-            const isHidden = sidebar.classList.contains('-translate-x-full');
-            
-            if (isHidden) {
-                sidebar.classList.remove('hidden');
-                // Small timeout to allow removing 'hidden' before animating
-                setTimeout(() => sidebar.classList.remove('-translate-x-full'), 10);
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                setTimeout(() => sidebar.classList.add('hidden'), 300);
-            }
-        }
-
-        // --- TABS & EDITING ---
-        window.switchTab = (tab) => {
-            if (tab === 'list') {
-                document.getElementById('view-all-cars').style.display = 'block';
-                document.getElementById('view-add-car').style.display = 'none';
-                
-                // Close mobile menu if open
-                const sidebar = document.getElementById('main-sidebar');
-                if (!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
-                    window.toggleSidebar();
-                }
-                
-                loadCars();
-            } else {
-                document.getElementById('view-all-cars').style.display = 'none';
-                document.getElementById('view-add-car').style.display = 'block';
-                
-                 // Close mobile menu if open
-                const sidebar = document.getElementById('main-sidebar');
-                if (!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
-                    window.toggleSidebar();
+        // Global Delete (needs to be attached to window in module)
+        window.deleteCar = async function(id) {
+            if(confirm('Delete this car?')) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cars', id));
+                } catch(e) {
+                    alert('Error: ' + e.message);
                 }
             }
-        }
+        };
 
-        window.resetForm = () => {
-            document.getElementById('add-car-form').reset();
-            document.getElementById('edit-doc-id').value = '';
-            document.getElementById('form-title').textContent = 'Add New Vehicle';
-            document.getElementById('save-text').textContent = 'Publish Car';
-            document.getElementById('save-btn').classList.replace('bg-blue-600', 'bg-green-600');
-            document.getElementById('save-btn').classList.replace('hover:bg-blue-700', 'hover:bg-green-700');
-            window.switchTab('add');
-        }
-
-        // --- LOAD CARS ---
-        async function loadCars() {
-            const container = document.getElementById('cars-container');
-            container.innerHTML = '';
-            document.getElementById('loading-cars').classList.remove('hidden');
-            
+        async function initAuth() {
             try {
-                const q = query(collection(db, "cars"), orderBy("createdAt", "desc"));
-                const querySnapshot = await getDocs(q);
-                document.getElementById('loading-cars').classList.add('hidden');
-                allCarsData = [];
-
-                if (querySnapshot.empty) {
-                    container.innerHTML = '<p class="text-gray-500 col-span-3 text-center">No cars in fleet. Add one!</p>';
-                    return;
-                }
-
-                querySnapshot.forEach((docSnap) => {
-                    const car = docSnap.data();
-                    car.id = docSnap.id; 
-                    allCarsData.push(car);
-
-                    const div = document.createElement('div');
-                    div.className = "bg-white p-4 rounded-lg shadow border border-gray-100 flex flex-col";
-                    
-                    const statusColor = car.status === 'Available' ? 'text-green-600' : 'text-red-600';
-                    
-                    div.innerHTML = `
-                        <img src="${car.img}" class="w-full h-32 object-cover rounded mb-3 bg-gray-50" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
-                        <div class="flex justify-between items-start">
-                            <h3 class="font-bold text-gray-800">${car.name}</h3>
-                            <span class="text-xs font-bold ${statusColor} bg-gray-100 px-2 py-1 rounded">${car.status || 'Available'}</span>
-                        </div>
-                        <p class="text-sm text-gray-600">${car.price} DH / day</p>
-                        <p class="text-xs text-gray-400 mt-1">${car.type} • ${car.fuel || 'Fuel N/A'}</p>
-                        <div class="mt-auto pt-3 flex gap-2">
-                            <button onclick="window.editCar('${car.id}')" class="flex-1 py-2 bg-blue-50 text-blue-600 rounded text-sm font-bold hover:bg-blue-100 border border-blue-200">
-                                <i data-lucide="edit-2" class="w-4 h-4 inline mr-1"></i> Edit
-                            </button>
-                            <button onclick="window.deleteCar('${car.id}')" class="flex-1 py-2 bg-red-50 text-red-600 rounded text-sm font-bold hover:bg-red-100 border border-red-200">
-                                <i data-lucide="trash" class="w-4 h-4 inline mr-1"></i> Delete
-                            </button>
-                        </div>
-                    `;
-                    container.appendChild(div);
-                });
-                lucide.createIcons();
-
-            } catch (err) {
-                console.error(err);
-                container.innerHTML = `<div class="col-span-3 text-center text-red-500">Error loading cars. Check console.</div>`;
-            }
-        }
-
-        // --- EDIT & DELETE LOGIC (Attached to window explicitly) ---
-        window.editCar = (id) => {
-            const car = allCarsData.find(c => c.id === id);
-            if(!car) return;
-
-            // Populate Fields
-            document.getElementById('edit-doc-id').value = id;
-            document.getElementById('car-name').value = car.name;
-            document.getElementById('car-price').value = car.price;
-            document.getElementById('car-color').value = car.color || '';
-            document.getElementById('car-transmission').value = car.transmission || 'Automatic';
-            document.getElementById('car-seats').value = car.seats || 5;
-            document.getElementById('car-type').value = car.type || 'suv';
-            document.getElementById('car-status').value = car.status || 'Available';
-            document.getElementById('car-fuel').value = car.fuel || 'Diesel';
-            document.getElementById('car-image-url').value = car.img;
-            document.getElementById('car-desc').value = car.desc;
-
-            // Change UI to Edit Mode
-            document.getElementById('form-title').textContent = 'Edit Vehicle';
-            document.getElementById('save-text').textContent = 'Update Car';
-            
-            // Change button color to Blue to indicate Edit
-            const btn = document.getElementById('save-btn');
-            btn.classList.replace('bg-green-600', 'bg-blue-600');
-            btn.classList.replace('hover:bg-green-700', 'hover:bg-blue-700');
-
-            window.switchTab('add');
-        }
-
-        window.deleteCar = async (id) => {
-            if(confirm("Are you sure you want to delete this car?")) {
-                await deleteDoc(doc(db, "cars", id));
-                loadCars();
-            }
-        }
-
-        // --- SAVE LOGIC ---
-        document.getElementById('add-car-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('save-btn');
-            const loader = document.getElementById('save-loader');
-            const editId = document.getElementById('edit-doc-id').value;
-
-            btn.disabled = true;
-            loader.classList.remove('hidden');
-            
-            const carData = {
-                name: document.getElementById('car-name').value,
-                price: Number(document.getElementById('car-price').value),
-                color: document.getElementById('car-color').value,
-                transmission: document.getElementById('car-transmission').value,
-                seats: Number(document.getElementById('car-seats').value),
-                type: document.getElementById('car-type').value,
-                status: document.getElementById('car-status').value,
-                fuel: document.getElementById('car-fuel').value,
-                img: document.getElementById('car-image-url').value,
-                desc: document.getElementById('car-desc').value,
-                createdAt: new Date() // You might want serverTimestamp() here but this works fine
-            };
-
-            try {
-                if (editId) {
-                    await updateDoc(doc(db, "cars", editId), carData);
-                    alert("Car Updated Successfully!");
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
                 } else {
-                    await addDoc(collection(db, "cars"), carData);
-                    alert("Car Published Successfully!");
+                    await signInAnonymously(auth);
                 }
-                window.resetForm();
+            } catch (error) {
+                console.error("Auth error", error);
+            }
+        }
+        initAuth();
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
                 loadCars();
-            } catch (err) {
-                alert("Error: " + err.message);
-            } finally {
-                btn.disabled = false;
-                loader.classList.add('hidden');
             }
         });
+
+        function loadCars() {
+            const loading = document.getElementById('loading');
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'cars'), (snapshot) => {
+                if(loading) loading.classList.add('hidden');
+                carsData = [];
+                snapshot.forEach(doc => carsData.push({ id: doc.id, ...doc.data() }));
+                
+                updateStats();
+                renderCars(carsData);
+            });
+        }
+
+        function updateStats() {
+            const safeSet = (id, val) => {
+                const el = document.getElementById(id);
+                if(el) el.innerText = val;
+            };
+            safeSet('stat-total', carsData.length);
+            safeSet('stat-available', carsData.filter(c => c.status === 'Available').length);
+            safeSet('stat-rented', carsData.filter(c => c.status === 'Rented').length);
+            safeSet('stat-maintenance', carsData.filter(c => c.status === 'Maintenance').length);
+        }
+
+        function renderCars(list) {
+            const grid = document.getElementById('carsGrid');
+            if(!grid) return;
+            grid.innerHTML = '';
+            
+            if(list.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-10">No cars found.</div>`;
+                return;
+            }
+
+            list.forEach(car => {
+                const statusColor = {
+                    'Available': 'bg-green-100 text-green-700',
+                    'Rented': 'bg-orange-100 text-orange-700',
+                    'Maintenance': 'bg-red-100 text-red-700'
+                }[car.status] || 'bg-gray-100';
+
+                const div = document.createElement('div');
+                div.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col";
+                div.innerHTML = `
+                    <div class="relative h-48 bg-gray-200">
+                        <img src="${car.imageUrl || ''}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+                        <div class="absolute top-2 right-2">
+                            <span class="px-2 py-1 rounded-md text-xs font-bold uppercase ${statusColor}">${car.status}</span>
+                        </div>
+                    </div>
+                    <div class="p-4 flex-1 flex flex-col">
+                        <h3 class="font-bold text-lg text-gray-900">${car.name}</h3>
+                        <p class="text-sm text-gray-500 mb-2">${car.category} • ${car.fuelType}</p>
+                        <div class="mt-auto flex items-center justify-between">
+                            <span class="font-bold text-indigo-600 text-lg">$${car.price}<span class="text-xs text-gray-400 font-normal">/day</span></span>
+                            <button onclick="window.deleteCar('${car.id}')" class="text-red-500 p-2 hover:bg-red-50 rounded cursor-pointer"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        const searchInput = document.getElementById('searchInput');
+        if(searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                const filtered = carsData.filter(c => c.name.toLowerCase().includes(term));
+                renderCars(filtered);
+            });
+        }
+
+        const addForm = document.getElementById('addCarForm');
+        if(addForm) {
+            addForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if(!currentUser) return;
+
+                const btn = e.target.querySelector('button[type="submit"]');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                btn.disabled = true;
+
+                try {
+                    const newCar = {
+                        name: document.getElementById('carName').value,
+                        category: document.getElementById('carCategory').value,
+                        price: Number(document.getElementById('carPrice').value),
+                        seats: Number(document.getElementById('carSeats').value),
+                        transmission: document.getElementById('carTransmission').value,
+                        fuelType: document.getElementById('carFuel').value,
+                        status: document.getElementById('carStatus').value,
+                        imageUrl: document.getElementById('carImage').value,
+                        description: document.getElementById('carDescription').value,
+                        createdAt: serverTimestamp()
+                    };
+
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'cars'), newCar);
+                    
+                    e.target.reset();
+                    window.switchTab('fleet');
+
+                } catch (err) {
+                    alert('Error saving: ' + err.message);
+                } finally {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            });
+        }
     </script>
 </body>
 </html>
