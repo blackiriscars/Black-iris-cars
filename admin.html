@@ -26,20 +26,20 @@
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
             <div class="bg-indigo-600 p-8 text-center">
                 <i class="fas fa-shield-alt text-5xl text-indigo-200 mb-4"></i>
-                <h2 class="text-2xl font-bold text-white tracking-wide">Admin Portal</h2>
-                <p class="text-indigo-200 text-sm mt-1">Secure Fleet Management System</p>
+                <h2 class="text-2xl font-bold text-white tracking-wide">Black Iris Fleet</h2>
+                <p class="text-indigo-200 text-sm mt-1">Admin Control Panel</p>
             </div>
             
             <form id="loginForm" class="p-8 space-y-6">
                 <div id="loginError" class="hidden bg-red-50 text-red-600 text-sm p-3 rounded-lg flex items-center gap-2">
-                    <i class="fas fa-exclamation-circle"></i> <span>Invalid credentials</span>
+                    <i class="fas fa-exclamation-circle"></i> <span id="errorMsg">Invalid credentials</span>
                 </div>
 
                 <div class="space-y-2">
                     <label class="text-sm font-bold text-gray-700">Email Address</label>
                     <div class="relative">
                         <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="email" id="email" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="admin@company.com" required>
+                        <input type="email" id="email" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="admin@blackiris.com" required>
                     </div>
                 </div>
 
@@ -52,7 +52,7 @@
                 </div>
 
                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-[0.98]">
-                    Sign In
+                    Sign In to Dashboard
                 </button>
             </form>
         </div>
@@ -218,50 +218,50 @@
         }
     </script>
 
-    <!-- Database Logic -->
+    <!-- Database Logic with USER CONFIG -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, signOut, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = JSON.parse(__firebase_config);
+        // *** YOUR CONFIGURATION IS HERE ***
+        const firebaseConfig = {
+          apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
+          authDomain: "black-iris-fleet-9c64e.firebaseapp.com",
+          projectId: "black-iris-fleet-9c64e",
+          storageBucket: "black-iris-fleet-9c64e.firebasestorage.app",
+          messagingSenderId: "875590751512",
+          appId: "1:875590751512:web:7377b8c8fe507053f7ba6d",
+          measurementId: "G-4Y7L69L9BS"
+        };
+        
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        
+        // This is important: We use 'public' collection for shared data between admins
+        // You can change 'public' to a specific admin ID if you want private data
+        const collectionPath = 'cars_production'; // Using a clean, production collection name
 
         let currentUser = null;
         let carsData = [];
 
         // --- AUTH LOGIC ---
-        // 1. Initial check (Custom token priority for iframe)
-        async function initAuth() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                }
-            } catch (error) {
-                console.error("Auth error", error);
-            }
-        }
-        initAuth();
-
-        // 2. Auth State Listener
         onAuthStateChanged(auth, (user) => {
             const loginScreen = document.getElementById('login-screen');
             if (user) {
                 // Logged In
                 currentUser = user;
-                loginScreen.classList.add('hidden'); // Hide login
+                loginScreen.classList.add('hidden'); 
                 loadCars();
             } else {
                 // Logged Out
                 currentUser = null;
-                loginScreen.classList.remove('hidden'); // Show login
+                loginScreen.classList.remove('hidden'); 
             }
         });
 
-        // 3. Login Handlers (Real)
+        // Login Handler
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
@@ -273,12 +273,13 @@
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (err) {
                 console.error(err);
+                document.getElementById('errorMsg').innerText = err.message.replace('Firebase:', '').trim();
                 document.getElementById('loginError').classList.remove('hidden');
-                btn.innerHTML = 'Sign In';
+                btn.innerHTML = 'Sign In to Dashboard';
             }
         });
 
-        // 4. Logout Handler
+        // Logout Handler
         window.handleLogout = async function() {
             if(confirm("Are you sure you want to exit the admin panel?")) {
                 await signOut(auth);
@@ -286,11 +287,11 @@
             }
         }
 
-        // --- APP LOGIC ---
+        // --- DATA LOGIC ---
         window.deleteCar = async function(id) {
             if(confirm('Delete this car?')) {
                 try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cars', id));
+                    await deleteDoc(doc(db, collectionPath, id));
                 } catch(e) {
                     alert('Error: ' + e.message);
                 }
@@ -299,12 +300,19 @@
 
         function loadCars() {
             const loading = document.getElementById('loading');
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'cars'), (snapshot) => {
+            // NOTE: Using 'collectionPath' which is 'cars_production' at the root
+            // This is standard for production apps, instead of the 'artifacts' path used in preview environments
+            onSnapshot(collection(db, collectionPath), (snapshot) => {
                 if(loading) loading.classList.add('hidden');
                 carsData = [];
                 snapshot.forEach(doc => carsData.push({ id: doc.id, ...doc.data() }));
                 updateStats();
                 renderCars(carsData);
+            }, (error) => {
+                console.error("Database Error:", error);
+                if(error.code === 'permission-denied') {
+                     alert("Permission Denied: Please check your Firebase Firestore Rules.");
+                }
             });
         }
 
@@ -320,7 +328,7 @@
             const grid = document.getElementById('carsGrid');
             if(!grid) return;
             grid.innerHTML = '';
-            if(list.length === 0) { grid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-10">No cars found.</div>`; return; }
+            if(list.length === 0) { grid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-10">No cars found. Start adding!</div>`; return; }
             list.forEach(car => {
                 const statusColor = {'Available': 'bg-green-100 text-green-700','Rented': 'bg-orange-100 text-orange-700','Maintenance': 'bg-red-100 text-red-700'}[car.status] || 'bg-gray-100';
                 const div = document.createElement('div');
@@ -362,7 +370,7 @@
                         description: document.getElementById('carDescription').value,
                         createdAt: serverTimestamp()
                     };
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'cars'), newCar);
+                    await addDoc(collection(db, collectionPath), newCar);
                     e.target.reset();
                     window.switchTab('fleet');
                 } catch (err) { alert('Error saving: ' + err.message); } finally { btn.innerHTML = originalText; btn.disabled = false; }
