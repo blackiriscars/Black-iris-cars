@@ -1,285 +1,309 @@
-import React, { useState, useEffect } from 'react';
-import { initializeApp } from "firebase/app";
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged,
-  AuthError
-} from "firebase/auth";
-import { AlertCircle, Lock, Mail, User, LogOut, ShieldCheck, Eye, EyeOff, Loader2 } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - Secure Access</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="text-slate-100">
 
-// --- FIREBASE CONFIGURATION (Provided by User) ---
-const firebaseConfig = {
-  apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
-  authDomain: "black-iris-fleet-9c64e.firebaseapp.com",
-  projectId: "black-iris-fleet-9c64e",
-  storageBucket: "black-iris-fleet-9c64e.firebasestorage.app",
-  messagingSenderId: "875590751512",
-  appId: "1:875590751512:web:7377b8c8fe507053f7ba6d",
-  measurementId: "G-4Y7L69L9BS"
-};
+    <div id="root"></div>
 
-// --- INITIALIZE FIREBASE ---
-// We initialize this outside the component so it only happens once
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+    <script type="text/babel" data-type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// --- MAIN APP COMPONENT ---
-export default function App() {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+        // --- ICONS ---
+        const Icons = {
+            Lock: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+            Mail: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
+            Eye: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>,
+            EyeOff: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>,
+            ShieldCheck: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>,
+            AlertCircle: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>,
+            User: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+            LogOut: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>,
+            Loader: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+        };
 
-  // Listen for auth state changes (Real-time security check)
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
+        // --- FIREBASE CONFIG (Your Real Config) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
+            authDomain: "black-iris-fleet-9c64e.firebaseapp.com",
+            projectId: "black-iris-fleet-9c64e",
+            storageBucket: "black-iris-fleet-9c64e.firebasestorage.app",
+            messagingSenderId: "875590751512",
+            appId: "1:875590751512:web:7377b8c8fe507053f7ba6d",
+            measurementId: "G-4Y7L69L9BS"
+        };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">
-        <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
-      </div>
-    );
-  }
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
 
-  return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-blue-500 selection:text-white">
-      {user ? (
-        <Dashboard user={user} />
-      ) : (
-        <AuthScreen />
-      )}
-    </div>
-  );
-}
+        // --- AUTH SCREEN COMPONENT ---
+        function AuthScreen() {
+            const [isLogin, setIsLogin] = React.useState(true);
+            const [email, setEmail] = React.useState('');
+            const [password, setPassword] = React.useState('');
+            const [error, setError] = React.useState(null);
+            const [isSubmitting, setIsSubmitting] = React.useState(false);
+            const [showPassword, setShowPassword] = React.useState(false);
 
-// --- AUTH SCREEN (Login / Signup) ---
-function AuthScreen() {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setError(null);
+                setIsSubmitting(true);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
+                try {
+                    if (isLogin) {
+                        await signInWithEmailAndPassword(auth, email, password);
+                    } else {
+                        await createUserWithEmailAndPassword(auth, email, password);
+                    }
+                } catch (err) {
+                    console.error("Auth Error:", err);
+                    let msg = "An error occurred.";
+                    if (err.code === 'auth/invalid-credential') msg = "Incorrect email or password.";
+                    if (err.code === 'auth/user-not-found') msg = "No user found with this email.";
+                    if (err.code === 'auth/wrong-password') msg = "Incorrect password.";
+                    if (err.code === 'auth/email-already-in-use') msg = "This email is already registered.";
+                    if (err.code === 'auth/weak-password') msg = "Password should be at least 6 characters.";
+                    if (err.code === 'auth/invalid-email') msg = "Please enter a valid email address.";
+                    setError(msg);
+                } finally {
+                    setIsSubmitting(false);
+                }
+            };
 
-    try {
-      if (isLogin) {
-        // REAL FIREBASE LOGIN
-        await signInWithEmailAndPassword(auth, email, password);
-      } else {
-        // REAL FIREBASE SIGNUP
-        await createUserWithEmailAndPassword(auth, email, password);
-      }
-    } catch (err: any) {
-      console.error("Auth Error:", err);
-      // Map Firebase error codes to user-friendly messages
-      let msg = "An error occurred.";
-      if (err.code === 'auth/invalid-credential') msg = "Incorrect email or password.";
-      if (err.code === 'auth/user-not-found') msg = "No user found with this email.";
-      if (err.code === 'auth/wrong-password') msg = "Incorrect password.";
-      if (err.code === 'auth/email-already-in-use') msg = "This email is already registered.";
-      if (err.code === 'auth/weak-password') msg = "Password should be at least 6 characters.";
-      if (err.code === 'auth/invalid-email') msg = "Please enter a valid email address.";
-      setError(msg);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+            return (
+                <div className="flex flex-col items-center justify-center min-h-screen p-4 fade-in">
+                    <div className="w-full max-w-md bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
+                        
+                        <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-8 text-center">
+                            <div className="mx-auto bg-white/10 w-16 h-16 rounded-full flex items-center justify-center backdrop-blur-sm mb-4 border border-white/20">
+                                <span className="text-white"><Icons.Lock /></span>
+                            </div>
+                            <h1 className="text-2xl font-bold text-white mb-1">
+                                {isLogin ? 'Admin Portal Login' : 'Create Admin Account'}
+                            </h1>
+                            <p className="text-blue-200 text-sm">
+                                {isLogin ? 'Enter your credentials to access the admin system' : 'Register for access to the database'}
+                            </p>
+                        </div>
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="w-full max-w-md bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-slate-700">
-        
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-8 text-center">
-          <div className="mx-auto bg-white/10 w-16 h-16 rounded-full flex items-center justify-center backdrop-blur-sm mb-4 border border-white/20">
-            <Lock className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-white mb-1">
-            {isLogin ? 'Secure Portal Login' : 'Create Secure Account'}
-          </h1>
-          <p className="text-blue-200 text-sm">
-            {isLogin ? 'Enter your credentials to access the system' : 'Register for access to the database'}
-          </p>
-        </div>
+                        <div className="p-8">
+                            {error && (
+                                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg flex items-start gap-3 text-red-200 text-sm">
+                                    <span className="flex-shrink-0 text-red-400 mt-0.5"><Icons.AlertCircle /></span>
+                                    <span>{error}</span>
+                                </div>
+                            )}
 
-        {/* Form */}
-        <div className="p-8">
-          {error && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg flex items-start gap-3 text-red-200 text-sm">
-              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <span>{error}</span>
-            </div>
-          )}
+                            <form onSubmit={handleSubmit} className="space-y-5">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-400 mb-1.5 ml-1">Email Address</label>
+                                    <div className="relative group">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-blue-500 transition-colors">
+                                            <span className="w-5 h-5"><Icons.Mail /></span>
+                                        </div>
+                                        <input
+                                            type="email"
+                                            required
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            className="block w-full pl-10 pr-3 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-slate-200 placeholder-slate-600"
+                                            placeholder="admin@blackiris.com"
+                                        />
+                                    </div>
+                                </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-slate-400 mb-1.5 ml-1">Email Address</label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-blue-500 transition-colors">
-                  <Mail className="w-5 h-5" />
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-400 mb-1.5 ml-1">Password</label>
+                                    <div className="relative group">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-blue-500 transition-colors">
+                                            <span className="w-5 h-5"><Icons.Lock /></span>
+                                        </div>
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            required
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            className="block w-full pl-10 pr-10 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-slate-200 placeholder-slate-600"
+                                            placeholder="••••••••"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+                                        >
+                                            {showPassword ? <span className="w-5 h-5"><Icons.EyeOff /></span> : <span className="w-5 h-5"><Icons.Eye /></span>}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg shadow-lg shadow-blue-600/30 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                                >
+                                    {isSubmitting ? (
+                                        <span className="w-5 h-5 text-white"><Icons.Loader /></span>
+                                    ) : (
+                                        isLogin ? 'Sign In' : 'Create Account'
+                                    )}
+                                </button>
+                            </form>
+
+                            <div className="mt-6 text-center">
+                                <p className="text-slate-400 text-sm">
+                                    {isLogin ? "Don't have an account?" : "Already have an account?"}
+                                    <button
+                                        onClick={() => {
+                                            setIsLogin(!isLogin);
+                                            setError(null);
+                                        }}
+                                        className="ml-2 text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                                    >
+                                        {isLogin ? 'Sign Up' : 'Log In'}
+                                    </button>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-slate-200 placeholder-slate-600"
-                  placeholder="name@company.com"
-                />
-              </div>
-            </div>
+            );
+        }
 
-            <div>
-              <label className="block text-sm font-medium text-slate-400 mb-1.5 ml-1">Password</label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 group-focus-within:text-blue-500 transition-colors">
-                  <Lock className="w-5 h-5" />
+        // --- DASHBOARD COMPONENT ---
+        function Dashboard({ user }) {
+            const handleLogout = async () => {
+                try {
+                    await signOut(auth);
+                } catch (error) {
+                    console.error("Error signing out", error);
+                }
+            };
+
+            return (
+                <div className="flex flex-col min-h-screen fade-in">
+                    {/* Navbar */}
+                    <nav className="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center shadow-md">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-red-500/10 p-2 rounded-lg border border-red-500/20">
+                                <span className="text-red-500"><Icons.ShieldCheck /></span>
+                            </div>
+                            <span className="font-bold text-lg tracking-tight">Admin Dashboard</span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="hidden md:flex flex-col items-end">
+                                <span className="text-sm font-medium text-slate-200">{user.email}</span>
+                                <span className="text-xs text-green-400 flex items-center gap-1">
+                                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                    Authenticated
+                                </span>
+                            </div>
+                            <button
+                                onClick={handleLogout}
+                                className="bg-slate-700 hover:bg-slate-600 text-slate-200 hover:text-white p-2 md:px-4 md:py-2 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium border border-slate-600"
+                            >
+                                <span className="w-4 h-4"><Icons.LogOut /></span>
+                                <span className="hidden md:inline">Sign Out</span>
+                            </button>
+                        </div>
+                    </nav>
+
+                    {/* Main Content */}
+                    <main className="flex-1 p-6 md:p-12 max-w-7xl mx-auto w-full">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl">
+                                <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
+                                    <span className="text-blue-400"><Icons.User /></span>
+                                    Admin Profile
+                                </h2>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between py-2 border-b border-slate-700/50">
+                                        <span className="text-slate-400">Admin ID</span>
+                                        <span className="text-slate-200 font-mono text-sm bg-slate-900 px-2 py-1 rounded">{user.uid}</span>
+                                    </div>
+                                    <div className="flex justify-between py-2 border-b border-slate-700/50">
+                                        <span className="text-slate-400">Email</span>
+                                        <span className="text-slate-200">{user.email}</span>
+                                    </div>
+                                    <div className="flex justify-between py-2 border-b border-slate-700/50">
+                                        <span className="text-slate-400">Verified</span>
+                                        <span className={`px-2 py-0.5 rounded text-xs font-bold ${user.emailVerified ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                                            {user.emailVerified ? 'YES' : 'NO'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl flex flex-col justify-center items-center text-center">
+                                <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-4 border border-green-500/20 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
+                                    <span className="text-green-500 w-10 h-10 block scale-150"><Icons.ShieldCheck /></span>
+                                </div>
+                                <h3 className="text-xl font-bold text-white mb-2">Admin Access Granted</h3>
+                                <p className="text-slate-400 text-sm max-w-xs">
+                                    Secure connection to Black Iris Fleet database established.
+                                </p>
+                            </div>
+                        </div>
+                    </main>
                 </div>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-10 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-slate-200 placeholder-slate-600"
-                  placeholder="••••••••"
-                />
-                 <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
+            );
+        }
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg shadow-lg shadow-blue-600/30 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2"
-            >
-              {isSubmitting ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                isLogin ? 'Sign In' : 'Create Account'
-              )}
-            </button>
-          </form>
+        // --- ROOT COMPONENT ---
+        function App() {
+            const [user, setUser] = React.useState(null);
+            const [loading, setLoading] = React.useState(true);
 
-          <div className="mt-6 text-center">
-            <p className="text-slate-400 text-sm">
-              {isLogin ? "Don't have an account?" : "Already have an account?"}
-              <button
-                onClick={() => {
-                  setIsLogin(!isLogin);
-                  setError(null);
-                }}
-                className="ml-2 text-blue-400 hover:text-blue-300 font-medium transition-colors"
-              >
-                {isLogin ? 'Sign Up' : 'Log In'}
-              </button>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+            React.useEffect(() => {
+                const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+                    setUser(currentUser);
+                    setLoading(false);
+                });
+                return () => unsubscribe();
+            }, []);
 
-// --- DASHBOARD (Protected Route) ---
-function Dashboard({ user }: { user: any }) {
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error("Error signing out", error);
-    }
-  };
+            if (loading) {
+                return (
+                    <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white">
+                        <span className="w-10 h-10 text-blue-500"><Icons.Loader /></span>
+                    </div>
+                );
+            }
 
-  return (
-    <div className="flex flex-col min-h-screen">
-      {/* Navbar */}
-      <nav className="bg-slate-800 border-b border-slate-700 px-6 py-4 flex justify-between items-center shadow-md">
-        <div className="flex items-center gap-3">
-          <div className="bg-green-500/10 p-2 rounded-lg border border-green-500/20">
-            <ShieldCheck className="w-6 h-6 text-green-500" />
-          </div>
-          <span className="font-bold text-lg tracking-tight">Secure Dashboard</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="hidden md:flex flex-col items-end">
-            <span className="text-sm font-medium text-slate-200">{user.email}</span>
-            <span className="text-xs text-green-400 flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-              Authenticated
-            </span>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="bg-slate-700 hover:bg-slate-600 text-slate-200 hover:text-white p-2 md:px-4 md:py-2 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium border border-slate-600"
-          >
-            <LogOut className="w-4 h-4" />
-            <span className="hidden md:inline">Sign Out</span>
-          </button>
-        </div>
-      </nav>
+            return (
+                <div className="min-h-screen bg-slate-900 text-slate-100 font-sans selection:bg-blue-500 selection:text-white">
+                    {user ? <Dashboard user={user} /> : <AuthScreen />}
+                </div>
+            );
+        }
 
-      {/* Main Content */}
-      <main className="flex-1 p-6 md:p-12 max-w-7xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl">
-            <h2 className="text-xl font-bold mb-4 text-white flex items-center gap-2">
-              <User className="w-5 h-5 text-blue-400" />
-              User Profile
-            </h2>
-            <div className="space-y-3">
-              <div className="flex justify-between py-2 border-b border-slate-700/50">
-                <span className="text-slate-400">User ID (UID)</span>
-                <span className="text-slate-200 font-mono text-sm bg-slate-900 px-2 py-1 rounded">{user.uid}</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-slate-700/50">
-                <span className="text-slate-400">Email</span>
-                <span className="text-slate-200">{user.email}</span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-slate-700/50">
-                <span className="text-slate-400">Email Verified</span>
-                <span className={`px-2 py-0.5 rounded text-xs font-bold ${user.emailVerified ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
-                  {user.emailVerified ? 'YES' : 'NO'}
-                </span>
-              </div>
-              <div className="flex justify-between py-2">
-                <span className="text-slate-400">Last Login</span>
-                <span className="text-slate-200 text-sm">{user.metadata.lastSignInTime}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl flex flex-col justify-center items-center text-center">
-            <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-4 border border-green-500/20 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
-               <ShieldCheck className="w-10 h-10 text-green-500" />
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2">Access Granted</h3>
-            <p className="text-slate-400 text-sm max-w-xs">
-              You have successfully authenticated with the Firebase Database. This area is protected and only visible to logged-in users.
-            </p>
-          </div>
-        </div>
-
-      </main>
-    </div>
-  );
-}
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
 
