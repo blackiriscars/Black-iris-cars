@@ -13,17 +13,17 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <style>
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f3f4f6; color: #111; }
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; }
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Mobile Menu Slide */
-        .slide-in { animation: slideIn 0.3s ease-out forwards; }
+        /* Sidebar Animation */
+        .slide-in { animation: slideIn 0.25s ease-out forwards; }
         @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
         
-        /* Loading Spinner */
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #000; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Spinner */
+        .loader { width: 24px; height: 24px; border: 3px solid #3b82f6; border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -56,7 +56,8 @@
             Trash: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>,
             Edit: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>,
             X: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>,
-            LogOut: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+            LogOut: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>,
+            Car: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12a6 6 0 0 0 6 6h12a6 6 0 0 0 6-6c0-1.7-.13-2.6-.13-2.6a2 2 0 0 0-1.87-1.4z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
         };
 
         // --- FIREBASE CONFIG ---
@@ -74,47 +75,62 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- DASHBOARD ---
+        // --- DASHBOARD COMPONENT ---
         function Dashboard({ user }) {
             const [view, setView] = React.useState('inventory'); // 'inventory' or 'add'
             const [menuOpen, setMenuOpen] = React.useState(false);
             const [cars, setCars] = React.useState([]);
-            
-            // Edit State
             const [editingCar, setEditingCar] = React.useState(null);
-
+            
             // Form State
             const [formData, setFormData] = React.useState({
                 make: '', model: '', year: '', price: '', imageUrl: '', status: 'Available'
             });
 
-            // 1. DATA FETCHING
+            // 1. DATA FETCHING (Real-time)
             React.useEffect(() => {
                 const unsubscribe = onSnapshot(collection(db, "cars"), (snapshot) => {
-                    const carList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    const carList = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
                     setCars(carList);
                 });
                 return () => unsubscribe();
             }, []);
 
-            // 2. FORM HANDLERS
+            // 2. HANDLERS
             const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
             const handleSubmit = async (e) => {
                 e.preventDefault();
                 try {
+                    // Validate basic fields
+                    if(!formData.make || !formData.model) return alert("Make and Model are required");
+
                     if (editingCar) {
-                        await updateDoc(doc(db, "cars", editingCar.id), { ...formData, updatedAt: serverTimestamp() });
-                        setEditingCar(null);
-                        alert("Car updated successfully.");
+                        // UPDATE
+                        const carRef = doc(db, "cars", editingCar.id);
+                        await updateDoc(carRef, {
+                            ...formData,
+                            updatedAt: serverTimestamp()
+                        });
+                        alert("Vehicle updated!");
                     } else {
-                        await addDoc(collection(db, "cars"), { ...formData, createdAt: serverTimestamp() });
-                        alert("Car added successfully.");
+                        // CREATE
+                        await addDoc(collection(db, "cars"), {
+                            ...formData,
+                            createdAt: serverTimestamp()
+                        });
+                        alert("Vehicle added to inventory!");
                     }
-                    // Reset
+                    
+                    // Reset and go to list
                     setFormData({ make: '', model: '', year: '', price: '', imageUrl: '', status: 'Available' });
-                    setView('inventory'); // Go back to inventory after adding
+                    setEditingCar(null);
+                    setView('inventory'); 
                 } catch (error) {
+                    console.error("Save error:", error);
                     alert("Error saving: " + error.message);
                 }
             };
@@ -122,123 +138,151 @@
             const handleEdit = (car) => {
                 setEditingCar(car);
                 setFormData({ ...car });
-                setView('add'); // Reuse the add view for editing
+                setView('add'); // Reuse 'add' screen for editing
                 setMenuOpen(false);
             };
 
             const handleDelete = async (id) => {
-                if (confirm("Are you sure? This will remove the car from the database entirely.")) {
+                // Double check ID exists
+                if (!id) return alert("Error: No ID found for this item.");
+                
+                if (confirm("Permanently delete this car? This action cannot be undone.")) {
                     try {
                         await deleteDoc(doc(db, "cars", id));
                     } catch(err) {
-                        alert("Delete failed: " + err.message);
+                        console.error("Delete Error:", err);
+                        alert("Delete failed. Please refresh and try again.");
                     }
                 }
             };
 
-            // Menu Helpers
-            const closeMenu = () => setMenuOpen(false);
-            const openView = (v) => {
-                if (v === 'add') {
+            // Menu Logic
+            const toggleMenu = () => setMenuOpen(!menuOpen);
+            const navigateTo = (destination) => {
+                if (destination === 'add') {
+                    // Reset form when going to Add New
                     setEditingCar(null);
                     setFormData({ make: '', model: '', year: '', price: '', imageUrl: '', status: 'Available' });
                 }
-                setView(v);
-                closeMenu();
+                setView(destination);
+                setMenuOpen(false);
             };
 
             return (
-                <div className="min-h-screen bg-white text-black" onClick={(e) => {
-                    // Close menu if clicking outside sidebar
-                    if (menuOpen && !e.target.closest('#sidebar') && !e.target.closest('#menu-btn')) {
-                        closeMenu();
-                    }
-                }}>
+                <div className="min-h-screen bg-slate-900 text-white relative overflow-x-hidden">
                     
                     {/* Header */}
-                    <header className="bg-white border-b border-gray-200 p-4 flex justify-between items-center sticky top-0 z-20">
+                    <div className="bg-slate-800 border-b border-slate-700 p-4 flex items-center justify-between sticky top-0 z-20 shadow-md">
                         <div className="flex items-center gap-4">
-                            <button id="menu-btn" onClick={() => setMenuOpen(!menuOpen)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                            <button onClick={toggleMenu} className="p-2 hover:bg-slate-700 rounded-full transition-colors z-30">
                                 {menuOpen ? <Icons.X /> : <Icons.Menu />}
                             </button>
-                            <h1 className="text-xl font-bold tracking-tight">Black Iris Fleet</h1>
+                            <span className="font-bold text-lg tracking-wide flex items-center gap-2">
+                                <span className="text-blue-500"><Icons.Car /></span>
+                                Black Iris Fleet
+                            </span>
                         </div>
-                    </header>
+                    </div>
+
+                    {/* Sidebar Overlay (Click to close) */}
+                    {menuOpen && (
+                        <div 
+                            className="fixed inset-0 bg-black/60 z-30 backdrop-blur-sm transition-opacity"
+                            onClick={() => setMenuOpen(false)}
+                        ></div>
+                    )}
 
                     {/* Sidebar Menu */}
-                    {menuOpen && (
-                        <div id="sidebar" className="fixed inset-y-0 left-0 w-64 bg-black text-white z-30 shadow-2xl p-6 slide-in flex flex-col">
-                            <h2 className="text-xl font-bold mb-8 text-gray-400">Menu</h2>
-                            <nav className="space-y-4 flex-1">
-                                <button 
-                                    onClick={() => openView('inventory')} 
-                                    className={`w-full text-left py-3 px-4 rounded-lg flex items-center gap-3 transition-colors ${view === 'inventory' ? 'bg-white text-black font-bold' : 'hover:bg-gray-800'}`}
-                                >
-                                    <span className="text-lg">Inventory</span>
-                                </button>
-                                <button 
-                                    onClick={() => openView('add')} 
-                                    className={`w-full text-left py-3 px-4 rounded-lg flex items-center gap-3 transition-colors ${view === 'add' ? 'bg-white text-black font-bold' : 'hover:bg-gray-800'}`}
-                                >
-                                    <Icons.Plus />
-                                    <span className="text-lg">Add Car</span>
-                                </button>
-                            </nav>
-                            <div className="border-t border-gray-800 pt-6">
-                                <p className="text-gray-500 text-sm mb-2">User: {user.email}</p>
-                                <button onClick={() => signOut(auth)} className="flex items-center gap-2 text-red-400 hover:text-red-300 font-bold">
-                                    <Icons.LogOut /> Sign Out
-                                </button>
-                            </div>
+                    <div className={`fixed inset-y-0 left-0 w-72 bg-slate-800 border-r border-slate-700 z-40 transform transition-transform duration-300 ease-out shadow-2xl flex flex-col ${menuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                        <div className="p-6 border-b border-slate-700 bg-slate-900/50">
+                            <h2 className="text-xl font-bold text-white">Admin Menu</h2>
+                            <p className="text-xs text-slate-400 mt-1">{user.email}</p>
                         </div>
-                    )}
-                    
-                    {/* Overlay for menu */}
-                    {menuOpen && <div className="fixed inset-0 bg-black/50 z-20 backdrop-blur-sm"></div>}
+                        <nav className="flex-1 p-4 space-y-2">
+                            <button 
+                                onClick={() => navigateTo('inventory')}
+                                className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all ${view === 'inventory' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-300 hover:bg-slate-700'}`}
+                            >
+                                <Icons.Car /> Inventory List
+                            </button>
+                            <button 
+                                onClick={() => navigateTo('add')}
+                                className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all ${view === 'add' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-300 hover:bg-slate-700'}`}
+                            >
+                                <Icons.Plus /> Add New Car
+                            </button>
+                        </nav>
+                        <div className="p-4 border-t border-slate-700">
+                            <button onClick={() => signOut(auth)} className="w-full py-2 px-4 rounded-lg border border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors flex items-center justify-center gap-2">
+                                <Icons.LogOut /> Sign Out
+                            </button>
+                        </div>
+                    </div>
 
-                    {/* MAIN CONTENT AREA */}
-                    <main className="max-w-4xl mx-auto p-6 fade-in">
+                    {/* MAIN CONTENT */}
+                    <div className="p-4 md:p-6 max-w-5xl mx-auto fade-in">
                         
                         {/* VIEW: INVENTORY */}
                         {view === 'inventory' && (
-                            <div className="space-y-6">
-                                <div className="flex justify-between items-center">
-                                    <h2 className="text-2xl font-bold">Current Inventory</h2>
-                                    <span className="text-gray-500 text-sm">{cars.length} vehicles</span>
+                            <div>
+                                <div className="flex justify-between items-end mb-6">
+                                    <h2 className="text-2xl font-bold text-white">Vehicle Inventory</h2>
+                                    <span className="text-slate-400 text-sm">{cars.length} Total</span>
                                 </div>
 
-                                <div className="grid grid-cols-1 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {cars.map(car => (
-                                        <div key={car.id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col sm:flex-row">
-                                            {/* Image - Forced to show */}
-                                            <div className="sm:w-1/3 h-48 sm:h-auto bg-gray-100 relative">
+                                        <div key={car.id} className="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 shadow-lg hover:shadow-xl hover:border-slate-600 transition-all group">
+                                            {/* Image Area */}
+                                            <div className="h-48 bg-slate-900 relative">
                                                 {car.imageUrl ? (
                                                     <img 
                                                         src={car.imageUrl} 
-                                                        className="w-full h-full object-cover" 
-                                                        alt="Vehicle"
+                                                        alt="Car" 
+                                                        className="w-full h-full object-cover"
+                                                        onError={(e) => {
+                                                            e.target.onerror = null;
+                                                            // Hide broken image icon, show placeholder div
+                                                            e.target.style.display = 'none';
+                                                            e.target.nextSibling.style.display = 'flex';
+                                                        }}
                                                     />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
-                                                )}
-                                                <div className="absolute top-2 left-2">
-                                                     <span className="px-2 py-1 bg-black text-white text-xs font-bold uppercase">{car.status}</span>
+                                                ) : null}
+                                                {/* Fallback Placeholder (Hidden by default unless image fails or is missing) */}
+                                                <div 
+                                                    className="absolute inset-0 flex items-center justify-center bg-slate-900 text-slate-600"
+                                                    style={{display: car.imageUrl ? 'none' : 'flex'}}
+                                                >
+                                                    <span className="text-sm font-medium">No Image</span>
+                                                </div>
+
+                                                <div className="absolute top-2 right-2">
+                                                    <span className={`px-2 py-1 rounded text-xs font-bold uppercase shadow-sm ${
+                                                        car.status === 'Available' ? 'bg-green-500 text-white' : 
+                                                        car.status === 'Sold' ? 'bg-red-500 text-white' : 'bg-orange-500 text-white'
+                                                    }`}>
+                                                        {car.status}
+                                                    </span>
                                                 </div>
                                             </div>
 
-                                            {/* Details */}
-                                            <div className="p-5 flex-1 flex flex-col justify-between">
-                                                <div>
-                                                    <h3 className="text-xl font-bold">{car.year} {car.make} {car.model}</h3>
-                                                    <p className="text-2xl font-bold mt-2">${Number(car.price).toLocaleString()}</p>
-                                                </div>
+                                            {/* Info Area */}
+                                            <div className="p-4">
+                                                <h3 className="font-bold text-lg text-white mb-1">{car.year} {car.make} {car.model}</h3>
+                                                <p className="text-blue-400 font-mono text-xl font-bold mb-4">${Number(car.price).toLocaleString()}</p>
                                                 
-                                                <div className="flex gap-3 mt-4">
-                                                    <button onClick={() => handleEdit(car)} className="flex-1 py-2 px-4 bg-black text-white rounded font-medium hover:bg-gray-800 transition-colors">
+                                                <div className="flex gap-2 pt-3 border-t border-slate-700">
+                                                    <button 
+                                                        onClick={() => handleEdit(car)}
+                                                        className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg text-sm font-medium transition-colors"
+                                                    >
                                                         Edit
                                                     </button>
-                                                    <button onClick={() => handleDelete(car.id)} className="px-4 py-2 bg-gray-100 text-red-600 rounded font-medium hover:bg-red-50 transition-colors border border-gray-200">
-                                                        Delete
+                                                    <button 
+                                                        onClick={() => handleDelete(car.id)}
+                                                        className="px-3 bg-red-500/10 hover:bg-red-600 hover:text-white text-red-500 rounded-lg transition-colors border border-red-500/20"
+                                                    >
+                                                        <Icons.Trash />
                                                     </button>
                                                 </div>
                                             </div>
@@ -246,84 +290,84 @@
                                     ))}
 
                                     {cars.length === 0 && (
-                                        <div className="text-center py-12 text-gray-500 bg-gray-50 rounded-lg">
-                                            No cars found. Open the menu to add one.
+                                        <div className="col-span-full py-12 text-center bg-slate-800/50 rounded-xl border border-dashed border-slate-700">
+                                            <p className="text-slate-400">Inventory is empty.</p>
+                                            <button onClick={() => navigateTo('add')} className="text-blue-400 mt-2 hover:underline">Add your first car</button>
                                         </div>
                                     )}
                                 </div>
                             </div>
                         )}
 
-                        {/* VIEW: ADD / EDIT CAR */}
+                        {/* VIEW: ADD / EDIT */}
                         {view === 'add' && (
-                            <div className="max-w-lg mx-auto">
-                                <h2 className="text-2xl font-bold mb-6">{editingCar ? 'Edit Vehicle' : 'Add New Vehicle'}</h2>
+                            <div className="max-w-xl mx-auto">
+                                <div className="mb-6 flex items-center justify-between">
+                                    <h2 className="text-2xl font-bold text-white">{editingCar ? 'Edit Vehicle' : 'Add New Vehicle'}</h2>
+                                    {editingCar && <button onClick={() => setView('inventory')} className="text-sm text-slate-400 hover:text-white">Cancel</button>}
+                                </div>
                                 
-                                <form onSubmit={handleSubmit} className="space-y-5 bg-white p-6 border border-gray-200 rounded-lg shadow-sm">
-                                    {/* Image Preview inside form */}
-                                    <div className="w-full h-48 bg-gray-100 rounded border border-gray-200 overflow-hidden flex items-center justify-center relative">
+                                <form onSubmit={handleSubmit} className="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl space-y-5">
+                                    
+                                    {/* Live Preview */}
+                                    <div className="aspect-video bg-slate-900 rounded-xl overflow-hidden border border-slate-700 flex items-center justify-center relative group">
                                         {formData.imageUrl ? (
-                                            <img src={formData.imageUrl} className="w-full h-full object-cover" alt="Preview" />
-                                        ) : (
-                                            <span className="text-gray-400">Image Preview</span>
-                                        )}
+                                            <img src={formData.imageUrl} className="w-full h-full object-cover" alt="Preview" onError={(e) => e.target.style.display='none'} />
+                                        ) : null}
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{display: formData.imageUrl ? 'none' : 'flex'}}>
+                                            <span className="text-slate-600">Image Preview</span>
+                                        </div>
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Image URL</label>
+                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Image URL</label>
                                         <input 
                                             name="imageUrl" 
                                             value={formData.imageUrl} 
                                             onChange={handleChange} 
-                                            placeholder="Paste image link here" 
-                                            className="w-full p-3 bg-gray-50 border border-gray-300 rounded focus:border-black focus:ring-0 outline-none transition-colors"
+                                            placeholder="https://..." 
+                                            className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none transition-colors"
                                         />
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Make</label>
-                                            <input name="make" value={formData.make} onChange={handleChange} required className="w-full p-3 bg-gray-50 border border-gray-300 rounded focus:border-black focus:ring-0 outline-none" placeholder="BMW" />
+                                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Make</label>
+                                            <input name="make" value={formData.make} onChange={handleChange} required placeholder="e.g. BMW" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Model</label>
-                                            <input name="model" value={formData.model} onChange={handleChange} required className="w-full p-3 bg-gray-50 border border-gray-300 rounded focus:border-black focus:ring-0 outline-none" placeholder="M4" />
+                                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Model</label>
+                                            <input name="model" value={formData.model} onChange={handleChange} required placeholder="e.g. M5" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" />
                                         </div>
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Year</label>
-                                            <input name="year" type="number" value={formData.year} onChange={handleChange} required className="w-full p-3 bg-gray-50 border border-gray-300 rounded focus:border-black focus:ring-0 outline-none" placeholder="2023" />
+                                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Year</label>
+                                            <input name="year" type="number" value={formData.year} onChange={handleChange} required placeholder="2024" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Price</label>
-                                            <input name="price" type="number" value={formData.price} onChange={handleChange} required className="w-full p-3 bg-gray-50 border border-gray-300 rounded focus:border-black focus:ring-0 outline-none" placeholder="85000" />
+                                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Price ($)</label>
+                                            <input name="price" type="number" value={formData.price} onChange={handleChange} required placeholder="50000" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" />
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Status</label>
-                                        <select name="status" value={formData.status} onChange={handleChange} className="w-full p-3 bg-gray-50 border border-gray-300 rounded focus:border-black focus:ring-0 outline-none">
+                                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5 ml-1">Status</label>
+                                        <select name="status" value={formData.status} onChange={handleChange} className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none">
                                             <option value="Available">Available</option>
                                             <option value="Sold">Sold</option>
                                             <option value="Reserved">Reserved</option>
                                         </select>
                                     </div>
 
-                                    <button type="submit" className="w-full py-4 bg-black text-white font-bold rounded hover:bg-gray-800 transition-colors text-lg">
-                                        {editingCar ? 'Update Car' : 'Add Car'}
+                                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-600/30 transition-transform active:scale-[0.98] mt-4">
+                                        {editingCar ? 'Save Changes' : 'Add to Inventory'}
                                     </button>
-                                    
-                                    {editingCar && (
-                                        <button type="button" onClick={() => openView('inventory')} className="w-full py-3 text-gray-500 font-bold hover:text-black transition-colors">
-                                            Cancel
-                                        </button>
-                                    )}
                                 </form>
                             </div>
                         )}
-                    </main>
+                    </div>
                 </div>
             );
         }
@@ -342,24 +386,24 @@
                 try {
                     await signInWithEmailAndPassword(auth, email, password);
                 } catch (err) {
-                    setError("Login failed. Check your credentials.");
+                    setError("Access Denied. Check your email/password.");
                     setLoading(false);
                 }
             };
 
             return (
-                <div className="flex items-center justify-center min-h-screen p-4 bg-white">
-                    <div className="w-full max-w-sm">
+                <div className="flex items-center justify-center min-h-screen bg-slate-900 p-4 fade-in">
+                    <div className="w-full max-w-sm bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-2xl">
                         <div className="text-center mb-8">
-                            <h1 className="text-3xl font-bold tracking-tight mb-2">Black Iris</h1>
-                            <p className="text-gray-500">Admin Portal</p>
+                            <h1 className="text-2xl font-bold text-white">Admin Portal</h1>
+                            <p className="text-slate-500 text-sm mt-1">Black Iris Fleet</p>
                         </div>
-                        {error && <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm text-center border border-red-100">{error}</div>}
+                        {error && <div className="bg-red-500/10 text-red-400 p-3 rounded-lg mb-4 text-sm text-center border border-red-500/20">{error}</div>}
                         <form onSubmit={handleLogin} className="space-y-4">
-                            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Email" className="w-full p-4 bg-gray-50 border border-gray-300 rounded focus:border-black focus:ring-0 outline-none" required />
-                            <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password" className="w-full p-4 bg-gray-50 border border-gray-300 rounded focus:border-black focus:ring-0 outline-none" required />
-                            <button type="submit" disabled={loading} className="w-full bg-black text-white font-bold py-4 rounded hover:bg-gray-800 transition-colors">
-                                {loading ? 'Checking...' : 'Enter'}
+                            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Admin Email" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" required />
+                            <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password" className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white focus:border-blue-500 outline-none" required />
+                            <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition-colors shadow-lg shadow-blue-600/20">
+                                {loading ? <span className="loader"></span> : 'Login'}
                             </button>
                         </form>
                     </div>
@@ -379,7 +423,7 @@
                 return () => unsubscribe();
             }, []);
 
-            if (loading) return <div className="min-h-screen bg-white flex items-center justify-center"><div className="loader"></div></div>;
+            if (loading) return <div className="min-h-screen bg-slate-900 flex items-center justify-center"><div className="loader"></div></div>;
 
             return user ? <Dashboard user={user} /> : <AuthScreen />;
         }
