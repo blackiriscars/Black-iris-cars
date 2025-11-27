@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Available Cars | Black Iris Cars</title>
-
-    <!-- Meta Description -->
     <meta name="description" content="View our full fleet of available rental cars. From economy hatchbacks to luxury SUVs, find the perfect car for your trip in Morocco.">
 
     <!-- Scripts -->
@@ -13,15 +11,6 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="data.js"></script>
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Y2MG9ZZ46"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-2Y2MG9ZZ46');
-    </script>
-    
     <!-- Favicons -->
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192"  href="web-app-manifest-192x192.png">
@@ -33,27 +22,18 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
         body { font-family: 'Poppins', sans-serif; background-color: #f4f7f9; transition: all 0.3s ease; }
         .primary-dark { background-color: #1a1a1a; } 
-        .text-primary-dark { color: #1a1a1a; } 
         .accent-blue { background-color: #4169e1; } 
-        .hover\:accent-blue-dark:hover { background-color: #2b4daa; } 
         .text-accent-blue { color: #4169e1; }
 
-        /* Filter Sidebar */
+        /* Sidebar Animation */
         #filter-sidebar { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
         #filter-sidebar.open { transform: translateX(0); }
         [dir="rtl"] #filter-sidebar { transform: translateX(100%); left: auto; right: 0; }
         [dir="rtl"] #filter-sidebar.open { transform: translateX(0); }
         
-        input[type="checkbox"]:checked { background-color: #1a1a1a; border-color: #1a1a1a; }
         #contact-modal { transition: opacity 0.3s ease-in-out; }
 
-        /* RTL helpers */
-        [dir="rtl"] .ltr\:mr-2 { margin-right: 0; margin-left: 0.5rem; }
-        [dir="rtl"] .ltr\:text-left { text-align: right; }
-        [dir="rtl"] .ltr\:justify-start { justify-content: flex-end; }
-        [dir="rtl"] .md\:ltr\:space-x-8 > * + * { margin-left: 0; margin-right: 2rem; }
-        
-        /* Compact Selectors */
+        /* Selectors */
         .compact-select {
             font-size: 0.875rem; font-weight: 600; color: #1a1a1a;
             background-color: transparent; border: 1px solid #d1d5db; border-radius: 0.375rem;
@@ -63,13 +43,9 @@
             appearance: none; padding-right: 2.5rem;
         }
         .hidden.md\:flex .compact-select { border: none; padding: 6px 1.5rem 6px 0.5rem; background-position: right 0.2rem center; font-weight: 700; color: #4b5563; transition: color 0.2s; }
-        .hidden.md\:flex .compact-select:hover { color: #4169e1; }
         [dir="rtl"] .hidden.md\:flex .compact-select { background-position: left 0.2rem center; padding-left: 1.5rem; padding-right: 0.5rem; }
-        [dir="rtl"] .compact-select { background-position: left 0.5rem center; padding-left: 2.5rem; padding-right: 12px; }
-        .compact-select option { color: #000000; font-weight: 400; }
         
-        /* Loader */
-        .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3498db; width: 30px; height: 30px; -webkit-animation: spin 1s linear infinite; animation: spin 1s linear infinite; }
+        .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3498db; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -85,44 +61,24 @@
                 </a>
                 <div class="flex items-center space-x-3 sm:space-x-4">
                     <div class="hidden md:flex items-center space-x-3 border-r border-gray-200 pr-3 sm:pr-4">
-                        <select id="currency-selector" class="compact-select">
-                            <option value="DH">DH</option>
-                            <option value="EUR">EUR</option>
-                            <option value="USD">USD</option>
-                        </select>
-                        <select id="language-selector" class="compact-select">
-                            <option value="en">EN</option>
-                            <option value="fr">FR</option>
-                            <option value="ar">AR</option>
-                        </select>
+                        <select id="currency-selector" class="compact-select"><option value="DH">DH</option><option value="EUR">EUR</option><option value="USD">USD</option></select>
+                        <select id="language-selector" class="compact-select"><option value="en">EN</option><option value="fr">FR</option><option value="ar">AR</option></select>
                     </div>
                     <nav class="hidden md:flex md:ltr:space-x-8">
                         <a href="index.html#featured" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-fleet">Our Fleet</a>
                         <a href="index.html#why-us" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-why">Why Choose Us</a>
                         <a href="index.html#contact" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-contact">Contact</a>
                     </nav>
-                    <button id="filter-menu-button" class="md:hidden text-gray-600 hover:text-accent-blue p-2 rounded-lg transition">
-                        <i data-lucide="filter" class="w-6 h-6"></i>
-                    </button>
-                    <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-accent-blue p-2 rounded-lg transition">
-                        <i data-lucide="menu" class="w-6 h-6"></i>
-                    </button>
+                    <button id="filter-menu-button" class="md:hidden text-gray-600 hover:text-accent-blue p-2 rounded-lg transition"><i data-lucide="filter" class="w-6 h-6"></i></button>
+                    <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-accent-blue p-2 rounded-lg transition"><i data-lucide="menu" class="w-6 h-6"></i></button>
                 </div>
             </div>
         </div>
         <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 opacity-0 -translate-y-2 transform transition-all duration-300 ease-out fixed top-16 left-0 right-0 z-40" style="pointer-events: none;">
             <div class="px-4 pt-4 pb-3 space-y-4">
                 <div class="flex items-center space-x-4">
-                    <select id="currency-selector-mobile" class="compact-select w-full">
-                        <option value="DH">DH</option>
-                        <option value="EUR">EUR</option>
-                        <option value="USD">USD</option>
-                    </select>
-                    <select id="language-selector-mobile" class="compact-select w-full">
-                        <option value="en">EN</option>
-                        <option value="fr">Français</option>
-                        <option value="ar">العربية</option>
-                    </select>
+                    <select id="currency-selector-mobile" class="compact-select w-full"><option value="DH">DH</option><option value="EUR">EUR</option><option value="USD">USD</option></select>
+                    <select id="language-selector-mobile" class="compact-select w-full"><option value="en">English</option><option value="fr">Français</option><option value="ar">العربية</option></select>
                 </div>
                 <div class="space-y-1">
                     <a href="index.html#featured" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-fleet">Our Fleet</a>
@@ -147,7 +103,6 @@
                 <form id="filter-form" class="space-y-6">
                     <div>
                         <label for="price-range" class="block text-sm font-semibold text-gray-700 mb-2" data-i18n="label-price">Price Range (DH/day)</label>
-                        <!-- === FIXED: MAX 10000 === -->
                         <input type="range" id="price-range" min="0" max="10000" value="10000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer text-primary-dark">
                         <span id="price-value" class="text-sm text-gray-600 mt-1 block">Up to 10000 DH</span>
                     </div>
@@ -176,7 +131,6 @@
                 <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100">
                     <p class="text-sm text-gray-600" id="car-count">Loading cars...</p> 
                 </div>
-                <!-- Cars injected here -->
             </div>
         </div>
     </main>
@@ -202,8 +156,6 @@
                 <span class="text-2xl font-extrabold text-primary-dark"><span id="modal-car-price"></span> <span id="modal-car-currency">DH</span> <span class="text-base font-normal text-gray-500" data-i18n="car-day">/ day</span></span>
                 <button id="modal-book-button" class="accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition shadow-md" data-i18n="btn-book-now">Book Now</button>
             </div>
-            
-            <!-- Contact Buttons -->
             <div id="contact-options" class="space-y-4 mt-6 border-t pt-4 hidden">
                 <p class="text-gray-700 text-sm font-semibold text-center" data-i18n="modal-p">Choose contact method:</p>
                 <a id="whatsapp-link" href="#" target="_blank" class="w-full flex items-center justify-center bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition shadow-md">
@@ -243,14 +195,13 @@
                         <i data-lucide="map-pin" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 
                         <span data-i18n="address-text">10 rue ouarzazat hassan rabat</span>
                     </a>
-
                     <a href="https://wa.me/212602020402" target="_blank" class="text-sm text-white px-3 py-1 mt-2 inline-flex items-center rounded-lg bg-green-600 hover:bg-green-700 transition">
                         <i data-lucide="message-circle" class="w-4 h-4 ltr:mr-2"></i> <span data-i18n="whatsapp-text">WhatsApp</span> 0602020402
                     </a>
                 </div>
             </div>
             <div class="text-center text-sm text-gray-500 pt-4">
-                &copy; <span data-i18n="copy-right">2024 Black Iris Cars. All rights reserved.</span>
+                &copy; <span data-i18n="copy-right">2024 BLACK IRIS cars. All rights reserved.</span>
             </div>
         </div>
     </footer>
@@ -260,7 +211,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // KEYS
         const firebaseConfig = {
           apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
           authDomain: "black-iris-fleet-9c64e.firebaseapp.com",
@@ -276,38 +226,15 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             
-            // --- 1. INITIALIZE ICONS FIRST ---
+            // --- 1. INITIALIZE ICONS IMMEDIATELY ---
             lucide.createIcons();
 
-            // State & Elements
+            // State
             let currentLang = 'en';
             let currentCurrency = 'DH';
             let exchangeRates = { EUR: 0.092, USD: 0.10 };
             let rentalLocation = '', rentalPickupDate = '', rentalReturnDate = '';
             let allCars = [];
-
-            const langSelectors = document.querySelectorAll('#language-selector, #language-selector-mobile');
-            const currencySelectors = document.querySelectorAll('#currency-selector, #currency-selector-mobile');
-            const priceRange = document.getElementById('price-range');
-            const priceValue = document.getElementById('price-value');
-            const applyFiltersBtn = document.getElementById('apply-filters-btn');
-            const carCountElement = document.getElementById('car-count');
-            const transmissionFilters = document.querySelectorAll('#transmission-filters input[type="checkbox"]');
-            const typeFilters = document.querySelectorAll('#type-filters input[type="checkbox"]');
-            const filterButton = document.getElementById('filter-menu-button'); 
-            const filterSidebar = document.getElementById('filter-sidebar');
-            const filterCloseButton = document.getElementById('filter-close-button');
-            const filterBackdrop = document.getElementById('filter-backdrop'); 
-            const resultsContainer = document.getElementById('results-container');
-            const detailModal = document.getElementById('car-detail-modal');
-            const modalDetailContent = document.getElementById('modal-detail-content');
-            const closeDetailModalBtn = document.getElementById('close-detail-modal-btn');
-            const modalBookButton = document.getElementById('modal-book-button');
-            const contactOptions = document.getElementById('contact-options');
-            const whatsappLink = document.getElementById('whatsapp-link');
-            const emailLink = document.getElementById('email-link');
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
 
             // --- Functions ---
             async function fetchRates() {
@@ -348,10 +275,6 @@
                     if (dictionary[key] && typeof dictionary[key] === 'string') element.textContent = dictionary[key];
                 });
                 document.body.setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');
-                document.querySelectorAll('select option').forEach(option => {
-                    const key = option.getAttribute('data-i18n');
-                    if (key && dictionary[key] && typeof dictionary[key] === 'string') option.textContent = dictionary[key];
-                });
                 renderAllCars();
                 filterCars();
                 lucide.createIcons();
@@ -372,18 +295,17 @@
 
             // --- FIREBASE LOAD ---
             async function loadCars() {
-                if (!resultsContainer) return;
+                const container = document.getElementById('results-container');
+                if (!container) return;
                 
-                // Remove old results, keep count
-                while (resultsContainer.children.length > 1) {
-                    resultsContainer.removeChild(resultsContainer.lastChild);
-                }
+                // Reset container content (keep the counter bar)
+                while (container.children.length > 1) container.removeChild(container.lastChild);
                 
                 const loader = document.createElement('div');
                 loader.className = "text-center py-20 text-gray-500";
                 loader.innerHTML = '<div class="loader mx-auto mb-4"></div>';
                 loader.id = "temp-loader";
-                resultsContainer.appendChild(loader);
+                container.appendChild(loader);
 
                 try {
                     const q = query(collection(db, "cars"), orderBy("createdAt", "desc"));
@@ -391,7 +313,6 @@
                     
                     allCars = [];
                     querySnapshot.forEach((doc) => {
-                        // SAFE DATA LOADING: Fallbacks for missing fields
                         const d = doc.data();
                         allCars.push({ 
                             ...d, 
@@ -408,18 +329,20 @@
                 } catch (error) {
                     console.error("Error:", error);
                     if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
-                    // Keep silent for user experience, or show friendly message
+                    alert("Error fetching cars. Please check permissions.");
                 }
             }
 
             function renderAllCars() {
-                // Remove old cards (keep count header)
-                while (resultsContainer.children.length > 1) {
-                    resultsContainer.removeChild(resultsContainer.lastChild);
-                }
+                const container = document.getElementById('results-container');
+                while (container.children.length > 1) container.removeChild(container.lastChild);
 
-                // === FIXED FILTER LOGIC ===
+                // === FILTER LOGIC ===
+                const priceRange = document.getElementById('price-range');
                 const maxPrice = parseInt(priceRange.value) || 10000;
+                const transmissionFilters = document.querySelectorAll('#transmission-filters input[type="checkbox"]');
+                const typeFilters = document.querySelectorAll('#type-filters input[type="checkbox"]');
+
                 const selectedTrans = Array.from(transmissionFilters).filter(c => c.checked).map(c => c.value.toLowerCase());
                 const selectedTypes = Array.from(typeFilters).filter(c => c.checked).map(c => c.value.toLowerCase());
 
@@ -429,13 +352,16 @@
                            (selectedTypes.length === 0 || selectedTypes.includes(car.type));
                 });
 
-                updateCarCount(filteredCars.length);
+                // Update Count
+                const carCountElement = document.getElementById('car-count');
+                const countText = getTranslation('sort-count-text');
+                if(carCountElement) carCountElement.textContent = `${filteredCars.length} ${countText}`;
 
                 if(filteredCars.length === 0) {
                     const msg = document.createElement('div');
                     msg.className = "text-center py-10 text-gray-500 col-span-full";
                     msg.textContent = "No cars match filters.";
-                    resultsContainer.appendChild(msg);
+                    container.appendChild(msg);
                     return;
                 }
 
@@ -446,6 +372,7 @@
                     const { price, symbol } = calculatePrice(car.price);
                     const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
 
+                    // Total Price Logic
                     let totalPriceHTML = '';
                     if (rentalPickupDate && rentalReturnDate) {
                         const start = new Date(rentalPickupDate);
@@ -464,6 +391,7 @@
                     }
 
                     const carCard = document.createElement('div');
+                    // Vertical Design (Same as Home)
                     carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row border border-gray-200 hover:shadow-xl transition duration-300";
                     
                     carCard.innerHTML = `
@@ -493,20 +421,20 @@
                             </div>
                         </div>
                     `;
-                    resultsContainer.appendChild(carCard);
+                    container.appendChild(carCard);
                 });
                 lucide.createIcons();
-            }
-
-            function updateCarCount(count) {
-                const text = getTranslation('sort-count-text');
-                if(carCountElement) carCountElement.textContent = `${count} ${text}`;
             }
 
             // --- Modal Logic ---
             window.openModal = function(carName, carPriceWithSymbol, carImg, carTrans, carSeats, carColor, carDesc) {
                 const dict = translations[currentLang];
                 let whatsappMessage, emailSubject, emailBody;
+                
+                const modalBookButton = document.getElementById('modal-book-button');
+                const contactOptions = document.getElementById('contact-options');
+                const detailModal = document.getElementById('car-detail-modal');
+                const modalDetailContent = document.getElementById('modal-detail-content');
 
                 document.getElementById('modal-car-name').textContent = carName;
                 document.getElementById('modal-car-image').src = carImg;
@@ -529,8 +457,8 @@
                     emailBody = dict['book-email-body-concise'](carName, carPriceWithSymbol);
                 }
             
-                whatsappLink.href = `https://wa.me/212602020402?text=${encodeURIComponent(whatsappMessage)}`;
-                emailLink.href = `mailto:blackiriscars@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+                document.getElementById('whatsapp-link').href = `https://wa.me/212602020402?text=${encodeURIComponent(whatsappMessage)}`;
+                document.getElementById('email-link').href = `mailto:blackiriscars@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
                 
                 contactOptions.classList.add('hidden');
                 modalBookButton.classList.remove('hidden'); 
@@ -546,33 +474,40 @@
             }
 
             function closeModal() {
+                const detailModal = document.getElementById('car-detail-modal');
+                const modalDetailContent = document.getElementById('modal-detail-content');
                 modalDetailContent.classList.add('scale-95', 'opacity-0');
                 setTimeout(() => { detailModal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }, 300); 
             }
 
-            if(closeDetailModalBtn) closeDetailModalBtn.addEventListener('click', closeModal);
-            if(detailModal) detailModal.addEventListener('click', (e) => { if (e.target === detailModal) closeModal(); });
+            document.getElementById('close-detail-modal-btn').addEventListener('click', closeModal);
+            document.getElementById('car-detail-modal').addEventListener('click', (e) => { if (e.target === document.getElementById('car-detail-modal')) closeModal(); });
 
-            // --- Filter Sidebar Logic ---
+            // --- Sidebar & Filters ---
+            const filterSidebar = document.getElementById('filter-sidebar');
+            const filterBackdrop = document.getElementById('filter-backdrop');
+            
             function toggleSidebar() {
-                const isSidebarOpen = filterSidebar.classList.toggle('open');
+                filterSidebar.classList.toggle('open');
                 document.body.classList.toggle('overflow-hidden');
-                filterBackdrop.classList.toggle('hidden', !isSidebarOpen);
+                filterBackdrop.classList.toggle('hidden', !filterSidebar.classList.contains('open'));
             }
             
-            filterButton.addEventListener('click', (e) => { e.stopPropagation(); toggleSidebar(); });
-            filterCloseButton.addEventListener('click', toggleSidebar);
+            document.getElementById('filter-menu-button').addEventListener('click', (e) => { e.stopPropagation(); toggleSidebar(); });
+            document.getElementById('filter-close-button').addEventListener('click', toggleSidebar);
             filterBackdrop.addEventListener('click', toggleSidebar);
-            resultsContainer.addEventListener('click', () => { if (filterSidebar.classList.contains('open') && window.innerWidth < 768) toggleSidebar(); });
-
-            applyFiltersBtn.addEventListener('click', () => { renderAllCars(); if (filterSidebar.classList.contains('open')) toggleSidebar(); });
             
-            priceRange.addEventListener('input', (event) => {
+            document.getElementById('apply-filters-btn').addEventListener('click', () => { renderAllCars(); if (filterSidebar.classList.contains('open')) toggleSidebar(); });
+            
+            document.getElementById('price-range').addEventListener('input', (event) => {
                  const prefix = currentLang === 'ar' ? 'يصل إلى' : 'Up to';
-                 priceValue.textContent = `${prefix} ${event.target.value} DH`;
+                 document.getElementById('price-value').textContent = `${prefix} ${event.target.value} DH`;
             });
 
             // --- Mobile Menu ---
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            
             function openMobileMenu() { mobileMenu.classList.remove('opacity-0', '-translate-y-2'); mobileMenu.style.pointerEvents = 'auto'; }
             function closeMobileMenu() { mobileMenu.classList.add('opacity-0', '-translate-y-2'); mobileMenu.style.pointerEvents = 'none'; }
             mobileMenuButton.addEventListener('click', (e) => { e.stopPropagation(); mobileMenu.classList.contains('opacity-0') ? openMobileMenu() : closeMobileMenu(); });
@@ -594,7 +529,6 @@
             });
 
             // --- Init ---
-            lucide.createIcons(); // INSTANT ICON LOAD
             getLocalStorageData(); 
             const savedLang = localStorage.getItem('languagePreference') || 'en';
             const savedCurrency = localStorage.getItem('currencyPreference') || 'DH';
