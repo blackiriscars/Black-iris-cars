@@ -1,36 +1,6 @@
 // --- data.js ---
+// NOTE: Car Data is now fetched from Firebase. This file controls Translations only.
 
-// --- CAR DATA: Single Source of Truth ---
-const carData = [
-    // 1. VW Touareg (The Star)
-    { id: 14, name: 'VW Touareg', color: 'Grey', price: 1400, transmission: 'Automatic', seats: 6, type: 'luxury-suv', img: 'https://i.postimg.cc/4NpS5rGj/IMG-4179.webp', desc: 'Full-size luxury SUV, offering ultimate comfort, power, and space for long-distance luxury travel.' }, 
-    
-    // 2. Hyundai Tucsons
-    { id: 2, name: 'Hyundai Tucson', color: 'Black', price: 850, transmission: 'Automatic', seats: 6, type: 'suv', img: 'https://i.postimg.cc/HxP2YtgX/IMG-4180.jpg', desc: 'Stylish and powerful SUV, featuring modern technology and excellent handling on Moroccan highways.' },
-    { id: 1, name: 'Hyundai Tucson', color: 'Grey', price: 850, transmission: 'Automatic', seats: 6, type: 'suv', img: 'https://i.postimg.cc/DzvHm59V/IMG-4161.jpg', desc: 'Luxury compact SUV, space and comfort for long journeys, perfect for family road trips.' },
-
-    // 3. Renault Clios
-    { id: 8, name: 'Renault Clio 5', color: 'Black', price: 350, transmission: 'Automatic', seats: 5, type: 'hatchback', img: 'https://i.postimg.cc/J43pJZ3f/IMG-4184.webp', desc: 'The comfort of automatic driving in a reliable, modern Clio, perfect for long drives without fatigue.' },
-    { id: 5, name: 'Renault Clio 5', color: 'Black', price: 300, transmission: 'Manual', seats: 5, type: 'hatchback', img: 'https://i.postimg.cc/J43pJZ3f/IMG-4184.webp', desc: 'Modern, fuel-efficient hatchback, easy to park and navigate through city traffic.' },
-    { id: 6, name: 'Renault Clio 5', color: 'Grey', price: 300, transmission: 'Manual', seats: 5, type: 'hatchback', img: 'https://i.postimg.cc/Y0Ybdm5z/IMG-4183.webp', desc: 'Stylish and efficient for the urban traveler, offering comfort for daily commutes.' },
-
-    // 4. Peugeot 208s
-    { id: 9, name: 'Peugeot 208', color: 'Grey', price: 350, transmission: 'Automatic', seats: 5, type: 'hatchback', img: 'https://i.postimg.cc/VvqWqPtt/IMG-4185.jpg', desc: 'Smooth automatic driving in a stylish compact Peugeot, offering a premium feel.' }, 
-    { id: 7, name: 'Peugeot 208', color: 'Black', price: 300, transmission: 'Manual', seats: 5, type: 'hatchback', img: 'https://i.postimg.cc/cJzhZmZ9/IMG-4186.jpg', desc: 'A comfortable and popular compact car, known for its smooth ride and modern design.' },
-
-    // 5. Dacias (Duster, Sandero, Logan)
-    { id: 4, name: 'Dacia Duster', color: 'Green', price: 500, transmission: 'Manual', seats: 6, type: 'suv', img: 'https://i.postimg.cc/YSDn07Nf/IMG-4181.jpg', desc: 'Tough and reliable compact SUV, offering great value and robustness for varied Moroccan terrains.' },
-    { id: 15, name: 'Dacia Sandero', color: 'Grey', price: 250, transmission: 'Manual', seats: 5, type: 'hatchback', img: 'https://i.postimg.cc/cJtY7NyL/IMG-4191.png', desc: 'Economical and dependable hatchback, perfect for budget-friendly commuting and city errands.' },
-    { id: 10, name: 'Dacia Logan', color: 'Black', price: 300, transmission: 'Manual', seats: 5, type: 'sedan', img: 'https://i.postimg.cc/bNLQpT9v/IMG-4188.webp', desc: 'Robust and spacious sedan, excellent value and a large trunk for extra luggage.' },
-    { id: 11, name: 'Dacia Logan', color: 'Grey', price: 300, transmission: 'Manual', seats: 5, type: 'sedan', img: 'https://i.postimg.cc/R0W1PHf4/IMG-4189.png', desc: 'A reliable and trusted choice for long trips across Morocco, known for its durability.' },
-    { id: 12, name: 'Dacia Logan', color: 'White', price: 300, transmission: 'Manual', seats: 5, type: 'sedan', img: 'https://i.postimg.cc/R0W1PHf4/IMG-4189.png', desc: 'Clean and comfortable, a simple and effective vehicle ready for any Moroccan adventure.' },
-
-    // 6. The Rest
-    { id: 13, name: 'VW T-Roc', color: 'Black', price: 700, transmission: 'Automatic', seats: 5, type: 'suv', img: 'https://i.postimg.cc/d3ySgfyT/IMG-4177.jpg', desc: 'Premium compact crossover, comfortable and stylish for city and highway driving.' },
-    { id: 3, name: 'Kia Sportage', color: 'Black', price: 850, transmission: 'Automatic', seats: 6, type: 'suv', img: 'https://i.postimg.cc/7PWswqPy/IMG-4190.jpg', desc: 'Top-rated crossover with excellent handling and spacious interior, making it ideal for adventure.' }
-];
-
-// --- Translation Data ---
 const translations = {
     'en': {
         'nav-fleet': 'Our Fleet', 'nav-why': 'Why Choose Us', 'nav-reviews': 'Reviews', 'nav-contact': 'Contact', 'nav-faq': 'FAQ',
@@ -53,7 +23,7 @@ const translations = {
         'sort-count-text': 'cars available', 'currency': 'Currency', 'eur': 'EUR', 'usd': 'USD',
         'total-text': 'Total', 'for-text': 'for', 'days-text': 'days',
 
-        // === UPDATED SECTIONS ===
+        // Sections
         'h2-how-works': 'How It Works', 'p-how-works': 'Rent your car in 3 simple steps.',
         'step-1-title': '1. Choose Your Car', 'step-1-desc': 'Browse our fleet and select the perfect vehicle for your trip.',
         'step-2-title': '2. Send Inquiry', 'step-2-desc': 'Click "Book Now" to send us a request via WhatsApp or email.',
@@ -67,6 +37,7 @@ const translations = {
         'book-whatsapp-msg-full': (carName, carPrice, city, pickup, dropoff) => `Hello, I am interested in renting the ${carName} (${carPrice}/day).\n\nBooking Details:\n- Location: ${city || 'N/A'}\n- Pickup Date: ${pickup || 'N/A'}\n- Return Date: ${dropoff || 'N/A'}.\n\nPlease confirm availability and help me proceed with the booking.`,
         'book-email-subj-full': (carName, city) => `Car Reservation Inquiry: ${carName} in ${city || 'N/A'}`,
         'book-email-body-full': (carName, carPrice, city, pickup, dropoff) => `Hello,\n\nI am interested in renting the ${carName} (${carPrice}/day).\n\nDetails:\n- Location: ${city || 'N/A'}\n- Pickup Date: ${pickup || 'N/A'}\n- Return Date: ${dropoff || 'N/A'}\n\nPlease confirm availability and provide the next steps for reservation.`,
+
         'book-whatsapp-msg-concise': (carName, carPrice) => `Hello, I am interested in the ${carName} (${carPrice}/day). Please send me more information about availability and pricing.`,
         'book-email-subj-concise': (carName) => `General Car Inquiry: ${carName}`,
         'book-email-body-concise': (carName, carPrice) => `Hello,\n\nI am interested in the ${carName} (${carPrice}/day) featured on your homepage. Please send me more information about availability and how to book this vehicle.`,
@@ -92,7 +63,6 @@ const translations = {
         'sort-count-text': 'voitures disponibles', 'currency': 'Devise', 'eur': 'EUR', 'usd': 'USD',
         'total-text': 'Total', 'for-text': 'pour', 'days-text': 'jours',
 
-        // === UPDATED SECTIONS ===
         'h2-how-works': 'Comment ça marche', 'p-how-works': 'Louez votre voiture en 3 étapes simples.',
         'step-1-title': '1. Choisissez votre voiture', 'step-1-desc': 'Parcourez notre flotte et sélectionnez le véhicule parfait pour votre voyage.',
         'step-2-title': '2. Envoyez une demande', 'step-2-desc': 'Cliquez sur "Réserver" pour nous envoyer une demande via WhatsApp ou email.',
@@ -131,7 +101,6 @@ const translations = {
         'sort-count-text': 'سيارة متاحة', 'currency': 'العملة', 'eur': 'يورو', 'usd': 'دولار',
         'total-text': 'المجموع', 'for-text': 'لمدة', 'days-text': 'أيام',
 
-        // === UPDATED SECTIONS ===
         'h2-how-works': 'كيفية الحجز', 'p-how-works': 'استأجر سيارتك في 3 خطوات بسيطة.',
         'step-1-title': '1. اختر سيارتك', 'step-1-desc': 'تصفح أسطولنا واختر السيارة المثالية لرحلتك.',
         'step-2-title': '2. أرسل طلب', 'step-2-desc': 'انقر على "احجز الآن" لإرسال طلب عبر واتساب أو البريد الإلكتروني.',
@@ -139,7 +108,7 @@ const translations = {
         'h2-faq': 'الأسئلة الشائعة',
         'faq-q1': 'ما هي الوثائق المطلوبة؟', 'faq-a1': 'تحتاج إلى رخصة قيادة سارية (لمدة عامين على الأقل) وجواز سفر أو بطاقة هوية.',
         'faq-q2': 'هل التأمين مشمول في السعر؟', 'faq-a2': 'نعم، نقدم خيارات تغطية شاملة (جميع المخاطر) لراحة بال تامة.',
-        'faq-q3': 'هل تطلبون مبلغ ضمان؟', 'faq-a3': 'نعم، مطلوب مبلغ ضمان. يعتمد المبلغ على فئة السيارة (عادةً ما بين 5000 درهم و 20000 درهم). وهو قابل للاسترداد بالكامل عند إعادة السيارة بأمان.',
+        'faq-q3': 'هل تطلبون مبلغ ضمان؟', 'faq-a3': 'نعم، مطلوب مبلغ ضمان. يعتمد المبلغ على فئة السيارة (عادةً ما بين 5000 و 20000 درهم). وهو قابل للاسترداد بالكامل عند إعادة السيارة بأمان.',
         'faq-q4': 'هل يمكنكم توصيل السيارة إلى الفندق؟', 'faq-a4': 'بالتأكيد. نقدم توصيل مجاني للمطارات والفنادق داخل مراكز مدن الرباط وتمارة والدار البيضاء.',
 
         'book-whatsapp-msg-full': (carName, carPrice, city, pickup, dropoff) => `مرحباً، أنا مهتم باستئجار ${carName} (${carPrice}/يوم).\n\nتفاصيل الحجز:\n- الموقع: ${city || 'N/A'}\n- تاريخ الاستلام: ${pickup || 'N/A'}\n- تاريخ الإرجاع: ${dropoff || 'N/A'}.\n\nالرجاء تأكيد التوفر ومساعدتي في متابعة الحجز.`,
@@ -150,3 +119,4 @@ const translations = {
         'book-email-body-concise': (carName, carPrice) => `مرحباً،\n\nأنا مهتم بـ ${carName} (${carPrice}/يوم) المعروضة على الصفحة الرئيسية. الرجاء إرسال المزيد من المعلومات حول التوفر وكيفية حجز هذه المركبة.`,
     }
 };
+
