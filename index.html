@@ -350,7 +350,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
     <footer id="contact" class="primary-dark text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8 mb-8">
@@ -374,7 +373,8 @@
                     </a>
                     <p class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start"><i data-lucide="mail" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> <a href="mailto:blackiriscars@gmail.com" class="hover:text-accent-blue">blackiriscars@gmail.com</a></p>
                     
-                    <a href="https://maps.app.goo.gl/YOUR_LINK_HERE" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
+                    <!-- Google Maps Link -->
+                    <a href="PASTE_YOUR_GOOGLE_MAPS_LINK_HERE" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
                         <i data-lucide="map-pin" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 
                         <span data-i18n="address-text">10 rue ouarzazat hassan rabat</span>
                     </a>
@@ -475,7 +475,7 @@
                     if (data && data.mad) {
                         exchangeRates.EUR = data.mad.eur;
                         exchangeRates.USD = data.mad.usd;
-                        loadCars(); // Re-render with correct rates
+                        loadCars(); 
                     }
                 } catch (error) { console.log('Using static rates'); }
             }
@@ -572,7 +572,7 @@
                             </div>
                         `;
                         // Add click listener
-                        carCard.addEventListener('click', () => openCarDetailModal(car, carPriceString, transmissionText));
+                        carCard.addEventListener('click', () => openModal(car.name, carPriceString, car.img, transmissionText, car.seats, car.color, car.desc));
                         container.appendChild(carCard);
                         count++;
                     });
@@ -580,53 +580,59 @@
                     lucide.createIcons();
                 } catch (error) {
                     console.error("Error loading cars:", error);
-                    // Only show error if it's not a permission error on first load
-                    if(error.code !== 'permission-denied') {
-                         // Fallback or silent fail
-                    }
                 }
             }
 
             // --- Modal Logic ---
-            function openCarDetailModal(car, formattedPrice, transText) {
-                document.getElementById('modal-car-name').textContent = `${car.name} (${transText})`;
-                document.getElementById('modal-car-image').src = car.img;
-                document.getElementById('modal-transmission').textContent = transText;
-                document.getElementById('modal-seats-value').textContent = car.seats;
-                document.getElementById('modal-color').textContent = car.color;
-                document.getElementById('modal-car-desc').textContent = car.desc;
-                document.getElementById('modal-car-price').textContent = formattedPrice.replace(/ DH| €| \$/g, ''); // Clean value
-                document.getElementById('modal-car-currency').textContent = currentCurrency === 'DH' ? 'DH' : (currentCurrency === 'EUR' ? '€' : '$');
+            function openModal(carName, carPriceWithSymbol, carImg, carTrans, carSeats, carColor, carDesc) {
+                const dict = translations[currentLang];
+                let whatsappMessage, emailSubject, emailBody;
 
+                // Fill Modal Details
+                document.getElementById('modal-car-name').textContent = carName;
+                document.getElementById('modal-car-image').src = carImg;
+                document.getElementById('modal-transmission').textContent = carTrans;
+                document.getElementById('modal-seats-value').textContent = carSeats;
+                document.getElementById('modal-color').textContent = carColor;
+                document.getElementById('modal-car-desc').textContent = carDesc;
+                document.getElementById('modal-car-price').textContent = carPriceWithSymbol.replace(/ DH| €| \$/g, '');
+                document.getElementById('modal-car-currency').textContent = currentCurrency === 'DH' ? 'DH' : (currentCurrency === 'EUR' ? '€' : '$');
+                
+                // Smart Message Logic
+                if (rentalLocation && rentalPickupDate && rentalReturnDate) {
+                    let pickupDisplay = new Date(rentalPickupDate).toLocaleDateString(currentLang, { dateStyle: 'medium' });
+                    let returnDisplay = new Date(rentalReturnDate).toLocaleDateString(currentLang, { dateStyle: 'medium' });
+
+                    whatsappMessage = dict['book-whatsapp-msg-full'](carName, carPriceWithSymbol, rentalLocation, pickupDisplay, returnDisplay);
+                    emailSubject = dict['book-email-subj-full'](carName, rentalLocation);
+                    emailBody = dict['book-email-body-full'](carName, carPriceWithSymbol, rentalLocation, pickupDisplay, returnDisplay);
+                
+                } else {
+                    whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
+                    emailSubject = dict['book-email-subj-concise'](carName);
+                    emailBody = dict['book-email-body-concise'](carName, carPriceWithSymbol);
+                }
+            
+                whatsappLink.href = `https://wa.me/212602020402?text=${encodeURIComponent(whatsappMessage)}`;
+                emailLink.href = `mailto:blackiriscars@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+                
+                // Reset View
                 contactOptions.classList.add('hidden');
                 modalBookButton.classList.remove('hidden'); 
                 
-                modalBookButton.onclick = () => showContactOptionsConcise(car.name, formattedPrice);
-                
-                const currentLangOnLoad = currentLang;
-                setLanguage(currentLangOnLoad);
-                document.querySelector('[data-i18n="car-seats-label-spaced"]').textContent = getTranslation('car-seats-label-spaced');
+                // Button Click Handler
+                modalBookButton.onclick = () => {
+                    contactOptions.classList.remove('hidden');
+                    modalBookButton.classList.add('hidden');
+                };
 
                 detailModal.classList.remove('hidden');
                 setTimeout(() => { modalDetailContent.classList.remove('scale-95', 'opacity-0'); }, 10);
                 document.body.classList.add('overflow-hidden');
             }
 
-            function showContactOptionsConcise(carName, carPriceWithSymbol) {
-                const dict = translations[currentLang];
-                const whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
-                const emailSubject = dict['book-email-subj-concise'](carName);
-                const emailBody = dict['book-email-body-concise'](carName, carPriceWithSymbol);
-
-                whatsappLink.href = `https://wa.me/212602020402?text=${encodeURIComponent(whatsappMessage)}`;
-                emailLink.href = `mailto:blackiriscars@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-                
-                contactOptions.classList.remove('hidden');
-                modalBookButton.classList.add('hidden');
-            }
-            
             function closeModal() {
-                modalContent.classList.add('scale-95', 'opacity-0');
+                modalDetailContent.classList.add('scale-95', 'opacity-0');
                 setTimeout(() => { detailModal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }, 300); 
             }
 
@@ -681,7 +687,6 @@
                     localStorage.setItem('languagePreference', event.target.value);
                 });
             });
-
             currencySelectors.forEach(selector => {
                 selector.addEventListener('change', (event) => {
                     setCurrency(event.target.value);
@@ -690,7 +695,8 @@
             });
 
             // --- Init ---
-            lucide.createIcons();
+            lucide.createIcons(); 
+            getLocalStorageData(); 
             const savedLang = localStorage.getItem('languagePreference') || 'en';
             const savedCurrency = localStorage.getItem('currencyPreference') || 'DH';
             updateAllSelectors('#language-selector, #language-selector-mobile', savedLang);
@@ -698,8 +704,11 @@
             currentLang = savedLang;
             currentCurrency = savedCurrency;
             setLanguage(savedLang);
+            
             fetchRates();
         });
     </script>
 </body>
 </html>
+
+
