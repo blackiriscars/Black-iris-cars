@@ -50,9 +50,7 @@
         [dir="rtl"] .ltr\:text-left { text-align: right; }
         [dir="rtl"] .ltr\:justify-start { justify-content: flex-end; }
         [dir="rtl"] .md\:ltr\:space-x-8 > * + * { margin-left: 0; margin-right: 2rem; }
-        [dir="rtl"] .hidden.md\:flex .compact-select { background-position: left 0.2rem center; padding-left: 1.5rem; padding-right: 0.5rem; }
-        [dir="rtl"] .compact-select { background-position: left 0.5rem center; padding-left: 2.5rem; padding-right: 12px; }
-
+        
         /* Compact Selectors */
         .compact-select {
             font-size: 0.875rem; font-weight: 600; color: #1a1a1a;
@@ -64,16 +62,17 @@
         }
         .hidden.md\:flex .compact-select { border: none; padding: 6px 1.5rem 6px 0.5rem; background-position: right 0.2rem center; font-weight: 700; color: #4b5563; transition: color 0.2s; }
         .hidden.md\:flex .compact-select:hover { color: #4169e1; }
+        [dir="rtl"] .hidden.md\:flex .compact-select { background-position: left 0.2rem center; padding-left: 1.5rem; padding-right: 0.5rem; }
+        [dir="rtl"] .compact-select { background-position: left 0.5rem center; padding-left: 2.5rem; padding-right: 12px; }
         .compact-select option { color: #000000; font-weight: 400; }
         
-        /* Loading Spinner */
+        /* Loader */
         .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3498db; width: 30px; height: 30px; -webkit-animation: spin 1s linear infinite; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="antialiased" dir="ltr">
 
-    <!-- Updated Header -->
     <header class="bg-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
@@ -99,15 +98,18 @@
                         <a href="index.html#why-us" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-why">Why Choose Us</a>
                         <a href="index.html#contact" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-contact">Contact</a>
                     </nav>
+                    <!-- Filter Button (Visible on Mobile) -->
                     <button id="filter-menu-button" class="md:hidden text-gray-600 hover:text-accent-blue p-2 rounded-lg transition">
                         <i data-lucide="filter" class="w-6 h-6"></i>
                     </button>
+                    <!-- Menu Button (Visible on Mobile) -->
                     <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-accent-blue p-2 rounded-lg transition">
                         <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
                 </div>
             </div>
         </div>
+        <!-- Mobile Menu -->
         <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 opacity-0 -translate-y-2 transform transition-all duration-300 ease-out fixed top-16 left-0 right-0 z-40" style="pointer-events: none;">
             <div class="px-4 pt-4 pb-3 space-y-4">
                 <div class="flex items-center space-x-4">
@@ -117,7 +119,7 @@
                         <option value="USD">USD</option>
                     </select>
                     <select id="language-selector-mobile" class="compact-select w-full">
-                        <option value="en">English</option>
+                        <option value="en">EN</option>
                         <option value="fr">Français</option>
                         <option value="ar">العربية</option>
                     </select>
@@ -126,6 +128,7 @@
                     <a href="index.html#featured" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-fleet">Our Fleet</a>
                     <a href="index.html#why-us" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-why">Why Choose Us</a>
                     <a href="index.html#contact" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-contact">Contact</a>
+                    <a href="index.html#faq" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-faq">FAQ</a>
                 </div>
             </div>
         </div>
@@ -135,7 +138,9 @@
         <h1 class="text-3xl sm:text-4xl font-extrabold text-primary-dark mb-4" data-i18n="h1-available">Available Rental Cars</h1>
         
         <div id="filter-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+        
         <div class="md:grid md:grid-cols-4 lg:grid-cols-5 md:gap-8">
+            <!-- Filter Sidebar -->
             <div id="filter-sidebar" class="fixed top-0 left-0 h-full w-3/4 max-w-xs md:max-w-none bg-white p-6 shadow-2xl z-40 md:relative md:col-span-1 lg:col-span-1 md:h-auto md:p-0 md:shadow-none md:bg-transparent md:transform-none">
                 <button id="filter-close-button" class="md:hidden absolute top-4 right-4 text-gray-800 hover:text-gray-600"><i data-lucide="x" class="w-6 h-6"></i></button>
                 <h3 class="text-2xl font-bold text-primary-dark mb-6 border-b pb-3" data-i18n="h3-filter">Filter Options</h3>
@@ -165,6 +170,7 @@
                 </form>
             </div>
 
+            <!-- Results Container -->
             <div class="md:col-span-3 lg:col-span-4 space-y-6" id="results-container">
                 <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100">
                     <p class="text-sm text-gray-600" id="car-count">Loading cars...</p> 
@@ -174,23 +180,38 @@
         </div>
     </main>
 
-    <!-- Modal -->
-    <div id="contact-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
-        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md m-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-primary-dark" data-i18n="h3-modal">Book Your Car</h3>
-                <button id="close-modal-btn" class="text-gray-500 hover:text-primary-dark"><i data-lucide="x" class="w-6 h-6"></i></button>
+    <!-- Detail Modal -->
+    <div id="car-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
+        <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-lg m-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-detail-content">
+            <div class="flex justify-between items-start mb-4">
+                <h3 id="modal-car-name" class="text-2xl font-bold text-primary-dark">Car Name</h3>
+                <button id="close-detail-modal-btn" class="text-gray-500 hover:text-primary-dark"><i data-lucide="x" class="w-6 h-6"></i></button>
             </div>
-            <p class="text-gray-700 mb-6" data-i18n="modal-p">Please choose your preferred contact method. Your chosen car details will be pre-filled.</p>
             <div class="space-y-4">
+                <img id="modal-car-image" src="" alt="Car" class="w-full h-48 object-cover rounded-lg mb-4 border border-gray-200">
+                <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                    <div class="flex items-center ltr:justify-start"><i data-lucide="car" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <span id="modal-transmission" class="font-semibold"></span></div>
+                    <div class="flex items-center ltr:justify-start"><i data-lucide="users" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <span id="modal-seats-value" class="font-semibold"></span> <span data-i18n="car-seats-label-spaced"> Seats</span></div>
+                    <div class="flex items-center ltr:justify-start"><i data-lucide="snowflake" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <span data-i18n="modal-ac-label-short">A/C</span></div>
+                    <div class="flex items-center ltr:justify-start"><i data-lucide="paint-bucket" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <span id="modal-color" class="font-semibold"></span></div>
+                </div>
+                <p id="modal-car-desc" class="text-gray-600 border-t border-gray-100 pt-4" data-i18n="modal-car-desc"></p>
+            </div>
+            <div class="flex justify-between items-center mt-6 pt-4 border-t">
+                <span class="text-2xl font-extrabold text-primary-dark"><span id="modal-car-price"></span> <span id="modal-car-currency">DH</span> <span class="text-base font-normal text-gray-500" data-i18n="car-day">/ day</span></span>
+                <button id="modal-book-button" class="accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition shadow-md" data-i18n="btn-book-now">Book Now</button>
+            </div>
+            
+            <!-- Contact Buttons -->
+            <div id="contact-options" class="space-y-4 mt-6 border-t pt-4 hidden">
+                <p class="text-gray-700 text-sm font-semibold text-center" data-i18n="modal-p">Choose contact method:</p>
                 <a id="whatsapp-link" href="#" target="_blank" class="w-full flex items-center justify-center bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition shadow-md">
                     <i data-lucide="message-circle" class="w-5 h-5 ltr:mr-3"></i> <span data-i18n="btn-whatsapp">WhatsApp</span>
                 </a>
-                <a id="email-link" href="#" class="w-full flex items-center justify-center accent-blue text-white font-semibold py-3 px-6 rounded-lg hover:accent-blue-dark transition shadow-md">
+                <a id="email-link" href="#" class="w-full flex items-center justify-center bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition shadow-md">
                     <i data-lucide="mail" class="w-5 h-5 ltr:mr-3"></i> <span data-i18n="btn-email">Email</span>
                 </a>
             </div>
-            <p class="text-xs text-gray-500 mt-6 text-center" data-i18n="modal-footer">We will confirm availability and finalize the booking details.</p>
         </div>
     </div>
 
@@ -206,7 +227,7 @@
                     <ul class="space-y-2 text-sm text-gray-400">
                         <li><a href="index.html#featured" class="hover:text-accent-blue transition" data-i18n="nav-fleet">Our Fleet</a></li>
                         <li><a href="index.html#why-us" class="hover:text-accent-blue transition" data-i18n="nav-why">Our Promise</a></li>
-                        <li><a href="index.html#contact" class="hover:text-accent-blue transition" data-i18n="nav-contact">Contact</a></li>
+                        <li><a href="index.html#testimonials" class="hover:text-accent-blue transition" data-i18n="nav-reviews">Reviews</a></li>
                         <li><a href="index.html#faq" class="hover:text-accent-blue transition" data-i18n="nav-faq">FAQ</a></li>
                     </ul>
                 </div>
@@ -217,7 +238,6 @@
                     </a>
                     <p class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start"><i data-lucide="mail" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> <a href="mailto:blackiriscars@gmail.com" class="hover:text-accent-blue">blackiriscars@gmail.com</a></p>
                     
-                    <!-- Maps Link -->
                     <a href="PASTE_YOUR_GOOGLE_MAPS_LINK_HERE" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
                         <i data-lucide="map-pin" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 
                         <span data-i18n="address-text">10 rue ouarzazat hassan rabat</span>
@@ -234,12 +254,12 @@
         </div>
     </footer>
 
-    <!-- FIREBASE LOGIC -->
+    <!-- SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // YOUR FIREBASE KEYS
+        // KEYS
         const firebaseConfig = {
           apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
           authDomain: "black-iris-fleet-9c64e.firebaseapp.com",
@@ -254,14 +274,17 @@
         const db = getFirestore(app);
 
         document.addEventListener('DOMContentLoaded', () => {
-            // State
+            
+            // --- 1. INITIALIZE ICONS FIRST ---
+            lucide.createIcons();
+
+            // State & Elements
             let currentLang = 'en';
             let currentCurrency = 'DH';
             let exchangeRates = { EUR: 0.092, USD: 0.10 };
             let rentalLocation = '', rentalPickupDate = '', rentalReturnDate = '';
-            let carCards = [];
+            let allCars = [];
 
-            // Elements
             const langSelectors = document.querySelectorAll('#language-selector, #language-selector-mobile');
             const currencySelectors = document.querySelectorAll('#currency-selector, #currency-selector-mobile');
             const priceRange = document.getElementById('price-range');
@@ -270,19 +293,18 @@
             const carCountElement = document.getElementById('car-count');
             const transmissionFilters = document.querySelectorAll('#transmission-filters input[type="checkbox"]');
             const typeFilters = document.querySelectorAll('#type-filters input[type="checkbox"]');
-            
             const filterButton = document.getElementById('filter-menu-button'); 
             const filterSidebar = document.getElementById('filter-sidebar');
             const filterCloseButton = document.getElementById('filter-close-button');
             const filterBackdrop = document.getElementById('filter-backdrop'); 
             const resultsContainer = document.getElementById('results-container');
-            
-            const modal = document.getElementById('contact-modal');
-            const modalContent = document.getElementById('modal-content');
-            const closeModalBtn = document.getElementById('close-modal-btn');
+            const detailModal = document.getElementById('car-detail-modal');
+            const modalDetailContent = document.getElementById('modal-detail-content');
+            const closeDetailModalBtn = document.getElementById('close-detail-modal-btn');
+            const modalBookButton = document.getElementById('modal-book-button');
+            const contactOptions = document.getElementById('contact-options');
             const whatsappLink = document.getElementById('whatsapp-link');
             const emailLink = document.getElementById('email-link');
-
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const mobileMenu = document.getElementById('mobile-menu');
 
@@ -294,7 +316,8 @@
                     if (data && data.mad) {
                         exchangeRates.EUR = data.mad.eur;
                         exchangeRates.USD = data.mad.usd;
-                        loadCars(); 
+                        renderAllCars(); 
+                        filterCars();
                     }
                 } catch (error) { console.log('Using static rates'); }
             }
@@ -328,14 +351,16 @@
                     const key = option.getAttribute('data-i18n');
                     if (key && dictionary[key] && typeof dictionary[key] === 'string') option.textContent = dictionary[key];
                 });
-                loadCars();
+                renderAllCars();
+                filterCars();
                 lucide.createIcons();
             }
 
             function setCurrency(currency) {
                 currentCurrency = currency;
                 updateAllSelectors('#currency-selector, #currency-selector-mobile', currency);
-                loadCars();
+                renderAllCars();
+                filterCars();
             }
 
             function getLocalStorageData() {
@@ -344,16 +369,15 @@
                 rentalReturnDate = localStorage.getItem('rentalReturnDate') || '';
             }
 
-            // --- FIREBASE LOADING ---
+            // --- FIREBASE LOAD ---
             async function loadCars() {
                 if (!resultsContainer) return;
                 
-                // Clear results except the count bar
+                // Remove old results, keep count
                 while (resultsContainer.children.length > 1) {
                     resultsContainer.removeChild(resultsContainer.lastChild);
                 }
                 
-                // Show loader
                 const loader = document.createElement('div');
                 loader.className = "text-center py-20 text-gray-500";
                 loader.innerHTML = '<div class="loader mx-auto mb-4"></div>';
@@ -364,145 +388,113 @@
                     const q = query(collection(db, "cars"), orderBy("createdAt", "desc"));
                     const querySnapshot = await getDocs(q);
                     
-                    const tempLoader = document.getElementById('temp-loader');
-                    if(tempLoader) tempLoader.remove();
-
-                    if (querySnapshot.empty) {
-                         const msg = document.createElement('div');
-                         msg.className = "text-center py-10 text-gray-500";
-                         msg.textContent = "No cars found.";
-                         resultsContainer.appendChild(msg);
-                         return;
-                    }
-
+                    allCars = [];
                     querySnapshot.forEach((doc) => {
-                        const car = doc.data();
-                        
-                        const transmissionText = getTranslation(car.transmission.toLowerCase());
-                        const seatsKey = car.seats === 6 ? 'car-seats-6' : 'car-seats';
-                        const seatsText = getTranslation(seatsKey);
-                        const { price, symbol } = calculatePrice(car.price);
-                        const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
-                        
-                        // Total Price Logic
-                        let totalPriceHTML = '';
-                        if (rentalPickupDate && rentalReturnDate) {
-                            const start = new Date(rentalPickupDate);
-                            const end = new Date(rentalReturnDate);
-                            const diffTime = end - start;
-                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                            if (diffDays > 0) {
-                                 const total = (car.price * diffDays);
-                                 const { price: totalPrice, symbol: totalSymbol } = calculatePrice(total);
-                                 const totalLabel = getTranslation('total-text');
-                                 const forLabel = getTranslation('for-text');
-                                 const daysLabel = getTranslation('days-text');
-                                 
-                                 totalPriceHTML = `<div class="text-sm text-gray-500 mt-1">${totalLabel}: <span class="font-bold text-gray-800">${totalSymbol}${totalPrice} ${currentCurrency === 'DH' ? 'DH' : ''}</span> ${forLabel} ${diffDays} ${daysLabel}</div>`;
-                            }
-                        }
-
-                        const carCard = document.createElement('div');
-                        // Horizontal Card Design
-                        carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row border border-gray-200 hover:shadow-xl transition duration-300";
-                        
-                        // Attributes for Filtering
-                        carCard.setAttribute('data-price', car.price); 
-                        carCard.setAttribute('data-transmission', car.transmission.toLowerCase());
-                        carCard.setAttribute('data-type', car.type ? car.type.toLowerCase() : 'suv');
-
-                        carCard.innerHTML = `
-                            <div class="md:w-1/3 bg-gray-50 flex items-center justify-center p-4">
-                                <img src="${car.img}" alt="${car.name}" class="w-full h-full object-contain">
-                            </div>
-                            <div class="p-6 md:w-2/3 flex flex-col justify-between">
-                                <div>
-                                    <h3 class="text-2xl font-bold text-gray-900">${car.name} (<span data-i18n="${car.transmission.toLowerCase()}">${transmissionText}</span>)</h3>
-                                    <p class="text-gray-500 mb-4">${car.desc}</p>
-                                    <div class="grid grid-cols-2 gap-2 text-sm text-gray-700 mb-4">
-                                        <span class="flex items-center ltr:justify-start"><i data-lucide="${car.transmission === 'Automatic' ? 'car' : 'gauge'}" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span>${transmissionText}</span></span>
-                                        <span class="flex items-center ltr:justify-start"><i data-lucide="snowflake" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> A/C</span>
-                                        <span class="flex items-center ltr:justify-start"><i data-lucide="users" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span data-i18n="${seatsKey}">${seatsText}</span></span>
-                                        <span class="flex items-center ltr:justify-start"><i data-lucide="paint-bucket" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> ${car.color}</span>
-                                    </div>
-                                </div>
-                                <div class="flex justify-between items-center border-t pt-4">
-                                    <div class="flex flex-col">
-                                        <span class="text-xl font-extrabold text-primary-dark">${carPriceString} <span data-i18n="car-day" class="text-base font-normal text-gray-500">/ day</span></span>
-                                        ${totalPriceHTML}
-                                    </div>
-                                    <button class="book-now-btn accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition duration-300 shadow-md"
-                                                data-car-name="${car.name} (${car.color}, ${transmissionText})" 
-                                                data-car-price="${carPriceString}"
-                                                data-car-img="${car.img}"
-                                                data-car-trans="${transmissionText}"
-                                                data-car-seats="${car.seats}"
-                                                data-car-color="${car.color}"
-                                                data-car-desc="${car.desc}"
-                                                data-i18n="btn-book-now">
-                                        Book Now
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                        resultsContainer.appendChild(carCard);
+                        allCars.push({ ...doc.data(), id: doc.id });
                     });
                     
-                    filterCars(); // Re-apply filter
-                    attachModalListeners();
-                    lucide.createIcons();
+                    if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
+                    renderAllCars();
 
                 } catch (error) {
-                    console.error("Error loading cars:", error);
+                    console.error("Error:", error);
+                    if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
                 }
             }
 
-            // --- Filtering ---
+            function renderAllCars() {
+                while (resultsContainer.children.length > 1) resultsContainer.removeChild(resultsContainer.lastChild);
+
+                const maxPrice = parseInt(priceRange.value) || 2000;
+                const selectedTrans = Array.from(transmissionFilters).filter(c => c.checked).map(c => c.value.toLowerCase());
+                const selectedTypes = Array.from(typeFilters).filter(c => c.checked).map(c => c.value.toLowerCase());
+
+                const filteredCars = allCars.filter(car => {
+                    const p = Number(car.price);
+                    const t = car.transmission.toLowerCase();
+                    const type = car.type.toLowerCase();
+                    return p <= maxPrice && (selectedTrans.length === 0 || selectedTrans.includes(t)) && (selectedTypes.length === 0 || selectedTypes.includes(type));
+                });
+
+                updateCarCount(filteredCars.length);
+
+                if(filteredCars.length === 0) {
+                    const msg = document.createElement('div');
+                    msg.className = "text-center py-10 text-gray-500 col-span-full";
+                    msg.textContent = "No cars match filters.";
+                    resultsContainer.appendChild(msg);
+                    return;
+                }
+
+                filteredCars.forEach(car => {
+                    const transmissionText = getTranslation(car.transmission.toLowerCase());
+                    const seatsKey = car.seats === 6 ? 'car-seats-6' : 'car-seats';
+                    const seatsText = getTranslation(seatsKey);
+                    const { price, symbol } = calculatePrice(car.price);
+                    const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
+
+                    let totalPriceHTML = '';
+                    if (rentalPickupDate && rentalReturnDate) {
+                        const start = new Date(rentalPickupDate);
+                        const end = new Date(rentalReturnDate);
+                        const diffTime = end - start;
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                        if (diffDays > 0) {
+                             const total = (car.price * diffDays);
+                             const { price: totalPrice, symbol: totalSymbol } = calculatePrice(total);
+                             const totalLabel = getTranslation('total-text');
+                             const forLabel = getTranslation('for-text');
+                             const daysLabel = getTranslation('days-text');
+                             totalPriceHTML = `<div class="text-sm text-gray-500 mt-1">${totalLabel}: <span class="font-bold text-gray-800">${totalSymbol}${totalPrice} ${currentCurrency === 'DH' ? 'DH' : ''}</span> ${forLabel} ${diffDays} ${daysLabel}</div>`;
+                        }
+                    }
+
+                    const carCard = document.createElement('div');
+                    carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row border border-gray-200 hover:shadow-xl transition duration-300";
+                    
+                    carCard.innerHTML = `
+                        <div class="md:w-1/3 bg-gray-50 flex items-center justify-center p-4">
+                            <img src="${car.img}" alt="${car.name}" class="w-full h-full object-contain">
+                        </div>
+                        <div class="p-6 md:w-2/3 flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-900">${car.name} (<span data-i18n="${car.transmission.toLowerCase()}">${transmissionText}</span>)</h3>
+                                <p class="text-gray-500 mb-4">${car.desc}</p>
+                                <div class="grid grid-cols-2 gap-2 text-sm text-gray-700 mb-4">
+                                    <span class="flex items-center ltr:justify-start"><i data-lucide="${car.transmission === 'Automatic' ? 'car' : 'gauge'}" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span>${transmissionText}</span></span>
+                                    <span class="flex items-center ltr:justify-start"><i data-lucide="snowflake" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> A/C</span>
+                                    <span class="flex items-center ltr:justify-start"><i data-lucide="users" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span data-i18n="${seatsKey}">${seatsText}</span></span>
+                                    <span class="flex items-center ltr:justify-start"><i data-lucide="paint-bucket" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> ${car.color}</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center border-t pt-4">
+                                <div class="flex flex-col">
+                                    <span class="text-xl font-extrabold text-primary-dark">${carPriceString} <span data-i18n="car-day" class="text-base font-normal text-gray-500">/ day</span></span>
+                                    ${totalPriceHTML}
+                                </div>
+                                <button class="book-now-btn accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition duration-300 shadow-md"
+                                    onclick="window.openModal('${car.name}', '${carPriceString}', '${car.img}', '${transmissionText}', '${car.seats}', '${car.color}', '${car.desc}')">
+                                    Book Now
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    resultsContainer.appendChild(carCard);
+                });
+                lucide.createIcons();
+            }
+
             function updateCarCount(count) {
                 const text = getTranslation('sort-count-text');
                 if(carCountElement) carCountElement.textContent = `${count} ${text}`;
             }
 
-            function getCheckedValues(checkboxes) {
-                return Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
-            }
-
-            function filterCars() {
-                const maxPrice = parseInt(priceRange.value);
-                const selectedTransmissions = getCheckedValues(transmissionFilters);
-                const selectedTypes = getCheckedValues(typeFilters);
-                
-                let visibleCount = 0;
-                
-                carCards = document.querySelectorAll('.car-card'); 
-
-                carCards.forEach(card => {
-                    const carPrice = parseInt(card.getAttribute('data-price'));
-                    const carTransmission = card.getAttribute('data-transmission');
-                    const carType = card.getAttribute('data-type');
-
-                    const priceMatch = carPrice <= maxPrice;
-                    const transmissionMatch = selectedTransmissions.length === 0 || selectedTransmissions.includes(carTransmission);
-                    const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(carType);
-
-                    if (priceMatch && transmissionMatch && typeMatch) {
-                        card.style.display = 'flex'; 
-                        visibleCount++;
-                    } else {
-                        card.style.display = 'none'; 
-                    }
-                });
-
-                updateCarCount(visibleCount);
-            }
-
             // --- Modal Logic ---
-            function openModal(carName, carPriceWithSymbol, carImg, carTrans, carSeats, carColor, carDesc) {
+            window.openModal = function(carName, carPriceWithSymbol, carImg, carTrans, carSeats, carColor, carDesc) {
                 const dict = translations[currentLang];
                 let whatsappMessage, emailSubject, emailBody;
 
-                // Fill Modal Details
                 document.getElementById('modal-car-name').textContent = carName;
                 document.getElementById('modal-car-image').src = carImg;
                 document.getElementById('modal-transmission').textContent = carTrans;
@@ -512,15 +504,12 @@
                 document.getElementById('modal-car-price').textContent = carPriceWithSymbol.replace(/ DH| €| \$/g, '');
                 document.getElementById('modal-car-currency').textContent = currentCurrency === 'DH' ? 'DH' : (currentCurrency === 'EUR' ? '€' : '$');
                 
-                // Smart Message Logic
                 if (rentalLocation && rentalPickupDate && rentalReturnDate) {
                     let pickupDisplay = new Date(rentalPickupDate).toLocaleDateString(currentLang, { dateStyle: 'medium' });
                     let returnDisplay = new Date(rentalReturnDate).toLocaleDateString(currentLang, { dateStyle: 'medium' });
-
                     whatsappMessage = dict['book-whatsapp-msg-full'](carName, carPriceWithSymbol, rentalLocation, pickupDisplay, returnDisplay);
                     emailSubject = dict['book-email-subj-full'](carName, rentalLocation);
                     emailBody = dict['book-email-body-full'](carName, carPriceWithSymbol, rentalLocation, pickupDisplay, returnDisplay);
-                
                 } else {
                     whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
                     emailSubject = dict['book-email-subj-concise'](carName);
@@ -544,40 +533,40 @@
             }
 
             function closeModal() {
-                modalContent.classList.add('scale-95', 'opacity-0');
+                modalDetailContent.classList.add('scale-95', 'opacity-0');
                 setTimeout(() => { detailModal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }, 300); 
             }
-            
-            function attachModalListeners() {
-                let bookButtons = document.querySelectorAll('.book-now-btn');
-                bookButtons.forEach(button => {
-                    const newBtn = button.cloneNode(true);
-                    button.parentNode.replaceChild(newBtn, button);
-                    
-                    newBtn.addEventListener('click', (event) => {
-                        const btn = event.currentTarget;
-                        openModal(
-                            btn.getAttribute('data-car-name'),
-                            btn.getAttribute('data-car-price'),
-                            btn.getAttribute('data-car-img'),
-                            btn.getAttribute('data-car-trans'),
-                            btn.getAttribute('data-car-seats'),
-                            btn.getAttribute('data-car-color'),
-                            btn.getAttribute('data-car-desc')
-                        );
-                    });
-                });
+
+            if(closeDetailModalBtn) closeDetailModalBtn.addEventListener('click', closeModal);
+            if(detailModal) detailModal.addEventListener('click', (e) => { if (e.target === detailModal) closeModal(); });
+
+            // --- Filter Sidebar Logic ---
+            function toggleSidebar() {
+                const isSidebarOpen = filterSidebar.classList.toggle('open');
+                document.body.classList.toggle('overflow-hidden');
+                filterBackdrop.classList.toggle('hidden', !isSidebarOpen);
             }
+            
+            filterButton.addEventListener('click', (e) => { e.stopPropagation(); toggleSidebar(); });
+            filterCloseButton.addEventListener('click', toggleSidebar);
+            filterBackdrop.addEventListener('click', toggleSidebar);
+            resultsContainer.addEventListener('click', () => { if (filterSidebar.classList.contains('open') && window.innerWidth < 768) toggleSidebar(); });
+
+            applyFiltersBtn.addEventListener('click', () => { renderAllCars(); if (filterSidebar.classList.contains('open')) toggleSidebar(); });
+            
+            priceRange.addEventListener('input', (event) => {
+                 const prefix = currentLang === 'ar' ? 'يصل إلى' : 'Up to';
+                 priceValue.textContent = `${prefix} ${event.target.value} DH`;
+            });
 
             // --- Mobile Menu ---
             function openMobileMenu() { mobileMenu.classList.remove('opacity-0', '-translate-y-2'); mobileMenu.style.pointerEvents = 'auto'; }
             function closeMobileMenu() { mobileMenu.classList.add('opacity-0', '-translate-y-2'); mobileMenu.style.pointerEvents = 'none'; }
             mobileMenuButton.addEventListener('click', (e) => { e.stopPropagation(); mobileMenu.classList.contains('opacity-0') ? openMobileMenu() : closeMobileMenu(); });
-            mobileMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMobileMenu));
             window.addEventListener('scroll', closeMobileMenu);
             document.addEventListener('click', (event) => { if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) closeMobileMenu(); });
 
-            // --- Event Listeners ---
+            // --- Other Listeners ---
             langSelectors.forEach(selector => {
                 selector.addEventListener('change', (event) => {
                     setLanguage(event.target.value);
@@ -591,20 +580,7 @@
                 });
             });
 
-            filterButton.addEventListener('click', (e) => { e.stopPropagation(); toggleSidebar(); });
-            filterCloseButton.addEventListener('click', toggleSidebar);
-            filterBackdrop.addEventListener('click', toggleSidebar);
-            resultsContainer.addEventListener('click', () => { if (filterSidebar.classList.contains('open') && window.innerWidth < 768) toggleSidebar(); });
-            applyFiltersBtn.addEventListener('click', () => { filterCars(); if (filterSidebar.classList.contains('open')) toggleSidebar(); });
-            priceRange.addEventListener('input', (event) => {
-                 const prefix = currentLang === 'ar' ? 'يصل إلى' : 'Up to';
-                 priceValue.textContent = `${prefix} ${event.target.value} DH`;
-            });
-            closeModalBtn.addEventListener('click', closeModal);
-            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-
             // --- Init ---
-            lucide.createIcons(); 
             getLocalStorageData(); 
             const savedLang = localStorage.getItem('languagePreference') || 'en';
             const savedCurrency = localStorage.getItem('currencyPreference') || 'DH';
@@ -614,8 +590,8 @@
             currentCurrency = savedCurrency;
             setLanguage(savedLang);
             
+            loadCars();
             fetchRates();
-            attachCloseListeners();
         });
     </script>
 </body>
