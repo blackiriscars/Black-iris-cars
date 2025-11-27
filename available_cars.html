@@ -11,6 +11,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="data.js"></script>
 
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Y2MG9ZZ46"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -19,6 +20,7 @@
       gtag('config', 'G-2Y2MG9ZZ46');
     </script>
     
+    <!-- Favicons -->
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192"  href="web-app-manifest-192x192.png">
     <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
@@ -34,6 +36,7 @@
         .hover\:accent-blue-dark:hover { background-color: #2b4daa; } 
         .text-accent-blue { color: #4169e1; }
 
+        /* Filter Sidebar */
         #filter-sidebar { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
         #filter-sidebar.open { transform: translateX(0); }
         [dir="rtl"] #filter-sidebar { transform: translateX(100%); left: auto; right: 0; }
@@ -42,12 +45,15 @@
         input[type="checkbox"]:checked { background-color: #1a1a1a; border-color: #1a1a1a; }
         #contact-modal { transition: opacity 0.3s ease-in-out; }
 
+        /* RTL helpers */
         [dir="rtl"] .ltr\:mr-2 { margin-right: 0; margin-left: 0.5rem; }
         [dir="rtl"] .ltr\:text-left { text-align: right; }
         [dir="rtl"] .ltr\:justify-start { justify-content: flex-end; }
         [dir="rtl"] .md\:ltr\:space-x-8 > * + * { margin-left: 0; margin-right: 2rem; }
-        
-        /* General Compact Select (Mobile & Default) */
+        [dir="rtl"] .hidden.md\:flex .compact-select { background-position: left 0.2rem center; padding-left: 1.5rem; padding-right: 0.5rem; }
+        [dir="rtl"] .compact-select { background-position: left 0.5rem center; padding-left: 2.5rem; padding-right: 12px; }
+
+        /* Compact Selectors */
         .compact-select {
             font-size: 0.875rem; font-weight: 600; color: #1a1a1a;
             background-color: transparent; border: 1px solid #d1d5db; border-radius: 0.375rem;
@@ -56,31 +62,18 @@
             background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.2em 1.2em;
             appearance: none; padding-right: 2.5rem;
         }
-
-        /* === REDESIGNED DESKTOP SELECTOR === */
-        .hidden.md\:flex .compact-select {
-            border: none; 
-            padding: 6px 1.5rem 6px 0.5rem; 
-            background-position: right 0.2rem center;
-            font-weight: 700; /* Bolder text */
-            color: #4b5563; /* Softer grey */
-            transition: color 0.2s;
-        }
-        .hidden.md\:flex .compact-select:hover {
-            color: #4169e1; /* Royal Blue on hover */
-        }
-
-        [dir="rtl"] .hidden.md\:flex .compact-select { 
-            background-position: left 0.2rem center; 
-            padding-left: 1.5rem; 
-            padding-right: 0.5rem; 
-        }
-        [dir="rtl"] .compact-select { background-position: left 0.5rem center; padding-left: 2.5rem; padding-right: 12px; }
+        .hidden.md\:flex .compact-select { border: none; padding: 6px 1.5rem 6px 0.5rem; background-position: right 0.2rem center; font-weight: 700; color: #4b5563; transition: color 0.2s; }
+        .hidden.md\:flex .compact-select:hover { color: #4169e1; }
         .compact-select option { color: #000000; font-weight: 400; }
+        
+        /* Loading Spinner */
+        .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3498db; width: 30px; height: 30px; -webkit-animation: spin 1s linear infinite; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="antialiased" dir="ltr">
 
+    <!-- Updated Header -->
     <header class="bg-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
@@ -176,10 +169,12 @@
                 <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100">
                     <p class="text-sm text-gray-600" id="car-count">Loading cars...</p> 
                 </div>
-                </div>
+                <!-- Cars injected here -->
+            </div>
         </div>
     </main>
 
+    <!-- Modal -->
     <div id="contact-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
         <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md m-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
             <div class="flex justify-between items-center mb-6">
@@ -199,7 +194,7 @@
         </div>
     </div>
 
-    <footer class="primary-dark text-white py-12">
+    <footer id="contact" class="primary-dark text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8 mb-8">
                 <div>
@@ -217,9 +212,12 @@
                 </div>
                 <div>
                     <h4 class="text-lg font-semibold mb-4" data-i18n="h4-contact">Contact & Booking</h4>
-                    <p class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start"><i data-lucide="phone" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> 0602020402</p>
-                    <p class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start"><i data-lucide="mail" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <a href="mailto:blackiriscars@gmail.com" class="hover:text-accent-blue">blackiriscars@gmail.com</a></p>
+                    <a href="tel:+212602020402" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
+                        <i data-lucide="phone" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 0602020402
+                    </a>
+                    <p class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start"><i data-lucide="mail" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> <a href="mailto:blackiriscars@gmail.com" class="hover:text-accent-blue">blackiriscars@gmail.com</a></p>
                     
+                    <!-- Maps Link -->
                     <a href="PASTE_YOUR_GOOGLE_MAPS_LINK_HERE" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
                         <i data-lucide="map-pin" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 
                         <span data-i18n="address-text">10 rue ouarzazat hassan rabat</span>
@@ -231,38 +229,39 @@
                 </div>
             </div>
             <div class="text-center text-sm text-gray-500 pt-4">
-                &copy; <span data-i18n="copy-right">2024 Black Iris Cars. All rights reserved.</span>
+                &copy; <span data-i18n="copy-right">2024 BLACK IRIS cars. All rights reserved.</span>
             </div>
         </div>
     </footer>
 
-    <script>
+    <!-- FIREBASE LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // YOUR FIREBASE KEYS
+        const firebaseConfig = {
+          apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
+          authDomain: "black-iris-fleet-9c64e.firebaseapp.com",
+          projectId: "black-iris-fleet-9c64e",
+          storageBucket: "black-iris-fleet-9c64e.firebasestorage.app",
+          messagingSenderId: "875590751512",
+          appId: "1:875590751512:web:7377b8c8fe507053f7ba6d",
+          measurementId: "G-4Y7L69L9BS"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // --- 1. Global State & Element References ---
+            // State
             let currentLang = 'en';
-            let currentCurrency = 'DH'; 
-            let rentalLocation = '';
-            let rentalPickupDate = '';
-            let rentalReturnDate = '';
+            let currentCurrency = 'DH';
+            let exchangeRates = { EUR: 0.092, USD: 0.10 };
+            let rentalLocation = '', rentalPickupDate = '', rentalReturnDate = '';
+            let carCards = [];
 
-            let exchangeRates = { EUR: 0.092, USD: 0.10 }; 
-
-            async function fetchRates() {
-                try {
-                    const response = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/mad.json');
-                    const data = await response.json();
-                    if (data && data.mad) {
-                        exchangeRates.EUR = data.mad.eur;
-                        exchangeRates.USD = data.mad.usd;
-                        renderAllCars();
-                        filterCars();
-                    }
-                } catch (error) {
-                    console.log('Using static rates');
-                }
-            }
-
+            // Elements
             const langSelectors = document.querySelectorAll('#language-selector, #language-selector-mobile');
             const currencySelectors = document.querySelectorAll('#currency-selector, #currency-selector-mobile');
             const priceRange = document.getElementById('price-range');
@@ -271,45 +270,49 @@
             const carCountElement = document.getElementById('car-count');
             const transmissionFilters = document.querySelectorAll('#transmission-filters input[type="checkbox"]');
             const typeFilters = document.querySelectorAll('#type-filters input[type="checkbox"]');
+            
             const filterButton = document.getElementById('filter-menu-button'); 
             const filterSidebar = document.getElementById('filter-sidebar');
             const filterCloseButton = document.getElementById('filter-close-button');
             const filterBackdrop = document.getElementById('filter-backdrop'); 
             const resultsContainer = document.getElementById('results-container');
+            
             const modal = document.getElementById('contact-modal');
             const modalContent = document.getElementById('modal-content');
             const closeModalBtn = document.getElementById('close-modal-btn');
             const whatsappLink = document.getElementById('whatsapp-link');
             const emailLink = document.getElementById('email-link');
+
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const mobileMenu = document.getElementById('mobile-menu');
-            
-            let carCards = []; 
 
-            // --- 2. Core Functions ---
+            // --- Functions ---
+            async function fetchRates() {
+                try {
+                    const response = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/mad.json');
+                    const data = await response.json();
+                    if (data && data.mad) {
+                        exchangeRates.EUR = data.mad.eur;
+                        exchangeRates.USD = data.mad.usd;
+                        loadCars(); 
+                    }
+                } catch (error) { console.log('Using static rates'); }
+            }
+
             function getTranslation(key) {
+                if (typeof translations === 'undefined' || !translations[currentLang]) return key;
                 const translation = translations[currentLang][key];
                 return (typeof translation === 'function') ? translation : (translation || key);
             }
-            
+
             function calculatePrice(basePrice) {
-                if (currentCurrency === 'EUR') {
-                    return { price: (basePrice * exchangeRates.EUR).toFixed(0), symbol: '€' };
-                }
-                if (currentCurrency === 'USD') {
-                    return { price: (basePrice * exchangeRates.USD).toFixed(0), symbol: '$' };
-                }
+                if (currentCurrency === 'EUR') return { price: (basePrice * exchangeRates.EUR).toFixed(0), symbol: '€' };
+                if (currentCurrency === 'USD') return { price: (basePrice * exchangeRates.USD).toFixed(0), symbol: '$' };
                 return { price: basePrice, symbol: '' };
             }
 
-            function getLocalStorageData() {
-                rentalLocation = localStorage.getItem('rentalLocation') || '';
-                rentalPickupDate = localStorage.getItem('rentalPickupDate') || '';
-                rentalReturnDate = localStorage.getItem('rentalReturnDate') || '';
-            }
-            
             function updateAllSelectors(selector, value) {
-                document.querySelectorAll(selector).forEach(sel => { sel.value = value; });
+                document.querySelectorAll(selector).forEach(sel => sel.value = value);
             }
 
             function setLanguage(lang) {
@@ -320,100 +323,145 @@
                     const key = element.getAttribute('data-i18n');
                     if (dictionary[key] && typeof dictionary[key] === 'string') element.textContent = dictionary[key];
                 });
-                if (carCountElement) updateCarCount(document.querySelectorAll('.car-card:not([style*="display: none"])').length);
                 document.body.setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');
-                document.title = (getTranslation('h1-available') || 'Available Cars') + (lang === 'ar' ? ' | بلاك آيرس' : ' | Black Iris');
-                if (priceRange && priceValue) {
-                    const prefix = lang === 'ar' ? 'يصل إلى' : 'Up to';
-                    priceValue.textContent = `${prefix} ${priceRange.value} DH`;
-                }
                 document.querySelectorAll('select option').forEach(option => {
                     const key = option.getAttribute('data-i18n');
                     if (key && dictionary[key] && typeof dictionary[key] === 'string') option.textContent = dictionary[key];
                 });
+                loadCars();
                 lucide.createIcons();
             }
 
             function setCurrency(currency) {
                 currentCurrency = currency;
                 updateAllSelectors('#currency-selector, #currency-selector-mobile', currency);
-                renderAllCars(); 
-                filterCars();    
+                loadCars();
             }
-            
-            function renderAllCars() {
+
+            function getLocalStorageData() {
+                rentalLocation = localStorage.getItem('rentalLocation') || '';
+                rentalPickupDate = localStorage.getItem('rentalPickupDate') || '';
+                rentalReturnDate = localStorage.getItem('rentalReturnDate') || '';
+            }
+
+            // --- FIREBASE LOADING ---
+            async function loadCars() {
                 if (!resultsContainer) return;
+                
+                // Clear results except the count bar
                 while (resultsContainer.children.length > 1) {
                     resultsContainer.removeChild(resultsContainer.lastChild);
                 }
-                carData.forEach(car => {
-                    const transmissionText = getTranslation(car.transmission.toLowerCase());
-                    const seatsKey = car.seats === 6 ? 'car-seats-6' : 'car-seats';
-                    const seatsText = getTranslation(seatsKey);
-                    const { price, symbol } = calculatePrice(car.price);
-                    const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
+                
+                // Show loader
+                const loader = document.createElement('div');
+                loader.className = "text-center py-20 text-gray-500";
+                loader.innerHTML = '<div class="loader mx-auto mb-4"></div>';
+                loader.id = "temp-loader";
+                resultsContainer.appendChild(loader);
 
-                    let totalPriceHTML = '';
-                    if (rentalPickupDate && rentalReturnDate) {
-                        const start = new Date(rentalPickupDate);
-                        const end = new Date(rentalReturnDate);
-                        const diffTime = end - start;
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                try {
+                    const q = query(collection(db, "cars"), orderBy("createdAt", "desc"));
+                    const querySnapshot = await getDocs(q);
+                    
+                    const tempLoader = document.getElementById('temp-loader');
+                    if(tempLoader) tempLoader.remove();
 
-                        if (diffDays > 0) {
-                             const total = (car.price * diffDays);
-                             const { price: totalPrice, symbol: totalSymbol } = calculatePrice(total);
-                             const totalLabel = getTranslation('total-text');
-                             const forLabel = getTranslation('for-text');
-                             const daysLabel = getTranslation('days-text');
-                             totalPriceHTML = `<div class="text-sm text-gray-500 mt-1">${totalLabel}: <span class="font-bold text-gray-800">${totalSymbol}${totalPrice} ${currentCurrency === 'DH' ? 'DH' : ''}</span> ${forLabel} ${diffDays} ${daysLabel}</div>`;
-                        }
+                    if (querySnapshot.empty) {
+                         const msg = document.createElement('div');
+                         msg.className = "text-center py-10 text-gray-500";
+                         msg.textContent = "No cars found.";
+                         resultsContainer.appendChild(msg);
+                         return;
                     }
 
-                    const card = document.createElement('div');
-                    card.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row border border-gray-200 hover:shadow-xl transition duration-300";
-                    card.setAttribute('data-price', car.price);
-                    card.setAttribute('data-transmission', car.transmission.toLowerCase());
-                    card.setAttribute('data-type', car.type.toLowerCase());
+                    querySnapshot.forEach((doc) => {
+                        const car = doc.data();
+                        
+                        const transmissionText = getTranslation(car.transmission.toLowerCase());
+                        const seatsKey = car.seats === 6 ? 'car-seats-6' : 'car-seats';
+                        const seatsText = getTranslation(seatsKey);
+                        const { price, symbol } = calculatePrice(car.price);
+                        const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
+                        
+                        // Total Price Logic
+                        let totalPriceHTML = '';
+                        if (rentalPickupDate && rentalReturnDate) {
+                            const start = new Date(rentalPickupDate);
+                            const end = new Date(rentalReturnDate);
+                            const diffTime = end - start;
+                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                    card.innerHTML = `
-                        <div class="md:w-1/3 bg-gray-50 flex items-center justify-center p-4">
-                            <img src="${car.img}" alt="${car.name}" class="w-full h-full object-contain">
-                        </div>
-                        <div class="p-6 md:w-2/3 flex flex-col justify-between">
-                            <div>
-                                <h3 class="text-2xl font-bold text-gray-900">${car.name} (<span data-i18n="${car.transmission.toLowerCase()}">${transmissionText}</span>)</h3>
-                                <p class="text-gray-500 mb-4">${car.desc}</p>
-                                <div class="grid grid-cols-2 gap-2 text-sm text-gray-700 mb-4">
-                                    <span class="flex items-center ltr:justify-start"><i data-lucide="${car.transmission === 'Automatic' ? 'car' : 'gauge'}" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span data-i18n="${car.transmission.toLowerCase()}">${transmissionText}</span></span>
-                                    <span class="flex items-center ltr:justify-start"><i data-lucide="snowflake" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> A/C</span>
-                                    <span class="flex items-center ltr:justify-start"><i data-lucide="users" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span data-i18n="${seatsKey}">${seatsText}</span></span>
-                                    <span class="flex items-center ltr:justify-start"><i data-lucide="paint-bucket" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> ${car.color}</span>
+                            if (diffDays > 0) {
+                                 const total = (car.price * diffDays);
+                                 const { price: totalPrice, symbol: totalSymbol } = calculatePrice(total);
+                                 const totalLabel = getTranslation('total-text');
+                                 const forLabel = getTranslation('for-text');
+                                 const daysLabel = getTranslation('days-text');
+                                 
+                                 totalPriceHTML = `<div class="text-sm text-gray-500 mt-1">${totalLabel}: <span class="font-bold text-gray-800">${totalSymbol}${totalPrice} ${currentCurrency === 'DH' ? 'DH' : ''}</span> ${forLabel} ${diffDays} ${daysLabel}</div>`;
+                            }
+                        }
+
+                        const carCard = document.createElement('div');
+                        // Horizontal Card Design
+                        carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row border border-gray-200 hover:shadow-xl transition duration-300";
+                        
+                        // Attributes for Filtering
+                        carCard.setAttribute('data-price', car.price); 
+                        carCard.setAttribute('data-transmission', car.transmission.toLowerCase());
+                        carCard.setAttribute('data-type', car.type ? car.type.toLowerCase() : 'suv');
+
+                        carCard.innerHTML = `
+                            <div class="md:w-1/3 bg-gray-50 flex items-center justify-center p-4">
+                                <img src="${car.img}" alt="${car.name}" class="w-full h-full object-contain">
+                            </div>
+                            <div class="p-6 md:w-2/3 flex flex-col justify-between">
+                                <div>
+                                    <h3 class="text-2xl font-bold text-gray-900">${car.name} (<span data-i18n="${car.transmission.toLowerCase()}">${transmissionText}</span>)</h3>
+                                    <p class="text-gray-500 mb-4">${car.desc}</p>
+                                    <div class="grid grid-cols-2 gap-2 text-sm text-gray-700 mb-4">
+                                        <span class="flex items-center ltr:justify-start"><i data-lucide="${car.transmission === 'Automatic' ? 'car' : 'gauge'}" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span>${transmissionText}</span></span>
+                                        <span class="flex items-center ltr:justify-start"><i data-lucide="snowflake" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> A/C</span>
+                                        <span class="flex items-center ltr:justify-start"><i data-lucide="users" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span data-i18n="${seatsKey}">${seatsText}</span></span>
+                                        <span class="flex items-center ltr:justify-start"><i data-lucide="paint-bucket" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> ${car.color}</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center border-t pt-4">
+                                    <div class="flex flex-col">
+                                        <span class="text-xl font-extrabold text-primary-dark">${carPriceString} <span data-i18n="car-day" class="text-base font-normal text-gray-500">/ day</span></span>
+                                        ${totalPriceHTML}
+                                    </div>
+                                    <button class="book-now-btn accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition duration-300 shadow-md"
+                                                data-car-name="${car.name} (${car.color}, ${transmissionText})" 
+                                                data-car-price="${carPriceString}"
+                                                data-car-img="${car.img}"
+                                                data-car-trans="${transmissionText}"
+                                                data-car-seats="${car.seats}"
+                                                data-car-color="${car.color}"
+                                                data-car-desc="${car.desc}"
+                                                data-i18n="btn-book-now">
+                                        Book Now
+                                    </button>
                                 </div>
                             </div>
-                            <div class="flex justify-between items-center border-t pt-4">
-                                <div class="flex flex-col">
-                                    <span class="text-xl font-extrabold text-primary-dark">${carPriceString} <span data-i18n="car-day" class="text-base font-normal text-gray-500">/ day</span></span>
-                                    ${totalPriceHTML}
-                                </div>
-                                <button class="book-now-btn accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition duration-300 shadow-md"
-                                            data-car-name="${car.name} (${car.color}, ${transmissionText})" 
-                                            data-car-price="${carPriceString}"
-                                            data-i18n="btn-book-now">
-                                    Book Now
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                    resultsContainer.appendChild(card);
-                });
-                attachModalListeners();
-                lucide.createIcons();
+                        `;
+                        resultsContainer.appendChild(carCard);
+                    });
+                    
+                    filterCars(); // Re-apply filter
+                    attachModalListeners();
+                    lucide.createIcons();
+
+                } catch (error) {
+                    console.error("Error loading cars:", error);
+                }
             }
 
+            // --- Filtering ---
             function updateCarCount(count) {
                 const text = getTranslation('sort-count-text');
-                carCountElement.textContent = `${count} ${text}`;
+                if(carCountElement) carCountElement.textContent = `${count} ${text}`;
             }
 
             function getCheckedValues(checkboxes) {
@@ -424,15 +472,20 @@
                 const maxPrice = parseInt(priceRange.value);
                 const selectedTransmissions = getCheckedValues(transmissionFilters);
                 const selectedTypes = getCheckedValues(typeFilters);
+                
                 let visibleCount = 0;
+                
                 carCards = document.querySelectorAll('.car-card'); 
+
                 carCards.forEach(card => {
                     const carPrice = parseInt(card.getAttribute('data-price'));
                     const carTransmission = card.getAttribute('data-transmission');
                     const carType = card.getAttribute('data-type');
+
                     const priceMatch = carPrice <= maxPrice;
                     const transmissionMatch = selectedTransmissions.length === 0 || selectedTransmissions.includes(carTransmission);
                     const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(carType);
+
                     if (priceMatch && transmissionMatch && typeMatch) {
                         card.style.display = 'flex'; 
                         visibleCount++;
@@ -440,54 +493,83 @@
                         card.style.display = 'none'; 
                     }
                 });
+
                 updateCarCount(visibleCount);
             }
 
-            function toggleSidebar() {
-                const isSidebarOpen = filterSidebar.classList.toggle('open');
-                document.body.classList.toggle('overflow-hidden');
-                filterBackdrop.classList.toggle('hidden', !isSidebarOpen);
-            }
-
-            function openModal(carName, carPriceWithSymbol) {
+            // --- Modal Logic ---
+            function openModal(carName, carPriceWithSymbol, carImg, carTrans, carSeats, carColor, carDesc) {
                 const dict = translations[currentLang];
                 let whatsappMessage, emailSubject, emailBody;
+
+                // Fill Modal Details
+                document.getElementById('modal-car-name').textContent = carName;
+                document.getElementById('modal-car-image').src = carImg;
+                document.getElementById('modal-transmission').textContent = carTrans;
+                document.getElementById('modal-seats-value').textContent = carSeats;
+                document.getElementById('modal-color').textContent = carColor;
+                document.getElementById('modal-car-desc').textContent = carDesc;
+                document.getElementById('modal-car-price').textContent = carPriceWithSymbol.replace(/ DH| €| \$/g, '');
+                document.getElementById('modal-car-currency').textContent = currentCurrency === 'DH' ? 'DH' : (currentCurrency === 'EUR' ? '€' : '$');
+                
+                // Smart Message Logic
                 if (rentalLocation && rentalPickupDate && rentalReturnDate) {
                     let pickupDisplay = new Date(rentalPickupDate).toLocaleDateString(currentLang, { dateStyle: 'medium' });
                     let returnDisplay = new Date(rentalReturnDate).toLocaleDateString(currentLang, { dateStyle: 'medium' });
+
                     whatsappMessage = dict['book-whatsapp-msg-full'](carName, carPriceWithSymbol, rentalLocation, pickupDisplay, returnDisplay);
                     emailSubject = dict['book-email-subj-full'](carName, rentalLocation);
                     emailBody = dict['book-email-body-full'](carName, carPriceWithSymbol, rentalLocation, pickupDisplay, returnDisplay);
+                
                 } else {
                     whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
                     emailSubject = dict['book-email-subj-concise'](carName);
                     emailBody = dict['book-email-body-concise'](carName, carPriceWithSymbol);
                 }
+            
                 whatsappLink.href = `https://wa.me/212602020402?text=${encodeURIComponent(whatsappMessage)}`;
                 emailLink.href = `mailto:blackiriscars@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-                modal.classList.remove('hidden');
-                setTimeout(() => { modalContent.classList.remove('scale-95', 'opacity-0'); }, 10);
+                
+                contactOptions.classList.add('hidden');
+                modalBookButton.classList.remove('hidden'); 
+                
+                modalBookButton.onclick = () => {
+                    contactOptions.classList.remove('hidden');
+                    modalBookButton.classList.add('hidden');
+                };
+
+                detailModal.classList.remove('hidden');
+                setTimeout(() => { modalDetailContent.classList.remove('scale-95', 'opacity-0'); }, 10);
                 document.body.classList.add('overflow-hidden');
             }
 
             function closeModal() {
                 modalContent.classList.add('scale-95', 'opacity-0');
-                setTimeout(() => { modal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }, 300); 
+                setTimeout(() => { detailModal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }, 300); 
             }
             
             function attachModalListeners() {
                 let bookButtons = document.querySelectorAll('.book-now-btn');
-                bookButtons.forEach(button => button.replaceWith(button.cloneNode(true)));
-                bookButtons = document.querySelectorAll('.book-now-btn');
                 bookButtons.forEach(button => {
-                    button.addEventListener('click', (event) => {
-                        const carName = event.currentTarget.getAttribute('data-car-name');
-                        const carPrice = event.currentTarget.getAttribute('data-car-price');
-                        openModal(carName, carPrice);
+                    const newBtn = button.cloneNode(true);
+                    button.parentNode.replaceChild(newBtn, button);
+                    
+                    newBtn.addEventListener('click', (event) => {
+                        const btn = event.currentTarget;
+                        openModal(
+                            btn.getAttribute('data-car-name'),
+                            btn.getAttribute('data-car-price'),
+                            btn.getAttribute('data-car-img'),
+                            btn.getAttribute('data-car-trans'),
+                            btn.getAttribute('data-car-seats'),
+                            btn.getAttribute('data-car-color'),
+                            btn.getAttribute('data-car-desc')
+                        );
                     });
                 });
             }
 
+            // --- Mobile Menu ---
             function openMobileMenu() { mobileMenu.classList.remove('opacity-0', '-translate-y-2'); mobileMenu.style.pointerEvents = 'auto'; }
             function closeMobileMenu() { mobileMenu.classList.add('opacity-0', '-translate-y-2'); mobileMenu.style.pointerEvents = 'none'; }
             mobileMenuButton.addEventListener('click', (e) => { e.stopPropagation(); mobileMenu.classList.contains('opacity-0') ? openMobileMenu() : closeMobileMenu(); });
@@ -495,6 +577,7 @@
             window.addEventListener('scroll', closeMobileMenu);
             document.addEventListener('click', (event) => { if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) closeMobileMenu(); });
 
+            // --- Event Listeners ---
             langSelectors.forEach(selector => {
                 selector.addEventListener('change', (event) => {
                     setLanguage(event.target.value);
@@ -520,6 +603,7 @@
             closeModalBtn.addEventListener('click', closeModal);
             modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
+            // --- Init ---
             lucide.createIcons(); 
             getLocalStorageData(); 
             const savedLang = localStorage.getItem('languagePreference') || 'en';
@@ -531,9 +615,10 @@
             setLanguage(savedLang);
             
             fetchRates();
-
             attachCloseListeners();
         });
     </script>
 </body>
 </html>
+
+
