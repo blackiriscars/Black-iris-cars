@@ -2,329 +2,307 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         
+        /* Active Tab Style */
         .nav-item.active {
             background-color: rgb(67 56 202); /* Indigo 700 */
             border-left: 4px solid rgb(199 210 254); /* Indigo 200 */
         }
+
+        /* Smooth Sidebar Transition */
+        #sidebar { transition: transform 0.3s ease-in-out; }
+        .sidebar-open { transform: translateX(0) !important; }
+        .sidebar-closed { transform: translateX(-100%); }
         
+        /* Utility */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Mobile sidebar transition */
-        .sidebar-mobile {
-            transform: translateX(0) !important;
-        }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans h-screen flex overflow-hidden">
+<body class="bg-gray-50 text-gray-800 font-sans h-[100dvh] w-screen overflow-hidden flex flex-col md:flex-row">
 
-    <!-- MOBILE OVERLAY (Click to close menu) -->
-    <div id="mobileOverlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/50 z-20 hidden md:hidden glass"></div>
+    <!-- 1. MOBILE HEADER (Fixed at top, Z-Index 40) -->
+    <header class="md:hidden h-16 bg-indigo-900 text-white flex items-center justify-between px-4 fixed top-0 w-full z-40 shadow-md">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-shield-alt text-indigo-300"></i>
+            <span class="font-bold text-lg tracking-wide">AdminPanel</span>
+        </div>
+        <button onclick="window.toggleMenu()" class="p-2 active:bg-indigo-800 rounded-lg transition-colors">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+    </header>
 
-    <!-- SIDEBAR -->
-    <!-- Changed: Added fixed positioning for mobile, transform for sliding animation -->
-    <aside id="sidebar" class="w-64 bg-indigo-900 text-white flex-col shadow-xl fixed inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-30 flex h-full">
-        <!-- Brand -->
+    <!-- 2. SIDEBAR (Fixed on Mobile Z-Index 50, Relative on Desktop) -->
+    <!-- Default state on mobile is closed (-translate-x-full) -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-indigo-900 text-white shadow-2xl z-50 flex flex-col transform -translate-x-full md:translate-x-0 md:relative md:w-64 transition-transform duration-300">
+        
+        <!-- Sidebar Header -->
         <div class="h-16 flex items-center justify-between px-6 bg-indigo-950 border-b border-indigo-800 shrink-0">
-            <div class="flex items-center">
-                <i class="fas fa-shield-alt text-2xl mr-3 text-indigo-400"></i>
-                <span class="text-xl font-bold tracking-wide">AdminPanel</span>
-            </div>
-            <!-- Close button for mobile -->
-            <button onclick="toggleMenu()" class="md:hidden text-indigo-300 hover:text-white">
+            <span class="text-xl font-bold tracking-wide">Menu</span>
+            <!-- Close Button (Mobile Only) -->
+            <button onclick="window.toggleMenu()" class="md:hidden p-2 text-indigo-300 hover:text-white">
                 <i class="fas fa-times text-xl"></i>
             </button>
         </div>
 
-        <!-- Menu -->
-        <nav class="flex-1 py-4 overflow-y-auto no-scrollbar flex flex-col">
-            <ul class="space-y-1 flex-1">
+        <!-- Nav Items -->
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-2">
                 <li>
-                    <button onclick="window.switchTab('dashboard')" id="nav-dashboard" class="nav-item active w-full flex items-center px-6 py-3 hover:bg-indigo-800 transition-colors text-left">
-                        <i class="fas fa-chart-line w-6"></i>
+                    <button onclick="window.switchTab('dashboard')" id="nav-dashboard" class="nav-item active w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left">
+                        <i class="fas fa-chart-line w-5 text-center"></i>
                         <span class="font-medium">Dashboard</span>
                     </button>
                 </li>
-                <li class="pt-4 pb-1 px-6 text-xs font-semibold text-indigo-400 uppercase tracking-wider">Inventory</li>
+                <li class="px-6 pt-4 pb-1 text-xs font-bold text-indigo-400 uppercase">Inventory</li>
                 <li>
-                    <button onclick="window.switchTab('fleet')" id="nav-fleet" class="nav-item w-full flex items-center px-6 py-3 hover:bg-indigo-800 transition-colors text-left">
-                        <i class="fas fa-car w-6"></i>
+                    <button onclick="window.switchTab('fleet')" id="nav-fleet" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left">
+                        <i class="fas fa-car w-5 text-center"></i>
                         <span class="font-medium">Fleet Inventory</span>
                     </button>
                 </li>
                 <li>
-                    <button onclick="window.switchTab('add-car')" id="nav-add-car" class="nav-item w-full flex items-center px-6 py-3 hover:bg-indigo-800 transition-colors text-left">
-                        <i class="fas fa-plus-circle w-6"></i>
+                    <button onclick="window.switchTab('add-car')" id="nav-add-car" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left">
+                        <i class="fas fa-plus-circle w-5 text-center"></i>
                         <span class="font-medium">Add New Car</span>
                     </button>
                 </li>
-                <li class="pt-4 pb-1 px-6 text-xs font-semibold text-indigo-400 uppercase tracking-wider">Operations</li>
+                <li class="px-6 pt-4 pb-1 text-xs font-bold text-indigo-400 uppercase">Operations</li>
                 <li>
-                    <button onclick="window.switchTab('bookings')" id="nav-bookings" class="nav-item w-full flex items-center px-6 py-3 hover:bg-indigo-800 transition-colors text-left">
-                        <i class="fas fa-calendar-alt w-6"></i>
+                    <button onclick="window.switchTab('bookings')" id="nav-bookings" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left">
+                        <i class="fas fa-calendar-alt w-5 text-center"></i>
                         <span class="font-medium">Bookings</span>
                     </button>
                 </li>
             </ul>
-
-            <!-- Exit Button -->
-            <div class="px-4 py-4 border-t border-indigo-800 mt-auto shrink-0">
-                <button onclick="window.location.reload()" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-medium transition-colors shadow-lg">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Exit Admin Panel
-                </button>
-            </div>
         </nav>
 
-        <!-- User Footer -->
-        <div class="p-4 bg-indigo-950 border-t border-indigo-800 shrink-0">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-xs font-bold shadow-lg">A</div>
-                <div class="overflow-hidden">
-                    <p class="text-sm font-semibold truncate">Admin User</p>
-                    <p class="text-xs text-indigo-300 truncate">System Administrator</p>
-                </div>
-            </div>
+        <!-- Exit Button -->
+        <div class="p-4 border-t border-indigo-800 bg-indigo-950 shrink-0">
+            <button onclick="window.location.reload()" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-medium shadow-md flex items-center justify-center gap-2 transition-transform active:scale-95">
+                <i class="fas fa-sign-out-alt"></i> Exit Panel
+            </button>
         </div>
     </aside>
 
-    <!-- MOBILE HEADER -->
-    <div class="md:hidden fixed top-0 w-full bg-indigo-900 text-white h-16 z-20 flex items-center justify-between px-4 shadow-md">
-        <span class="font-bold text-lg">AdminPanel</span>
-        <!-- Changed: onclick now calls toggleMenu() instead of alert -->
-        <button onclick="toggleMenu()" class="p-2 focus:outline-none">
-            <i class="fas fa-bars text-xl"></i>
-        </button>
-    </div>
+    <!-- 3. OVERLAY (For closing menu on mobile) -->
+    <div id="mobileOverlay" onclick="window.toggleMenu()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden backdrop-blur-sm transition-opacity"></div>
 
-    <!-- MAIN CONTENT WRAPPER -->
-    <main class="flex-1 flex flex-col h-full relative overflow-hidden bg-gray-50 pt-16 md:pt-0">
+    <!-- 4. MAIN CONTENT -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full bg-gray-50">
         
-        <!-- TOP HEADER -->
-        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8 border-b border-gray-200 shrink-0">
-            <h2 id="pageTitle" class="text-xl font-bold text-gray-800">Dashboard Overview</h2>
-            <!-- Date removed as requested -->
-            <div></div> 
+        <!-- Desktop Header (Hidden on Mobile) -->
+        <header class="hidden md:flex h-16 bg-white shadow-sm items-center justify-between px-8 border-b border-gray-200 shrink-0 z-10">
+            <h2 id="desktopTitle" class="text-xl font-bold text-gray-800">Dashboard Overview</h2>
         </header>
 
-        <!-- SCROLLABLE CONTENT AREA -->
-        <div class="flex-1 overflow-y-auto p-4 md:p-8">
+        <!-- SCROLLABLE AREA -->
+        <!-- Added pt-20 on mobile to push content below the fixed header (16 + 4) -->
+        <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 pt-20 md:p-8 md:pt-8 w-full">
             
-            <!-- 1. DASHBOARD VIEW -->
-            <div id="view-dashboard" class="page-view animate-fade-in block">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-                    <!-- Stat 1 -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
-                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Fleet</span>
-                        <div class="flex justify-between items-end mt-2">
-                            <h3 class="text-3xl font-bold text-gray-800" id="stat-total">0</h3>
-                            <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg"><i class="fas fa-car"></i></div>
+            <!-- VIEW: DASHBOARD -->
+            <div id="view-dashboard" class="page-view animate-fade-in block space-y-6">
+                
+                <!-- Mobile Title -->
+                <h2 class="md:hidden text-2xl font-bold text-gray-800 mb-4">Dashboard Overview</h2>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase">Total Fleet</p>
+                            <h3 class="text-3xl font-bold text-gray-800 mt-1" id="stat-total">0</h3>
                         </div>
+                        <div class="h-10 w-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center"><i class="fas fa-car"></i></div>
                     </div>
-                    <!-- Stat 2 -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
-                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Available</span>
-                        <div class="flex justify-between items-end mt-2">
-                            <h3 class="text-3xl font-bold text-green-600" id="stat-available">0</h3>
-                            <div class="p-2 bg-green-50 text-green-600 rounded-lg"><i class="fas fa-check"></i></div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase">Available</p>
+                            <h3 class="text-3xl font-bold text-green-600 mt-1" id="stat-available">0</h3>
                         </div>
+                        <div class="h-10 w-10 rounded-full bg-green-50 text-green-600 flex items-center justify-center"><i class="fas fa-check"></i></div>
                     </div>
-                    <!-- Stat 3 -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
-                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Rented</span>
-                        <div class="flex justify-between items-end mt-2">
-                            <h3 class="text-3xl font-bold text-orange-600" id="stat-rented">0</h3>
-                            <div class="p-2 bg-orange-50 text-orange-600 rounded-lg"><i class="fas fa-key"></i></div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase">Rented</p>
+                            <h3 class="text-3xl font-bold text-orange-600 mt-1" id="stat-rented">0</h3>
                         </div>
+                        <div class="h-10 w-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center"><i class="fas fa-key"></i></div>
                     </div>
-                    <!-- Stat 4 -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
-                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Maintenance</span>
-                        <div class="flex justify-between items-end mt-2">
-                            <h3 class="text-3xl font-bold text-red-600" id="stat-maintenance">0</h3>
-                            <div class="p-2 bg-red-50 text-red-600 rounded-lg"><i class="fas fa-tools"></i></div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase">Maintenance</p>
+                            <h3 class="text-3xl font-bold text-red-600 mt-1" id="stat-maintenance">0</h3>
                         </div>
+                        <div class="h-10 w-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center"><i class="fas fa-tools"></i></div>
                     </div>
                 </div>
 
-                <!-- Recent Activity / Welcome -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 flex flex-col items-center justify-center text-center">
-                    <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
-                        <i class="fas fa-chart-pie text-indigo-600 text-2xl"></i>
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 mb-4">
+                        <i class="fas fa-chart-pie text-2xl"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-900">System Overview</h3>
-                    <p class="text-gray-500 max-w-lg mt-2 mb-6">Your dashboard is active. Navigate to "Fleet Inventory" to manage existing cars or "Add New Car" to expand your catalog.</p>
-                    <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                        <!-- Buttons fixed to ensure they click and route correctly -->
-                        <button onclick="window.switchTab('fleet')" class="px-4 py-3 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition w-full sm:w-auto">View Inventory</button>
-                        <button onclick="window.switchTab('add-car')" class="px-4 py-3 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition w-full sm:w-auto">Add Vehicle</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. FLEET INVENTORY VIEW -->
-            <div id="view-fleet" class="page-view hidden">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="p-5 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50/50">
-                        <h3 class="font-bold text-gray-800">All Vehicles</h3>
-                        <div class="relative w-full sm:w-64">
-                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                            <input type="text" id="searchInput" placeholder="Search by name..." class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-shadow">
-                        </div>
-                    </div>
-
-                    <div id="loading" class="text-center py-12">
-                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-2"></div>
-                        <p class="text-gray-400 text-sm">Syncing with database...</p>
-                    </div>
-
-                    <!-- Cars Grid -->
-                    <div id="carsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-6">
-                        <!-- Cards injected via JS -->
+                    <h3 class="text-lg font-bold text-gray-900">Quick Actions</h3>
+                    <p class="text-gray-500 mb-6 max-w-sm mx-auto text-sm">Manage your fleet directly from here.</p>
+                    
+                    <div class="flex flex-col sm:flex-row justify-center gap-3">
+                        <button onclick="window.switchTab('fleet')" class="w-full sm:w-auto px-6 py-3 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg shadow-sm active:bg-gray-50 transition-colors">
+                            View Inventory
+                        </button>
+                        <button onclick="window.switchTab('add-car')" class="w-full sm:w-auto px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg shadow-md active:bg-indigo-700 transition-colors">
+                            Add Vehicle
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- 3. ADD CAR VIEW (Form Page) -->
-            <div id="view-add-car" class="page-view hidden">
-                <div class="max-w-4xl mx-auto">
-                    <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-                        <div class="p-6 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
-                            <h3 class="text-lg font-bold text-gray-800">Register New Vehicle</h3>
-                            <button onclick="document.getElementById('addCarForm').reset()" class="text-sm text-gray-500 hover:text-indigo-600 underline">Reset Form</button>
-                        </div>
+            <!-- VIEW: FLEET INVENTORY -->
+            <div id="view-fleet" class="page-view hidden space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <h2 class="text-2xl font-bold text-gray-800">Fleet Inventory</h2>
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="searchInput" placeholder="Search cars..." class="w-full md:w-64 pl-10 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                </div>
+
+                <div id="loading" class="py-12 text-center">
+                    <i class="fas fa-spinner fa-spin text-3xl text-indigo-600 mb-2"></i>
+                    <p class="text-gray-500">Loading fleet...</p>
+                </div>
+
+                <div id="carsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-20">
+                    <!-- Cars injected here -->
+                </div>
+            </div>
+
+            <!-- VIEW: ADD CAR -->
+            <div id="view-add-car" class="page-view hidden space-y-4">
+                <h2 class="text-2xl font-bold text-gray-800">Add New Vehicle</h2>
+                
+                <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+                    <form id="addCarForm" class="p-5 md:p-8 space-y-6">
                         
-                        <div class="p-6 md:p-8">
-                            <form id="addCarForm" class="space-y-6">
-                                
-                                <!-- Row 1: Name Only -->
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Name of Car</label>
-                                    <input type="text" id="carName" required placeholder="e.g. Mercedes-Benz C-Class" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
-                                </div>
-
-                                <!-- Row 2 -->
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
-                                        <div class="relative">
-                                            <select id="carCategory" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none appearance-none">
-                                                <option value="Sedan">Sedan</option>
-                                                <option value="SUV">SUV</option>
-                                                <option value="Luxury">Luxury</option>
-                                                <option value="Convertible">Convertible</option>
-                                                <option value="Sports">Sports</option>
-                                                <option value="Hatchback">Hatchback</option>
-                                                <option value="Van">Van</option>
-                                                <option value="Truck">Truck</option>
-                                            </select>
-                                            <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Price / Day ($)</label>
-                                        <input type="number" id="carPrice" required placeholder="0.00" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Seats</label>
-                                        <input type="number" id="carSeats" value="5" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                                    </div>
-                                </div>
-
-                                <!-- Row 3 -->
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Transmission</label>
-                                        <div class="relative">
-                                            <select id="carTransmission" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none appearance-none">
-                                                <option value="Automatic">Automatic</option>
-                                                <option value="Manual">Manual</option>
-                                            </select>
-                                            <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Fuel Type</label>
-                                        <div class="relative">
-                                            <select id="carFuel" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none appearance-none">
-                                                <option value="Petrol">Petrol</option>
-                                                <option value="Diesel">Diesel</option>
-                                                <option value="Electric">Electric</option>
-                                                <option value="Hybrid">Hybrid</option>
-                                            </select>
-                                            <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                                        <div class="relative">
-                                            <select id="carStatus" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none appearance-none">
-                                                <option value="Available">Available</option>
-                                                <option value="Rented">Rented</option>
-                                                <option value="Maintenance">Maintenance</option>
-                                            </select>
-                                            <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Row 4 -->
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Image URL</label>
-                                    <input type="url" id="carImage" placeholder="https://..." class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                                </div>
-
-                                <!-- Row 5 -->
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
-                                    <textarea id="carDescription" rows="4" placeholder="Enter key features, condition, and details..." class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
-                                </div>
-
-                                <!-- Actions -->
-                                <div class="pt-4 border-t border-gray-100 flex justify-end">
-                                    <button type="submit" class="w-full md:w-auto bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
-                                        <i class="fas fa-save"></i> Save Vehicle
-                                    </button>
-                                </div>
-
-                            </form>
+                        <!-- Name -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Name of Car</label>
+                            <input type="text" id="carName" required class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="e.g. BMW X5">
                         </div>
-                    </div>
+
+                        <!-- Category -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Category</label>
+                            <div class="relative">
+                                <select id="carCategory" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    <option value="Sedan">Sedan</option>
+                                    <option value="SUV">SUV</option>
+                                    <option value="Luxury">Luxury</option>
+                                    <option value="Sports">Sports</option>
+                                    <option value="Convertible">Convertible</option>
+                                    <option value="Van">Van</option>
+                                    <option value="Truck">Truck</option>
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
+                            </div>
+                        </div>
+
+                        <!-- Price & Seats -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Price/Day</label>
+                                <input type="number" id="carPrice" required class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Seats</label>
+                                <input type="number" id="carSeats" value="5" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                            </div>
+                        </div>
+
+                        <!-- Trans & Fuel -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Transmission</label>
+                                <div class="relative">
+                                    <select id="carTransmission" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none">
+                                        <option value="Automatic">Auto</option>
+                                        <option value="Manual">Manual</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Fuel</label>
+                                <div class="relative">
+                                    <select id="carFuel" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none">
+                                        <option value="Petrol">Petrol</option>
+                                        <option value="Diesel">Diesel</option>
+                                        <option value="Electric">Electric</option>
+                                        <option value="Hybrid">Hybrid</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Status</label>
+                            <div class="relative">
+                                <select id="carStatus" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    <option value="Available">Available</option>
+                                    <option value="Rented">Rented</option>
+                                    <option value="Maintenance">Maintenance</option>
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
+                            </div>
+                        </div>
+
+                        <!-- Image -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Image URL</label>
+                            <input type="url" id="carImage" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="https://...">
+                        </div>
+
+                        <!-- Desc -->
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Description</label>
+                            <textarea id="carDescription" rows="3" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg active:scale-[0.98] transition-transform">
+                            Save Vehicle
+                        </button>
+                    </form>
                 </div>
             </div>
 
-            <!-- 4. BOOKINGS VIEW -->
-            <div id="view-bookings" class="page-view hidden">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-10 text-center max-w-2xl mx-auto mt-10">
-                    <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-500">
-                        <i class="fas fa-calendar-alt text-3xl"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-gray-800">Booking Management</h2>
-                    <p class="text-gray-500 mt-2">View and manage customer reservations.</p>
-                    <div class="mt-8 p-4 bg-yellow-50 text-yellow-800 border border-yellow-200 rounded-lg inline-block text-sm font-medium">
-                        <i class="fas fa-info-circle mr-2"></i> No active bookings found in the system.
-                    </div>
+            <!-- VIEW: BOOKINGS -->
+            <div id="view-bookings" class="page-view hidden space-y-4">
+                <h2 class="text-2xl font-bold text-gray-800">Bookings</h2>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+                     <i class="fas fa-calendar-times text-4xl text-gray-300 mb-4"></i>
+                     <p class="text-gray-500">No active bookings.</p>
                 </div>
             </div>
 
         </div>
     </main>
 
-    <!-- LOGIC -->
+    <!-- JS Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Firebase Init ---
+        // --- Firebase Setup ---
         const firebaseConfig = JSON.parse(__firebase_config);
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -334,42 +312,67 @@
         let currentUser = null;
         let carsData = [];
 
-        // --- Menu Logic (Mobile Support) ---
-        window.toggleMenu = () => {
+        // --- Global Functions (Attached to Window for Mobile) ---
+        
+        window.toggleMenu = function() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('mobileOverlay');
             
-            sidebar.classList.toggle('sidebar-mobile');
-            overlay.classList.toggle('hidden');
+            // Toggle sidebar classes
+            if (sidebar.classList.contains('-translate-x-full')) {
+                // Open
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                // Close
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
         };
 
-        // --- Navigation Logic (Exposed to Window) ---
-        window.switchTab = (tabName) => {
-            // Close mobile menu if open
+        window.switchTab = function(tabName) {
+            // Close menu if open on mobile
             const sidebar = document.getElementById('sidebar');
-            if(sidebar.classList.contains('sidebar-mobile')) {
-                 window.toggleMenu();
+            if (!sidebar.classList.contains('-translate-x-full')) {
+                window.toggleMenu();
             }
 
+            // Hide all pages
             document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
+            
+            // Reset Nav Active States
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
-            const view = document.getElementById(`view-${tabName}`);
-            if (view) view.classList.remove('hidden');
+            // Show Target
+            const target = document.getElementById(`view-${tabName}`);
+            if(target) target.classList.remove('hidden');
 
-            const btn = document.getElementById(`nav-${tabName}`);
-            if (btn) btn.classList.add('active');
+            // Set Active Nav
+            const navBtn = document.getElementById(`nav-${tabName}`);
+            if(navBtn) navBtn.classList.add('active');
 
+            // Update Desktop Title (Mobile has individual titles)
             const titles = {
                 'dashboard': 'Dashboard Overview',
                 'fleet': 'Fleet Inventory',
                 'add-car': 'Add New Vehicle',
                 'bookings': 'Booking Management'
             };
-            document.getElementById('pageTitle').innerText = titles[tabName] || 'Admin Panel';
+            const titleEl = document.getElementById('desktopTitle');
+            if(titleEl) titleEl.innerText = titles[tabName] || 'Admin Panel';
         };
 
-        // --- Auth & Data Loading ---
+        window.deleteCar = async function(id) {
+            if(confirm('Delete this car?')) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cars', id));
+                } catch(e) {
+                    alert('Error deleting: ' + e.message);
+                }
+            }
+        };
+
+        // --- Data Logic ---
         async function initAuth() {
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -390,23 +393,15 @@
             }
         });
 
-        // --- Firestore Listener ---
         function loadCars() {
             const loading = document.getElementById('loading');
-            const q = collection(db, 'artifacts', appId, 'public', 'data', 'cars');
-
-            onSnapshot(q, (snapshot) => {
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'cars'), (snapshot) => {
                 loading.classList.add('hidden');
                 carsData = [];
-                snapshot.forEach(doc => {
-                    carsData.push({ id: doc.id, ...doc.data() });
-                });
+                snapshot.forEach(doc => carsData.push({ id: doc.id, ...doc.data() }));
                 
                 updateStats();
                 renderCars(carsData);
-            }, (err) => {
-                console.error(err);
-                loading.innerHTML = `<p class="text-red-500">Failed to load data.</p>`;
             });
         }
 
@@ -420,90 +415,61 @@
         function renderCars(list) {
             const grid = document.getElementById('carsGrid');
             grid.innerHTML = '';
-
-            if (list.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full text-center py-10 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                        <p class="text-gray-500">No cars found.</p>
-                    </div>`;
+            
+            if(list.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-10">No cars found.</div>`;
                 return;
             }
 
             list.forEach(car => {
-                const statusStyles = {
-                    'Available': 'bg-green-100 text-green-700 border-green-200',
-                    'Rented': 'bg-orange-100 text-orange-700 border-orange-200',
-                    'Maintenance': 'bg-red-100 text-red-700 border-red-200'
-                };
-                const badge = statusStyles[car.status] || 'bg-gray-100 text-gray-700';
-                const img = car.imageUrl || 'https://placehold.co/600x400?text=No+Image';
+                const statusColor = {
+                    'Available': 'bg-green-100 text-green-700',
+                    'Rented': 'bg-orange-100 text-orange-700',
+                    'Maintenance': 'bg-red-100 text-red-700'
+                }[car.status] || 'bg-gray-100';
 
-                const card = document.createElement('div');
-                card.className = "bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow flex flex-col group";
-                card.innerHTML = `
-                    <div class="relative h-48 bg-gray-100 overflow-hidden">
-                        <img src="${img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://placehold.co/600x400?text=Error'">
-                        <div class="absolute top-3 right-3">
-                            <span class="px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider border ${badge} shadow-sm">
-                                ${car.status}
-                            </span>
-                        </div>
-                        <div class="absolute bottom-3 left-3">
-                            <span class="px-2 py-1 rounded-md text-xs font-bold bg-white/90 text-gray-800 shadow-sm backdrop-blur-sm">
-                                ${car.category}
-                            </span>
+                const div = document.createElement('div');
+                div.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col";
+                div.innerHTML = `
+                    <div class="relative h-48 bg-gray-200">
+                        <img src="${car.imageUrl || ''}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+                        <div class="absolute top-2 right-2">
+                            <span class="px-2 py-1 rounded-md text-xs font-bold uppercase ${statusColor}">${car.status}</span>
                         </div>
                     </div>
-                    <div class="p-5 flex-1 flex flex-col">
-                        <div class="flex justify-between items-start mb-3">
-                            <div>
-                                <h4 class="font-bold text-gray-900 text-lg leading-tight">${car.name}</h4>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-bold text-indigo-600 text-lg">$${car.price}</div>
-                                <div class="text-xs text-gray-400">/day</div>
-                            </div>
+                    <div class="p-4 flex-1 flex flex-col">
+                        <h3 class="font-bold text-lg text-gray-900">${car.name}</h3>
+                        <p class="text-sm text-gray-500 mb-2">${car.category} • ${car.fuelType}</p>
+                        <div class="mt-auto flex items-center justify-between">
+                            <span class="font-bold text-indigo-600 text-lg">$${car.price}<span class="text-xs text-gray-400 font-normal">/day</span></span>
+                            <button onclick="window.deleteCar('${car.id}')" class="text-red-500 p-2 hover:bg-red-50 rounded"><i class="fas fa-trash"></i></button>
                         </div>
-                        
-                        <div class="grid grid-cols-2 gap-y-2 gap-x-1 text-sm text-gray-500 mb-4 bg-gray-50 p-3 rounded-lg">
-                            <div class="flex items-center"><i class="fas fa-chair w-5 text-gray-400"></i> ${car.seats} Seats</div>
-                            <div class="flex items-center"><i class="fas fa-cog w-5 text-gray-400"></i> ${car.transmission}</div>
-                            <div class="flex items-center col-span-2"><i class="fas fa-gas-pump w-5 text-gray-400"></i> ${car.fuelType}</div>
-                        </div>
-
-                        <button onclick="window.deleteCar('${car.id}')" class="mt-auto w-full py-2.5 rounded-lg border border-red-200 text-red-600 font-medium text-sm hover:bg-red-50 transition-colors flex items-center justify-center gap-2">
-                            <i class="fas fa-trash-alt"></i> Delete Vehicle
-                        </button>
                     </div>
                 `;
-                grid.appendChild(card);
+                grid.appendChild(div);
             });
         }
 
         // --- Search ---
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
-            const filtered = carsData.filter(c => 
-                c.name.toLowerCase().includes(term) || 
-                c.category.toLowerCase().includes(term)
-            );
+            const filtered = carsData.filter(c => c.name.toLowerCase().includes(term));
             renderCars(filtered);
         });
 
-        // --- Add Car Submit ---
+        // --- Form Submit ---
         document.getElementById('addCarForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (!currentUser) return;
+            if(!currentUser) return;
 
             const btn = e.target.querySelector('button[type="submit"]');
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Saving...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             btn.disabled = true;
 
             try {
                 const newCar = {
                     name: document.getElementById('carName').value,
-                    // Model removed
                     category: document.getElementById('carCategory').value,
                     price: Number(document.getElementById('carPrice').value),
                     seats: Number(document.getElementById('carSeats').value),
@@ -518,31 +484,17 @@
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'cars'), newCar);
                 
                 e.target.reset();
-                document.getElementById('carSeats').value = 5;
-                window.switchTab('fleet'); 
+                window.switchTab('fleet');
 
             } catch (err) {
-                console.error(err);
-                alert("Failed to save car. See console.");
+                alert('Error saving: ' + err.message);
             } finally {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         });
 
-        // --- Delete Car (Global) ---
-        window.deleteCar = async (id) => {
-            if(confirm('Are you sure you want to permanently delete this vehicle?')) {
-                try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'cars', id));
-                } catch (err) {
-                    console.error("Delete failed", err);
-                }
-            }
-        };
-
     </script>
 </body>
 </html>
-
 
