@@ -9,28 +9,23 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
-        
-        /* Loading Spinner */
         .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #2563eb; width: 20px; height: 20px; -webkit-animation: spin 1s linear infinite; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body class="bg-gray-100 h-screen overflow-hidden">
 
-    <!-- ====================== 
-         LOGIN OVERLAY (Visible by Default)
-    ======================= -->
+    <!-- LOGIN OVERLAY -->
     <div id="login-overlay" class="fixed inset-0 bg-gray-900 z-50 flex items-center justify-center" style="display: flex;">
         <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md mx-4">
             <div class="text-center mb-8">
-                <!-- Placeholder Logo -->
                 <div class="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center border border-gray-300">
-                    <i data-lucide="shield" class="w-8 h-8 text-gray-500"></i>
+                    <i data-lucide="lock" class="w-8 h-8 text-gray-500"></i>
                 </div>
                 <h2 class="text-2xl font-bold text-gray-800">Admin Login</h2>
                 <p class="text-gray-500 text-sm">Authorized personnel only</p>
             </div>
-            
             <form id="login-form" class="space-y-4">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Email</label>
@@ -40,231 +35,137 @@
                     <label class="block text-sm font-bold text-gray-700 mb-1">Password</label>
                     <input type="password" id="login-password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
                 </div>
-                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-lg">
-                    Sign In
-                </button>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition shadow-lg">Sign In</button>
                 <p id="login-error" class="text-red-500 text-sm text-center hidden mt-2"></p>
             </form>
         </div>
     </div>
 
-
-    <!-- ====================== 
-         MAIN DASHBOARD (Hidden by Default)
-         We use style="display: none" to force it hidden until login
-    ======================= -->
+    <!-- DASHBOARD -->
     <div id="dashboard" class="flex h-screen" style="display: none;">
-        
-        <!-- Sidebar (Desktop) -->
+        <!-- Sidebar -->
         <aside class="w-64 bg-gray-900 text-white hidden md:flex flex-col">
-            <div class="p-6 text-2xl font-bold text-center border-b border-gray-700 flex items-center justify-center">
-                <span>Black Iris</span>
-            </div>
+            <div class="p-6 text-2xl font-bold text-center border-b border-gray-700 flex items-center justify-center"><span>Black Iris</span></div>
             <nav class="flex-1 p-4 space-y-2">
-                <button id="nav-all-cars" class="w-full flex items-center px-4 py-3 bg-blue-600 text-white rounded-lg shadow-lg transition">
-                    <i data-lucide="car" class="w-5 h-5 mr-3"></i> All Cars
-                </button>
-                <button id="nav-add-car" class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition">
-                    <i data-lucide="plus-circle" class="w-5 h-5 mr-3"></i> Add New Car
-                </button>
+                <button id="nav-all-cars" class="w-full flex items-center px-4 py-3 bg-blue-600 text-white rounded-lg shadow-lg transition"><i data-lucide="car" class="w-5 h-5 mr-3"></i> All Cars</button>
+                <button id="nav-add-car" class="w-full flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg transition"><i data-lucide="plus-circle" class="w-5 h-5 mr-3"></i> Add New Car</button>
             </nav>
             <div class="p-4 border-t border-gray-700">
-                <button id="logout-btn" class="w-full flex items-center text-red-400 hover:text-red-300 transition">
-                    <i data-lucide="log-out" class="w-5 h-5 mr-2"></i> Logout
-                </button>
+                <button id="logout-btn" class="w-full flex items-center text-red-400 hover:text-red-300 transition"><i data-lucide="log-out" class="w-5 h-5 mr-2"></i> Logout</button>
             </div>
         </aside>
 
         <!-- Main Content -->
         <main class="flex-1 overflow-y-auto relative bg-gray-50">
-            
-            <!-- Mobile Header -->
             <header class="md:hidden bg-gray-900 text-white p-4 flex justify-between items-center sticky top-0 z-20">
                 <span class="font-bold">Admin Panel</span>
                 <button id="mobile-logout" class="text-red-400"><i data-lucide="log-out" class="w-5 h-5"></i></button>
             </header>
             
-            <!-- Mobile Tabs (Visible only on mobile) -->
+            <!-- Mobile Tabs -->
             <div class="md:hidden bg-white border-b border-gray-200 p-2 flex justify-around sticky top-14 z-10">
                  <button onclick="window.switchTab('list')" class="flex-1 text-center py-2 text-sm font-bold text-blue-600 border-b-2 border-blue-600">Fleet</button>
                  <button onclick="window.switchTab('add')" class="flex-1 text-center py-2 text-sm font-bold text-gray-500">Add Car</button>
             </div>
 
-            <!-- View: All Cars List -->
+            <!-- LIST VIEW -->
             <div id="view-all-cars" class="p-4 md:p-8 max-w-6xl mx-auto">
                 <header class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-800">Current Fleet</h2>
-                    <button onclick="window.switchTab('add')" class="hidden md:block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition shadow">
-                        + Add Car
-                    </button>
+                    <button onclick="window.switchTab('add')" class="hidden md:block bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition shadow">+ Add Car</button>
                 </header>
-
-                <div id="loading-cars" class="text-center py-20 text-gray-500">
-                    <div class="loader mx-auto mb-4"></div> Loading your fleet...
-                </div>
-
-                <div id="cars-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
-                    <!-- Cars will be injected here -->
-                </div>
+                <div id="loading-cars" class="text-center py-20 text-gray-500"><div class="loader mx-auto mb-4"></div> Loading your fleet...</div>
+                <div id="cars-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20"></div>
             </div>
 
-            <!-- View: Add New Car Form (Hidden by default) -->
+            <!-- ADD CAR VIEW -->
             <div id="view-add-car" class="p-4 md:p-8 max-w-5xl mx-auto" style="display: none;">
                 <header class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-800">Add New Vehicle</h2>
                     <button onclick="window.switchTab('list')" class="text-gray-500 hover:text-gray-700 md:hidden">Cancel</button>
                 </header>
-
                 <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-gray-100 mb-20">
                     <form id="add-car-form">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            
-                            <!-- Left Side -->
                             <div class="space-y-6">
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Car Name</label>
-                                    <input type="text" id="car-name" placeholder="e.g. Hyundai Tucson" required 
-                                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                                </div>
-
+                                <div><label class="block text-sm font-bold text-gray-700 mb-2">Car Name</label><input type="text" id="car-name" placeholder="e.g. Hyundai Tucson" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"></div>
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">Price (DH/day)</label>
-                                        <input type="number" id="car-price" placeholder="850" required 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">Color</label>
-                                        <input type="text" id="car-color" placeholder="e.g. Black" required 
-                                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                                    </div>
+                                    <div><label class="block text-sm font-bold text-gray-700 mb-2">Price (DH/day)</label><input type="number" id="car-price" placeholder="850" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"></div>
+                                    <div><label class="block text-sm font-bold text-gray-700 mb-2">Color</label><input type="text" id="car-color" placeholder="e.g. Black" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"></div>
                                 </div>
-
                                 <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">Transmission</label>
-                                        <select id="car-transmission" class="w-full p-3 border border-gray-300 rounded-lg bg-white">
-                                            <option value="Automatic">Automatic</option>
-                                            <option value="Manual">Manual</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-bold text-gray-700 mb-2">Seats</label>
-                                        <select id="car-seats" class="w-full p-3 border border-gray-300 rounded-lg bg-white">
-                                            <option value="5">5</option>
-                                            <option value="6">6</option>
-                                            <option value="7">7</option>
-                                        </select>
-                                    </div>
+                                    <div><label class="block text-sm font-bold text-gray-700 mb-2">Transmission</label><select id="car-transmission" class="w-full p-3 border border-gray-300 rounded-lg bg-white"><option>Automatic</option><option>Manual</option></select></div>
+                                    <div><label class="block text-sm font-bold text-gray-700 mb-2">Seats</label><select id="car-seats" class="w-full p-3 border border-gray-300 rounded-lg bg-white"><option>5</option><option>6</option><option>7</option></select></div>
                                 </div>
-
                                 <div>
                                     <label class="block text-sm font-bold text-gray-700 mb-2">Car Type</label>
                                     <div class="grid grid-cols-2 gap-2">
-                                        <label class="flex items-center space-x-2 cursor-pointer border p-3 rounded-lg hover:bg-gray-50">
-                                            <input type="radio" name="car-type" value="suv" checked> <span>SUV</span>
-                                        </label>
-                                        <label class="flex items-center space-x-2 cursor-pointer border p-3 rounded-lg hover:bg-gray-50">
-                                            <input type="radio" name="car-type" value="sedan"> <span>Sedan</span>
-                                        </label>
-                                        <label class="flex items-center space-x-2 cursor-pointer border p-3 rounded-lg hover:bg-gray-50">
-                                            <input type="radio" name="car-type" value="hatchback"> <span>Hatchback</span>
-                                        </label>
-                                        <label class="flex items-center space-x-2 cursor-pointer border p-3 rounded-lg hover:bg-gray-50">
-                                            <input type="radio" name="car-type" value="luxury-suv"> <span>Luxury SUV</span>
-                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer border p-3 rounded-lg hover:bg-gray-50"><input type="radio" name="car-type" value="suv" checked> <span>SUV</span></label>
+                                        <label class="flex items-center space-x-2 cursor-pointer border p-3 rounded-lg hover:bg-gray-50"><input type="radio" name="car-type" value="sedan"> <span>Sedan</span></label>
+                                        <label class="flex items-center space-x-2 cursor-pointer border p-3 rounded-lg hover:bg-gray-50"><input type="radio" name="car-type" value="hatchback"> <span>Hatchback</span></label>
+                                        <label class="flex items-center space-x-2 cursor-pointer border p-3 rounded-lg hover:bg-gray-50"><input type="radio" name="car-type" value="luxury-suv"> <span>Luxury SUV</span></label>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Right Side -->
                             <div class="space-y-6">
-                                
                                 <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Car Image</label>
-                                    
-                                    <!-- File Upload Area -->
-                                    <div class="border-2 border-dashed border-gray-300 rounded-xl h-48 flex flex-col items-center justify-center text-gray-500 cursor-pointer hover:bg-gray-50 transition relative">
-                                        <input type="file" id="car-image-file" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                                        <i data-lucide="image-plus" class="w-10 h-10 mb-2 text-gray-400"></i>
-                                        <span id="file-name-display">Click or Drag photo here</span>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Car Image Link</label>
+                                    <div class="p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-800 mb-2">
+                                        Upload image to <a href="https://postimages.org/" target="_blank" class="underline font-bold">PostImages.org</a> then paste the "Direct Link" here.
                                     </div>
-
-                                    <!-- URL Fallback -->
-                                    <div class="mt-4">
-                                        <label class="text-xs font-bold text-gray-500 uppercase">Or use Image Link</label>
-                                        <input type="url" id="car-image-url" placeholder="https://..." class="w-full p-2 mt-1 border border-gray-300 rounded-lg text-sm">
-                                    </div>
+                                    <input type="url" id="car-image-url" placeholder="https://i.postimg.cc/..." required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                                 </div>
-
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Description</label>
-                                    <textarea id="car-desc" rows="4" placeholder="e.g. Stylish and powerful SUV, featuring modern technology..." required 
-                                              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
-                                </div>
-
+                                <div><label class="block text-sm font-bold text-gray-700 mb-2">Description</label><textarea id="car-desc" rows="4" placeholder="Short description..." required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"></textarea></div>
                                 <div class="pt-4 flex justify-end">
-                                    <button type="submit" id="save-btn" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition shadow-lg flex items-center justify-center w-full md:w-auto">
-                                        <span id="save-text">Publish Car</span>
-                                        <div id="save-loader" class="loader ml-2 hidden border-white border-t-transparent"></div>
-                                    </button>
+                                    <button type="submit" id="save-btn" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition shadow-lg flex items-center"><span id="save-text">Publish Car</span><div id="save-loader" class="loader ml-2 hidden border-white border-t-transparent"></div></button>
                                 </div>
-
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
-
         </main>
     </div>
 
-    <!-- ====================== 
-         FIREBASE LOGIC 
-    ======================= -->
     <script type="module">
-        // --- 1. CONFIGURATION ---
+        // --- FIREBASE CONFIGURATION (Hardcoded) ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
         const firebaseConfig = {
-          apiKey: "AIzaSyDL34igUlLH0EE_PI2oKUey-lRXwCSePPI",
-          authDomain: "black-iris-fleet.firebaseapp.com",
-          projectId: "black-iris-fleet",
-          storageBucket: "black-iris-fleet.firebasestorage.app",
-          messagingSenderId: "731321972770",
-          appId: "1:731321972770:web:9e6661dc622c82a801f27b",
-          measurementId: "G-6K1PGMXLX7"
+            apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
+            authDomain: "black-iris-fleet-9c64e.firebaseapp.com",
+            projectId: "black-iris-fleet-9c64e",
+            storageBucket: "black-iris-fleet-9c64e.firebasestorage.app",
+            messagingSenderId: "875590751512",
+            appId: "1:875590751512:web:7377b8c8fe507053f7ba6d",
+            measurementId: "G-4Y7L69L9BS"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
 
         lucide.createIcons();
 
-        // --- 2. APP LOGIC ---
+        // --- APP LOGIC ---
         const loginOverlay = document.getElementById('login-overlay');
         const dashboard = document.getElementById('dashboard');
         const viewCarsSection = document.getElementById('view-all-cars');
         const viewAddSection = document.getElementById('view-add-car');
 
-        // Check Login State
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                loginOverlay.style.display = 'none'; // Hide login
-                dashboard.style.display = 'flex';    // Show dashboard
+                loginOverlay.style.display = 'none';
+                dashboard.style.display = 'flex';
                 loadCars();
             } else {
-                loginOverlay.style.display = 'flex'; // Show login
-                dashboard.style.display = 'none';    // Hide dashboard
+                loginOverlay.style.display = 'flex';
+                dashboard.style.display = 'none';
             }
         });
 
-        // Tab Switcher
         window.switchTab = function(tab) {
             if (tab === 'list') {
                 viewCarsSection.style.display = 'block';
@@ -276,7 +177,6 @@
             }
         }
 
-        // Login
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
@@ -285,17 +185,15 @@
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
                 const errEl = document.getElementById('login-error');
-                errEl.textContent = "Login Failed: " + error.message;
+                errEl.textContent = "Access Denied: Wrong email or password.";
                 errEl.classList.remove('hidden');
             }
         });
 
-        // Logout
         const handleLogout = () => signOut(auth);
         document.getElementById('logout-btn').addEventListener('click', handleLogout);
         document.getElementById('mobile-logout').addEventListener('click', handleLogout);
 
-        // Add Car
         document.getElementById('add-car-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('save-btn');
@@ -303,7 +201,7 @@
             const loader = document.getElementById('save-loader');
             
             btn.disabled = true;
-            text.textContent = "Uploading...";
+            text.textContent = "Publishing...";
             loader.classList.remove('hidden');
 
             try {
@@ -314,17 +212,7 @@
                 const transmission = document.getElementById('car-transmission').value;
                 const type = document.querySelector('input[name="car-type"]:checked').value;
                 const desc = document.getElementById('car-desc').value;
-                
-                let imageUrl = document.getElementById('car-image-url').value;
-                const file = document.getElementById('car-image-file').files[0];
-
-                if (file) {
-                    const storageRef = ref(storage, 'cars/' + file.name + '-' + Date.now());
-                    await uploadBytes(storageRef, file);
-                    imageUrl = await getDownloadURL(storageRef);
-                }
-
-                if (!imageUrl) throw new Error("Image is required!");
+                const imageUrl = document.getElementById('car-image-url').value;
 
                 await addDoc(collection(db, "cars"), {
                     id: Date.now(),
@@ -332,9 +220,8 @@
                     createdAt: new Date()
                 });
 
-                alert("Success! Car added.");
+                alert("Car Published Successfully!");
                 document.getElementById('add-car-form').reset();
-                document.getElementById('file-name-display').textContent = "Click or Drag photo here";
                 window.switchTab('list');
 
             } catch (error) {
@@ -346,7 +233,6 @@
             }
         });
 
-        // Load Cars
         async function loadCars() {
             const container = document.getElementById('cars-container');
             container.innerHTML = '';
@@ -355,7 +241,6 @@
             try {
                 const q = query(collection(db, "cars"), orderBy("createdAt", "desc"));
                 const querySnapshot = await getDocs(q);
-                
                 document.getElementById('loading-cars').classList.add('hidden');
 
                 if (querySnapshot.empty) {
@@ -368,12 +253,10 @@
                     const carEl = document.createElement('div');
                     carEl.className = "bg-white p-4 rounded-lg shadow border border-gray-100";
                     carEl.innerHTML = `
-                        <img src="${car.img}" class="w-full h-32 object-cover rounded mb-3">
+                        <img src="${car.img}" class="w-full h-32 object-cover rounded mb-3 bg-gray-100">
                         <h3 class="font-bold text-lg">${car.name}</h3>
                         <p class="text-sm text-gray-500">${car.price} DH/day</p>
-                        <button class="delete-btn mt-3 w-full py-2 bg-red-50 text-red-600 rounded text-sm font-bold" data-id="${docSnapshot.id}">
-                            Delete
-                        </button>
+                        <button class="delete-btn mt-3 w-full py-2 bg-red-50 text-red-600 rounded text-sm font-bold" data-id="${docSnapshot.id}">Delete</button>
                     `;
                     container.appendChild(carEl);
                 });
@@ -392,11 +275,8 @@
                 alert("Failed to load cars. Check console.");
             }
         }
-
-        // File Input UX
-        document.getElementById('car-image-file').addEventListener('change', (e) => {
-            if(e.target.files[0]) document.getElementById('file-name-display').textContent = e.target.files[0].name;
-        });
     </script>
 </body>
 </html>
+
+
