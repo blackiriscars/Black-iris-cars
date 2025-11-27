@@ -63,6 +63,7 @@ const translations = {
         'sort-count-text': 'voitures disponibles', 'currency': 'Devise', 'eur': 'EUR', 'usd': 'USD',
         'total-text': 'Total', 'for-text': 'pour', 'days-text': 'jours',
 
+        // === NEW SECTIONS ===
         'h2-how-works': 'Comment ça marche', 'p-how-works': 'Louez votre voiture en 3 étapes simples.',
         'step-1-title': '1. Choisissez votre voiture', 'step-1-desc': 'Parcourez notre flotte et sélectionnez le véhicule parfait pour votre voyage.',
         'step-2-title': '2. Envoyez une demande', 'step-2-desc': 'Cliquez sur "Réserver" pour nous envoyer une demande via WhatsApp ou email.',
@@ -101,6 +102,7 @@ const translations = {
         'sort-count-text': 'سيارة متاحة', 'currency': 'العملة', 'eur': 'يورو', 'usd': 'دولار',
         'total-text': 'المجموع', 'for-text': 'لمدة', 'days-text': 'أيام',
 
+        // === NEW SECTIONS ===
         'h2-how-works': 'كيفية الحجز', 'p-how-works': 'استأجر سيارتك في 3 خطوات بسيطة.',
         'step-1-title': '1. اختر سيارتك', 'step-1-desc': 'تصفح أسطولنا واختر السيارة المثالية لرحلتك.',
         'step-2-title': '2. أرسل طلب', 'step-2-desc': 'انقر على "احجز الآن" لإرسال طلب عبر واتساب أو البريد الإلكتروني.',
@@ -119,4 +121,5 @@ const translations = {
         'book-email-body-concise': (carName, carPrice) => `مرحباً،\n\nأنا مهتم بـ ${carName} (${carPrice}/يوم) المعروضة على الصفحة الرئيسية. الرجاء إرسال المزيد من المعلومات حول التوفر وكيفية حجز هذه المركبة.`,
     }
 };
+
 
