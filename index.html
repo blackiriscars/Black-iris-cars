@@ -3,11 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLACK IRIS cars - car rental in Morocco</title>
+    <title>BLACK IRIS cars - Rent in Morocco</title>
+    
+    <!-- Meta Description -->
     <meta name="description" content="Rent a car in Morocco with Black Iris Cars. We offer premium cars for rental in Temara, Rabat, Casablanca, and all major cities and airports.">
+    
+    <!-- Scripts & Styles -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="data.js"></script>
+    <script src="data.js"></script> <!-- Loads Translations -->
+
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Y2MG9ZZ46"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -15,11 +21,15 @@
       gtag('js', new Date());
       gtag('config', 'G-2Y2MG9ZZ46');
     </script>
+    
+    <!-- Favicons -->
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192"  href="web-app-manifest-192x192.png">
     <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="manifest" href="site.webmanifest">
+    
+    <!-- Organization Schema -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -34,14 +44,17 @@
       }
     }
     </script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
-        body { font-family: 'Poppins', sans-serif; background-color: #fafafa; transition: all 0.3s ease; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; transition: all 0.3s ease; }
         .primary-dark { background-color: #1a1a1a; } 
         .text-primary-dark { color: #1a1a1a; } 
         .accent-blue { background-color: #4169e1; } 
         .hover\:accent-blue-dark:hover { background-color: #2b4daa; } 
         .text-accent-blue { color: #4169e1; }
+
+        /* Background Image */
         #hero-section { background-color: #1a1a1a; }
         @media (min-width: 768px) {
             #hero-section {
@@ -54,14 +67,16 @@
                 align-items: center;
             }
         }
+
+        /* Input Styling */
         input[type="date"], #rental-form select {
             color: #000000 !important; background-color: #ffffff !important;
             padding: 8px 12px !important; height: 44px; appearance: none; -webkit-appearance: none;
         }
         input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0); }
         select option { color: #000000; }
-        
-        /* General Compact Select (Mobile & Default) */
+
+        /* Compact Selectors */
         .compact-select {
             font-size: 0.875rem; font-weight: 600; color: #1a1a1a;
             background-color: transparent; border: 1px solid #d1d5db; border-radius: 0.375rem;
@@ -70,42 +85,29 @@
             background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.2em 1.2em;
             appearance: none; padding-right: 2.5rem;
         }
-
-        /* === REDESIGNED DESKTOP SELECTOR === */
-        .hidden.md\:flex .compact-select {
-            border: none; 
-            padding: 6px 1.5rem 6px 0.5rem; 
-            background-position: right 0.2rem center;
-            font-weight: 700; /* Bolder text */
-            color: #4b5563; /* Softer grey */
-            transition: color 0.2s;
-        }
-        .hidden.md\:flex .compact-select:hover {
-            color: #4169e1; /* Royal Blue on hover */
-        }
-
-        /* RTL Fixes for Desktop Selector */
-        [dir="rtl"] .hidden.md\:flex .compact-select { 
-            background-position: left 0.2rem center; 
-            padding-left: 1.5rem; 
-            padding-right: 0.5rem; 
-        }
-        [dir="rtl"] .compact-select { background-position: left 0.5rem center; padding-left: 2.5rem; padding-right: 12px; }
+        .hidden.md\:flex .compact-select { border: none; padding: 6px 1.5rem 6px 0.5rem; background-position: right 0.2rem center; font-weight: 700; color: #4b5563; transition: color 0.2s; }
+        .hidden.md\:flex .compact-select:hover { color: #4169e1; }
         
-        .compact-select option { color: #000000; font-weight: 400; }
+        /* RTL Support */
         [dir="rtl"] .ltr\:mr-2 { margin-right: 0; margin-left: 0.5rem; }
         [dir="rtl"] .ltr\:justify-start { justify-content: flex-end; }
         [dir="rtl"] .md\:ltr\:space-x-8 > * + * { margin-left: 0; margin-right: 2rem; }
-        .btn-whatsapp-green { background-color: #128C7E; }
-        .hover\:btn-whatsapp-dark:hover { background-color: #075E54; }
-        .btn-email-blue { background-color: #4169e1; }
-        .hover\:btn-email-dark:hover { background-color: #2b4daa; }
-        /* Simple fade in for FAQ */
+        [dir="rtl"] .hidden.md\:flex .compact-select { background-position: left 0.2rem center; padding-left: 1.5rem; padding-right: 0.5rem; }
+        [dir="rtl"] .compact-select { background-position: left 0.5rem center; padding-left: 2.5rem; padding-right: 12px; }
+        
+        /* Animations */
+        #car-detail-modal { transition: opacity 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+        
+        /* Loading Spinner */
+        .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3498db; width: 30px; height: 30px; -webkit-animation: spin 1s linear infinite; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="antialiased" dir="ltr">
+
+    <!-- Header -->
     <header class="bg-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
@@ -138,6 +140,7 @@
                 </div>
             </div>
         </div>
+        <!-- Mobile Menu -->
         <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 opacity-0 -translate-y-2 transform transition-all duration-300 ease-out fixed top-16 left-0 right-0 z-40" style="pointer-events: none;">
             <div class="px-4 pt-4 pb-3 space-y-4">
                 <div class="flex items-center space-x-4">
@@ -157,11 +160,13 @@
                     <a href="#why-us" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-why">Why Choose Us</a>
                     <a href="#testimonials" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-reviews">Reviews</a>
                     <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-contact">Contact</a>
+                    <a href="#faq" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-faq">FAQ</a>
                 </div>
             </div>
         </div>
     </header>
 
+    <!-- Hero Section -->
     <section id="hero-section" class="py-20 md:py-0 relative text-white">
         <div class="absolute inset-0 primary-dark opacity-60"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -169,47 +174,40 @@
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4" data-i18n="h1-hero">Explore Morocco. Drive Quality.</h1>
                 <p class="text-xl sm:text-2xl font-light mb-8" data-i18n="p-hero">Premium cars available across all major Moroccan cities.</p>
             </div>
-            <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl mt-10 max-w-4xl mx-auto">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="h2-reservation">Quick Reservation</h2>
+            <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl mt-10 max-w-4xl mx-auto text-primary-dark">
+                <h2 class="text-2xl font-bold mb-6 text-left" data-i18n="h2-reservation">Quick Reservation</h2>
                 <form id="rental-form" class="space-y-4 md:space-y-0 md:grid md:grid-cols-5 md:gap-4">
                     <div class="col-span-2">
                         <label for="location" class="block text-sm font-medium text-gray-700" data-i18n="label-pickup-city">Pick-up City</label>
-                        <div class="mt-1 relative rounded-md shadow-sm">
-                            <select id="location" name="location" required class="block w-full rounded-lg border-gray-300 focus:ring-gray-700 focus:border-gray-700 border">
-                                <option value="" data-i18n="select-location">Select a location</option>
-                                <option value="Casablanca Airport">Casablanca Mohammed V Airport (CMN)</option>
-                                <option value="Marrakech Airport">Marrakech Menara Airport (RAK)</option>
-                                <option value="Tangier Airport">Tangier Ibn Battouta Airport (TNG)</option>
-                                <option value="Agadir Airport">Agadir Al Massira Airport (AGA)</option>
-                                <option value="Rabat Airport">Rabat–Salé Airport (RBA)</option>
-                                <option value="Fes Airport">Fes-Saïss Airport (FEZ)</option>
-                                <option value="Essaouira Airport">Essaouira-Mogador Airport (ESU)</option>
-                                <option disabled>──────────</option>
-                                <option value="Casablanca">Casablanca City</option>
-                                <option value="Marrakech">Marrakech City</option>
-                                <option value="Rabat">Rabat City</option>
-                                <option value="Tangier">Tangier City</option>
-                                <option value="Agadir">Agadir City</option>
-                                <option value="Fes">Fes City</option>
-                                <option value="Essaouira">Essaouira City</option>
-                                <option value="Kenitra">Kenitra</option>
-                                <option value="Meknes">Meknes</option>
-                                <option value="Salé">Salé</option>
-                                <option value="Temara">Temara</option>
-                                <option value="Tetouan">Tetouan</option>
-                            </select>
-                        </div>
+                        <select id="location" name="location" required class="mt-1 block w-full rounded-lg border-gray-300 border">
+                            <option value="" data-i18n="select-location">Select a location</option>
+                            <option value="Casablanca Airport">Casablanca Mohammed V Airport (CMN)</option>
+                            <option value="Marrakech Airport">Marrakech Menara Airport (RAK)</option>
+                            <option value="Rabat Airport">Rabat–Salé Airport (RBA)</option>
+                            <option value="Tangier Airport">Tangier Ibn Battouta Airport (TNG)</option>
+                            <option value="Agadir Airport">Agadir Al Massira Airport (AGA)</option>
+                            <option disabled>──────────</option>
+                            <option value="Casablanca">Casablanca City</option>
+                            <option value="Marrakech">Marrakech City</option>
+                            <option value="Rabat">Rabat City</option>
+                            <option value="Tangier">Tangier City</option>
+                            <option value="Agadir">Agadir City</option>
+                            <option value="Fes">Fes City</option>
+                            <option value="Essaouira">Essaouira City</option>
+                            <option value="Kenitra">Kenitra</option>
+                            <option value="Temara">Temara</option>
+                        </select>
                     </div>
                     <div>
                         <label for="pickup-date" class="block text-sm font-medium text-gray-700" data-i18n="label-pickup-date">Pick-up Date</label>
-                        <input type="date" id="pickup-date" name="pickup-date" required class="mt-1 block w-full rounded-lg border-gray-300 focus:ring-gray-700 focus:border-gray-700 border">
+                        <input type="date" id="pickup-date" name="pickup-date" required class="mt-1 block w-full rounded-lg border-gray-300 border">
                     </div>
                     <div>
                         <label for="return-date" class="block text-sm font-medium text-gray-700" data-i18n="label-return-date">Return Date</label>
-                        <input type="date" id="return-date" name="return-date" required class="mt-1 block w-full rounded-lg border-gray-300 focus:ring-gray-700 focus:border-gray-700 border">
+                        <input type="date" id="return-date" name="return-date" required class="mt-1 block w-full rounded-lg border-gray-300 border">
                     </div>
                     <div class="col-span-1 flex items-end">
-                        <button type="submit" class="w-full accent-blue text-white font-semibold py-3 rounded-lg hover:accent-blue-dark transition duration-300 shadow-md" data-i18n="btn-search">Search Cars</button>
+                        <button type="submit" class="w-full accent-blue text-white font-semibold py-3 rounded-lg hover:accent-blue-dark transition shadow-md" data-i18n="btn-search">Search Cars</button>
                     </div>
                 </form>
                 <div id="result-message" class="hidden mt-6 p-4 rounded-xl text-gray-700 transition duration-500 ease-in-out"></div>
@@ -217,6 +215,7 @@
         </div>
     </section>
 
+    <!-- How It Works Section -->
     <section class="py-16 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
@@ -225,23 +224,17 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                 <div class="relative">
-                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-accent-blue">
-                        <i data-lucide="search" class="w-8 h-8"></i>
-                    </div>
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-accent-blue"><i data-lucide="search" class="w-8 h-8"></i></div>
                     <h3 class="text-xl font-bold text-gray-900 mb-2" data-i18n="step-1-title">1. Choose Your Car</h3>
                     <p class="text-gray-500" data-i18n="step-1-desc">Browse our fleet and select the perfect vehicle for your trip.</p>
                 </div>
                 <div class="relative">
-                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-accent-blue">
-                        <i data-lucide="calendar-check" class="w-8 h-8"></i>
-                    </div>
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-accent-blue"><i data-lucide="calendar-check" class="w-8 h-8"></i></div>
                     <h3 class="text-xl font-bold text-gray-900 mb-2" data-i18n="step-2-title">2. Send Inquiry</h3>
                     <p class="text-gray-500" data-i18n="step-2-desc">Click "Book Now" to send us a request via WhatsApp or email.</p>
                 </div>
                 <div class="relative">
-                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-accent-blue">
-                        <i data-lucide="check-circle" class="w-8 h-8"></i>
-                    </div>
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-accent-blue"><i data-lucide="check-circle" class="w-8 h-8"></i></div>
                     <h3 class="text-xl font-bold text-gray-900 mb-2" data-i18n="step-3-title">3. We Confirm</h3>
                     <p class="text-gray-500" data-i18n="step-3-desc">We confirm availability instantly and arrange the handover.</p>
                 </div>
@@ -249,16 +242,25 @@
         </div>
     </section>
     
+    <!-- Featured Fleet Section (Data from Firebase) -->
     <section id="featured" class="py-16 md:py-24 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-extrabold text-primary-dark text-center mb-12" data-i18n="h2-fleet">Our Fleet</h2>
-            <div id="featured-car-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            
+            <div id="featured-car-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Loading Spinner -->
+                <div class="col-span-1 md:col-span-2 lg:col-span-3 flex justify-center py-12">
+                    <div class="loader"></div>
+                </div>
+            </div>
+            
             <div class="text-center mt-12">
-                <a href="available_cars.html" id="view-all-cars-btn" class="accent-blue text-white font-semibold py-3 px-8 rounded-lg hover:accent-blue-dark transition duration-300 shadow-md" data-i18n="btn-view-all">View All Cars</a>
+                <a href="available_cars.html" id="view-all-cars-btn" class="accent-blue text-white font-semibold py-3 px-8 rounded-lg hover:accent-blue-dark transition shadow-md" data-i18n="btn-view-all">View All Cars</a>
             </div>
         </div>
     </section>
 
+    <!-- Promise Section -->
     <section id="why-us" class="py-16 md:py-24 primary-dark text-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-extrabold text-center mb-12" data-i18n="h2-promise">The Black Iris Promise</h2>
@@ -287,32 +289,33 @@
         </div>
     </section>
 
+    <!-- FAQ Section -->
     <section id="faq" class="py-16 bg-white">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-extrabold text-primary-dark text-center mb-12" data-i18n="h2-faq">Frequently Asked Questions</h2>
             <div class="space-y-4">
-                <details class="group bg-gray-50 p-6 rounded-lg">
+                <details class="group bg-gray-50 p-6 rounded-lg border border-gray-100">
                     <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-lg text-gray-900">
                         <span data-i18n="faq-q1">What documents do I need to rent a car?</span>
                         <span class="transition group-open:rotate-180"><i data-lucide="chevron-down" class="w-5 h-5"></i></span>
                     </summary>
                     <p class="text-gray-600 mt-3 animate-fadeIn" data-i18n="faq-a1">You need a valid driver's license (held for at least 2 years), a passport or ID card.</p>
                 </details>
-                <details class="group bg-gray-50 p-6 rounded-lg">
+                <details class="group bg-gray-50 p-6 rounded-lg border border-gray-100">
                     <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-lg text-gray-900">
                         <span data-i18n="faq-q2">Is insurance included in the price?</span>
                         <span class="transition group-open:rotate-180"><i data-lucide="chevron-down" class="w-5 h-5"></i></span>
                     </summary>
                     <p class="text-gray-600 mt-3 animate-fadeIn" data-i18n="faq-a2">Yes, We offer comprehensive coverage (All Risks) options for complete peace of mind.</p>
                 </details>
-                <details class="group bg-gray-50 p-6 rounded-lg">
+                <details class="group bg-gray-50 p-6 rounded-lg border border-gray-100">
                     <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-lg text-gray-900">
                         <span data-i18n="faq-q3">Do you require a security deposit?</span>
                         <span class="transition group-open:rotate-180"><i data-lucide="chevron-down" class="w-5 h-5"></i></span>
                     </summary>
                     <p class="text-gray-600 mt-3 animate-fadeIn" data-i18n="faq-a3">Yes, a security deposit is required. The amount depends on the car category (usually between 5,000 DH and 20,000 DH). It is fully refundable upon safe return of the vehicle.</p>
                 </details>
-                <details class="group bg-gray-50 p-6 rounded-lg">
+                <details class="group bg-gray-50 p-6 rounded-lg border border-gray-100">
                     <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-lg text-gray-900">
                         <span data-i18n="faq-q4">Can you deliver the car to my hotel?</span>
                         <span class="transition group-open:rotate-180"><i data-lucide="chevron-down" class="w-5 h-5"></i></span>
@@ -323,6 +326,7 @@
         </div>
     </section>
 
+    <!-- Testimonials -->
     <section id="testimonials" class="py-16 md:py-24 bg-fafafa">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-extrabold text-primary-dark text-center mb-12" data-i18n="h2-testimonials">What Our Clients Say</h2>
@@ -346,6 +350,7 @@
         </div>
     </section>
 
+    <!-- Footer -->
     <footer id="contact" class="primary-dark text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8 mb-8">
@@ -369,7 +374,7 @@
                     </a>
                     <p class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start"><i data-lucide="mail" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> <a href="mailto:blackiriscars@gmail.com" class="hover:text-accent-blue">blackiriscars@gmail.com</a></p>
                     
-                    <a href="PASTE_YOUR_GOOGLE_MAPS_LINK_HERE" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
+                    <a href="https://maps.app.goo.gl/YOUR_LINK_HERE" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
                         <i data-lucide="map-pin" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 
                         <span data-i18n="address-text">10 rue ouarzazat hassan rabat</span>
                     </a>
@@ -385,6 +390,7 @@
         </div>
     </footer>
 
+    <!-- Modals (Hidden) -->
     <div id="car-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
         <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-lg m-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-detail-content">
             <div class="flex justify-between items-start mb-4">
@@ -417,32 +423,42 @@
         </div>
     </div>
 
-    <script>
+    <!-- FIREBASE LOGIC & SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // YOUR FIREBASE KEYS
+        const firebaseConfig = {
+          apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
+          authDomain: "black-iris-fleet-9c64e.firebaseapp.com",
+          projectId: "black-iris-fleet-9c64e",
+          storageBucket: "black-iris-fleet-9c64e.firebasestorage.app",
+          messagingSenderId: "875590751512",
+          appId: "1:875590751512:web:7377b8c8fe507053f7ba6d",
+          measurementId: "G-4Y7L69L9BS"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         document.addEventListener('DOMContentLoaded', () => {
+            // State
             let currentLang = 'en';
             let currentCurrency = 'DH';
-            let exchangeRates = { EUR: 0.092, USD: 0.10 }; 
+            let exchangeRates = { EUR: 0.092, USD: 0.10 };
+            let rentalLocation = '', rentalPickupDate = '', rentalReturnDate = '';
 
-            async function fetchRates() {
-                try {
-                    const response = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/mad.json');
-                    const data = await response.json();
-                    if (data && data.mad) {
-                        exchangeRates.EUR = data.mad.eur;
-                        exchangeRates.USD = data.mad.usd;
-                        renderCarGrid('featured-car-grid', 9); 
-                    }
-                } catch (error) {
-                    console.log('Using static rates');
-                }
-            }
-
+            // Elements
             const langSelectors = document.querySelectorAll('#language-selector, #language-selector-mobile');
             const currencySelectors = document.querySelectorAll('#currency-selector, #currency-selector-mobile');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
             const rentalForm = document.getElementById('rental-form');
             const resultMessage = document.getElementById('result-message');
             const viewAllBtn = document.getElementById('view-all-cars-btn');
             
+            // Modal
             const detailModal = document.getElementById('car-detail-modal');
             const modalDetailContent = document.getElementById('modal-detail-content');
             const closeDetailModalBtn = document.getElementById('close-detail-modal-btn');
@@ -451,20 +467,18 @@
             const whatsappLink = document.getElementById('whatsapp-link');
             const emailLink = document.getElementById('email-link');
 
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-
-            // === NEW: FAQ Accordion Logic ===
-            const details = document.querySelectorAll("details");
-            details.forEach((targetDetail) => {
-                targetDetail.addEventListener("click", () => {
-                    details.forEach((detail) => {
-                        if (detail !== targetDetail) {
-                            detail.removeAttribute("open");
-                        }
-                    });
-                });
-            });
+            // --- Functions ---
+            async function fetchRates() {
+                try {
+                    const response = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/mad.json');
+                    const data = await response.json();
+                    if (data && data.mad) {
+                        exchangeRates.EUR = data.mad.eur;
+                        exchangeRates.USD = data.mad.usd;
+                        loadCars(); // Re-render with correct rates
+                    }
+                } catch (error) { console.log('Using static rates'); }
+            }
 
             function getTranslation(key) {
                 if (typeof translations === 'undefined' || !translations[currentLang]) return key;
@@ -473,17 +487,13 @@
             }
 
             function calculatePrice(basePrice) {
-                if (currentCurrency === 'EUR') {
-                    return { price: (basePrice * exchangeRates.EUR).toFixed(0), symbol: '€' };
-                }
-                if (currentCurrency === 'USD') {
-                    return { price: (basePrice * exchangeRates.USD).toFixed(0), symbol: '$' };
-                }
+                if (currentCurrency === 'EUR') return { price: (basePrice * exchangeRates.EUR).toFixed(0), symbol: '€' };
+                if (currentCurrency === 'USD') return { price: (basePrice * exchangeRates.USD).toFixed(0), symbol: '$' };
                 return { price: basePrice, symbol: '' };
             }
 
             function updateAllSelectors(selector, value) {
-                document.querySelectorAll(selector).forEach(sel => { sel.value = value; });
+                document.querySelectorAll(selector).forEach(sel => sel.value = value);
             }
 
             function setLanguage(lang) {
@@ -495,99 +505,108 @@
                     if (dictionary[key] && typeof dictionary[key] === 'string') element.textContent = dictionary[key];
                 });
                 document.body.setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');
-                document.title = 'BLACK IRIS cars - ' + (lang === 'ar' ? ' استئجار سيارة' : 'Car Rental');
                 document.querySelectorAll('select option').forEach(option => {
                     const key = option.getAttribute('data-i18n');
                     if (key && dictionary[key] && typeof dictionary[key] === 'string') option.textContent = dictionary[key];
                 });
-                renderCarGrid('featured-car-grid', 9);
+                loadCars();
                 lucide.createIcons();
             }
 
             function setCurrency(currency) {
                 currentCurrency = currency;
                 updateAllSelectors('#currency-selector, #currency-selector-mobile', currency);
-                renderCarGrid('featured-car-grid', 9);
+                loadCars();
             }
 
-            function getFormattedDate(date) {
-                return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-            }
+            // --- FIREBASE LOADING ---
+            async function loadCars() {
+                const container = document.getElementById('featured-car-grid');
+                if (!container) return;
+                container.innerHTML = '<div class="col-span-3 text-center py-10"><div class="loader mx-auto"></div></div>'; 
 
-            function initializeDateFields() {
-                const pickupInput = document.getElementById('pickup-date');
-                const returnInput = document.getElementById('return-date');
-                if (!pickupInput || !returnInput) return;
-                const now = new Date();
-                const minDate = getFormattedDate(now);
-                pickupInput.min = minDate;
-                returnInput.min = minDate;
-                pickupInput.addEventListener('change', () => {
-                    if (!pickupInput.value) return;
-                    const pickupTime = new Date(pickupInput.value).getTime();
-                    const minReturnDateObj = new Date(pickupTime + (24 * 60 * 60 * 1000));
-                    returnInput.min = getFormattedDate(minReturnDateObj);
-                    if (!returnInput.value || returnInput.value < returnInput.min) returnInput.value = returnInput.min;
-                });
-            }
+                try {
+                    const q = query(collection(db, "cars"), orderBy("createdAt", "desc"));
+                    const querySnapshot = await getDocs(q);
+                    container.innerHTML = '';
 
-            function renderCarGrid(gridId, limit) {
-                const carGrid = document.getElementById(gridId);
-                if (!carGrid) return;
-                carGrid.innerHTML = '';
-                carData.slice(0, limit).forEach(car => {
-                    const transmissionText = getTranslation(car.transmission.toLowerCase());
-                    const seatsKey = car.seats === 6 ? 'car-seats-6' : 'car-seats';
-                    const seatsText = getTranslation(seatsKey);
-                    const { price, symbol } = calculatePrice(car.price);
-                    const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
+                    let count = 0;
+                    querySnapshot.forEach((doc) => {
+                        if(count >= 9) return; // Limit to 9
+                        const car = doc.data();
+                        
+                        const transmissionText = getTranslation(car.transmission.toLowerCase());
+                        const seatsKey = car.seats === 6 ? 'car-seats-6' : 'car-seats';
+                        const seatsText = getTranslation(seatsKey);
+                        const { price, symbol } = calculatePrice(car.price);
+                        const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
 
-                    const carCard = document.createElement('div');
-                    carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1";
-                    carCard.setAttribute('data-car-id', car.id);
-                    
-                    carCard.innerHTML = `
-                        <img src="${car.img}" alt="${car.name}" class="w-full h-48 object-cover">
-                        <div class="p-6 flex flex-col justify-between flex-grow">
-                            <div>
-                                <h3 class="text-2xl font-bold text-gray-900">${car.name} (<span data-i18n="${car.transmission.toLowerCase()}">${transmissionText}</span>)</h3>
-                                <p class="text-gray-500 mb-4 min-h-[5rem]">${car.desc}</p> 
-                                <div class="grid grid-cols-2 gap-2 text-sm text-gray-700 mb-4">
-                                    <span class="flex items-center ltr:justify-start"><i data-lucide="${car.transmission === 'Automatic' ? 'car' : 'gauge'}" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span data-i18n="${car.transmission.toLowerCase()}">${transmissionText}</span></span>
-                                    <span class="flex items-center ltr:justify-start"><i data-lucide="snowflake" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> A/C</span>
-                                    <span class="flex items-center ltr:justify-start"><i data-lucide="users" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span data-i18n="${seatsKey}">${seatsText}</span></span>
-                                    <span class="flex items-center ltr:justify-start"><i data-lucide="paint-bucket" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> ${car.color}</span>
+                        const carCard = document.createElement('div');
+                        // Vertical Design
+                        carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1";
+                        carCard.setAttribute('data-car-name', car.name);
+                        carCard.setAttribute('data-car-price', carPriceString); // Store string for modal
+                        carCard.setAttribute('data-car-img', car.img);
+                        carCard.setAttribute('data-car-trans', transmissionText);
+                        carCard.setAttribute('data-car-seats', car.seats);
+                        carCard.setAttribute('data-car-color', car.color);
+                        carCard.setAttribute('data-car-desc', car.desc);
+                        
+                        carCard.innerHTML = `
+                            <img src="${car.img}" alt="${car.name}" class="w-full h-48 object-cover">
+                            <div class="p-6 flex flex-col justify-between flex-grow">
+                                <div>
+                                    <h3 class="text-2xl font-bold text-gray-900">${car.name} (<span data-i18n="${car.transmission.toLowerCase()}">${transmissionText}</span>)</h3>
+                                    <p class="text-gray-500 mb-4 min-h-[5rem]">${car.desc}</p> 
+                                    <div class="grid grid-cols-2 gap-2 text-sm text-gray-700 mb-4">
+                                        <span class="flex items-center ltr:justify-start"><i data-lucide="${car.transmission === 'Automatic' ? 'car' : 'gauge'}" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span>${transmissionText}</span></span>
+                                        <span class="flex items-center ltr:justify-start"><i data-lucide="snowflake" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> A/C</span>
+                                        <span class="flex items-center ltr:justify-start"><i data-lucide="users" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span data-i18n="${seatsKey}">${seatsText}</span></span>
+                                        <span class="flex items-center ltr:justify-start"><i data-lucide="paint-bucket" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> ${car.color}</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center border-t pt-4">
+                                    <span class="text-2xl font-extrabold text-primary-dark">${carPriceString} <span data-i18n="car-day" class="text-base font-normal text-gray-500">/ day</span></span>
+                                    <span class="accent-blue text-white font-semibold py-2 px-6 rounded-lg shadow-md" data-i18n="btn-book-now">Book Now</span>
                                 </div>
                             </div>
-                            <div class="flex justify-between items-center border-t pt-4">
-                                <span class="text-2xl font-extrabold text-primary-dark">${carPriceString} <span data-i18n="car-day" class="text-base font-normal text-gray-500">/ day</span></span>
-                                <span class="accent-blue text-white font-semibold py-2 px-6 rounded-lg shadow-md" data-i18n="btn-book-now">Book Now</span>
-                            </div>
-                        </div>
-                    `;
-                    carGrid.appendChild(carCard);
-                });
-                attachCarCardListeners();
-                lucide.createIcons();
+                        `;
+                        // Add click listener
+                        carCard.addEventListener('click', () => openCarDetailModal(car, carPriceString, transmissionText));
+                        container.appendChild(carCard);
+                        count++;
+                    });
+                    
+                    lucide.createIcons();
+                } catch (error) {
+                    console.error("Error loading cars:", error);
+                    // Only show error if it's not a permission error on first load
+                    if(error.code !== 'permission-denied') {
+                         // Fallback or silent fail
+                    }
+                }
             }
 
-            function openCarDetailModal(car) {
-                const transmissionText = getTranslation(car.transmission.toLowerCase());
-                const { price, symbol } = calculatePrice(car.price);
-                document.getElementById('modal-car-name').textContent = `${car.name} (${transmissionText})`;
+            // --- Modal Logic ---
+            function openCarDetailModal(car, formattedPrice, transText) {
+                document.getElementById('modal-car-name').textContent = `${car.name} (${transText})`;
                 document.getElementById('modal-car-image').src = car.img;
-                document.getElementById('modal-transmission').textContent = transmissionText;
+                document.getElementById('modal-transmission').textContent = transText;
                 document.getElementById('modal-seats-value').textContent = car.seats;
                 document.getElementById('modal-color').textContent = car.color;
                 document.getElementById('modal-car-desc').textContent = car.desc;
-                document.getElementById('modal-car-price').textContent = `${symbol}${price}`;
-                document.getElementById('modal-car-currency').textContent = currentCurrency === 'DH' ? 'DH' : '';
+                document.getElementById('modal-car-price').textContent = formattedPrice.replace(/ DH| €| \$/g, ''); // Clean value
+                document.getElementById('modal-car-currency').textContent = currentCurrency === 'DH' ? 'DH' : (currentCurrency === 'EUR' ? '€' : '$');
+
                 contactOptions.classList.add('hidden');
                 modalBookButton.classList.remove('hidden'); 
-                modalBookButton.onclick = () => showContactOptionsConcise(car.name, `${symbol}${price}`);
+                
+                modalBookButton.onclick = () => showContactOptionsConcise(car.name, formattedPrice);
+                
                 const currentLangOnLoad = currentLang;
                 setLanguage(currentLangOnLoad);
                 document.querySelector('[data-i18n="car-seats-label-spaced"]').textContent = getTranslation('car-seats-label-spaced');
+
                 detailModal.classList.remove('hidden');
                 setTimeout(() => { modalDetailContent.classList.remove('scale-95', 'opacity-0'); }, 10);
                 document.body.classList.add('overflow-hidden');
@@ -595,70 +614,51 @@
 
             function showContactOptionsConcise(carName, carPriceWithSymbol) {
                 const dict = translations[currentLang];
-                let messagePrice = (currentCurrency === 'DH') ? `${carPriceWithSymbol} DH` : carPriceWithSymbol;
-                const whatsappMessage = dict['book-whatsapp-msg-concise'](carName, messagePrice);
+                const whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
                 const emailSubject = dict['book-email-subj-concise'](carName);
-                const emailBody = dict['book-email-body-concise'](carName, messagePrice);
+                const emailBody = dict['book-email-body-concise'](carName, carPriceWithSymbol);
+
                 whatsappLink.href = `https://wa.me/212602020402?text=${encodeURIComponent(whatsappMessage)}`;
                 emailLink.href = `mailto:blackiriscars@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+                
                 contactOptions.classList.remove('hidden');
                 modalBookButton.classList.add('hidden');
             }
-
-            function closeCarDetailModal() {
-                modalDetailContent.classList.add('scale-95', 'opacity-0');
-                modalBookButton.classList.remove('hidden');
-                setTimeout(() => { detailModal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }, 300);
+            
+            function closeModal() {
+                modalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => { detailModal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }, 300); 
             }
 
-            function attachCarCardListeners() {
-                document.querySelectorAll('.car-card').forEach(card => {
-                    card.removeEventListener('click', handleCardClick);
-                    card.addEventListener('click', handleCardClick);
+            // --- Event Listeners ---
+            if(closeDetailModalBtn) closeDetailModalBtn.addEventListener('click', closeModal);
+            if(detailModal) detailModal.addEventListener('click', (e) => { if (e.target === detailModal) closeModal(); });
+
+            // --- FAQ Logic ---
+            const details = document.querySelectorAll("details");
+            details.forEach((targetDetail) => {
+                targetDetail.addEventListener("click", () => {
+                    details.forEach((detail) => {
+                        if (detail !== targetDetail) detail.removeAttribute("open");
+                    });
                 });
-            }
-            
-            function handleCardClick(event) {
-                const card = event.target.closest('.car-card');
-                if (!card) return; 
-                const carId = parseInt(card.getAttribute('data-car-id'));
-                const car = carData.find(c => c.id === carId);
-                if (car) openCarDetailModal(car);
-            }
-            
-            function attachCloseListeners() {
-                if(closeDetailModalBtn) closeDetailModalBtn.addEventListener('click', closeCarDetailModal);
-                if(detailModal) detailModal.addEventListener('click', (e) => { if (e.target === detailModal) closeCarDetailModal(); });
-            }
-            
+            });
+
+            // --- Mobile Menu ---
             function openMobileMenu() { mobileMenu.classList.remove('opacity-0', '-translate-y-2'); mobileMenu.style.pointerEvents = 'auto'; }
             function closeMobileMenu() { mobileMenu.classList.add('opacity-0', '-translate-y-2'); mobileMenu.style.pointerEvents = 'none'; }
             mobileMenuButton.addEventListener('click', (e) => { e.stopPropagation(); mobileMenu.classList.contains('opacity-0') ? openMobileMenu() : closeMobileMenu(); });
-            mobileMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMobileMenu));
             window.addEventListener('scroll', closeMobileMenu);
             document.addEventListener('click', (event) => { if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) closeMobileMenu(); });
 
+            // --- Form ---
             if(rentalForm) {
                 rentalForm.addEventListener('submit', function(event) {
                     event.preventDefault(); 
                     const location = document.getElementById('location').value;
                     const pickupDate = document.getElementById('pickup-date').value;
                     const returnDate = document.getElementById('return-date').value;
-                    const pickupTime = new Date(pickupDate).getTime();
-                    const returnTime = new Date(returnDate).getTime();
-                    const nowTime = new Date(getFormattedDate(new Date())).getTime();
-                    const oneDayInMs = 24 * 60 * 60 * 1000;
-                    let errorMessage = '';
-                    if (!location || !pickupDate || !returnDate) errorMessage = '<strong>Error!</strong> Please select a pick-up city/airport and complete the date range.';
-                    else if (pickupTime < nowTime) errorMessage = '<strong>Error! Choose an available date.</strong>';
-                    else if (returnTime < pickupTime + oneDayInMs) errorMessage = '<strong>Error! Choose an available date.</strong>';
-                    if (errorMessage) {
-                        resultMessage.classList.remove('hidden', 'bg-green-100', 'border-green-400', 'text-green-700');
-                        resultMessage.classList.add('bg-red-100', 'border-red-400', 'text-red-700');
-                        resultMessage.innerHTML = errorMessage;
-                        setTimeout(() => { resultMessage.classList.add('hidden'); }, 5000);
-                        return;
-                    }
+                    
                     const selectedLocationText = document.getElementById('location').options[document.getElementById('location').selectedIndex].text;
                     localStorage.setItem('rentalLocation', selectedLocationText); 
                     localStorage.setItem('rentalPickupDate', pickupDate);
@@ -666,7 +666,7 @@
                     window.location.href = 'available_cars.html';
                 });
             }
-            
+
             if(viewAllBtn) {
                 viewAllBtn.addEventListener('click', (e) => {
                     localStorage.removeItem('rentalLocation');
@@ -681,6 +681,7 @@
                     localStorage.setItem('languagePreference', event.target.value);
                 });
             });
+
             currencySelectors.forEach(selector => {
                 selector.addEventListener('change', (event) => {
                     setCurrency(event.target.value);
@@ -688,6 +689,7 @@
                 });
             });
 
+            // --- Init ---
             lucide.createIcons();
             const savedLang = localStorage.getItem('languagePreference') || 'en';
             const savedCurrency = localStorage.getItem('currencyPreference') || 'DH';
@@ -696,9 +698,7 @@
             currentLang = savedLang;
             currentCurrency = savedCurrency;
             setLanguage(savedLang);
-            initializeDateFields();
-            fetchRates(); 
-            attachCloseListeners();
+            fetchRates();
         });
     </script>
 </body>
