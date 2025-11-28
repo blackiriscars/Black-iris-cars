@@ -361,26 +361,41 @@
             }
 
             filteredCars.forEach(car => {
-                const { price, symbol } = calculatePrice(car.price);
-                const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
                 
-                // --- TOTAL PRICE LOGIC (BESIDE NAME FIX) ---
-                let totalPriceHTML = '';
+                // 1. Calculate Duration
+                let diffDays = 0;
                 if (rentalPickupDate && rentalReturnDate) {
                     const start = new Date(rentalPickupDate);
                     const end = new Date(rentalReturnDate);
                     const diffTime = end - start;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                }
 
-                    if (diffDays > 0) {
-                         const total = (car.price * diffDays);
-                         const { price: totalPrice, symbol: totalSymbol } = calculatePrice(total);
-                         const forLabel = getTranslation('for-text');
-                         const daysLabel = getTranslation('days-text');
-                         
-                         // UPDATED: No mt-1, added ml-2 for spacing
-                         totalPriceHTML = `<div class="text-xs text-accent-blue font-bold bg-blue-50 px-2 py-1 rounded whitespace-nowrap ltr:ml-2 rtl:mr-2">Total: ${totalSymbol}${totalPrice} ${currentCurrency === 'DH' ? 'DH' : ''} ${forLabel} ${diffDays} ${daysLabel}</div>`;
-                    }
+                // 2. Discount Logic
+                let discountFactor = 1;
+                if (diffDays >= 10 && diffDays <= 24) {
+                    discountFactor = 0.90; // 10%
+                } else if (diffDays > 24) {
+                    discountFactor = 1 - (16.66666666 / 100); // 16.66%
+                }
+
+                // 3. Round UP daily price
+                const baseDailyPrice = Math.ceil(car.price * discountFactor);
+
+                // 4. Formatting
+                const { price, symbol } = calculatePrice(baseDailyPrice);
+                const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
+                
+                // 5. Total Price Display
+                let totalPriceHTML = '';
+                if (diffDays > 0) {
+                     const total = baseDailyPrice * diffDays;
+                     const { price: totalPrice, symbol: totalSymbol } = calculatePrice(total);
+                     const forLabel = getTranslation('for-text');
+                     const daysLabel = getTranslation('days-text');
+                     
+                     // PLACED DIRECTLY UNDERNEATH
+                     totalPriceHTML = `<div class="text-xs text-accent-blue font-bold bg-blue-50 px-2 py-1 rounded inline-block mt-2">Total: ${totalSymbol}${totalPrice} ${currentCurrency === 'DH' ? 'DH' : ''} ${forLabel} ${diffDays} ${daysLabel}</div>`;
                 }
 
                 const carCard = document.createElement('div');
@@ -395,11 +410,9 @@
                     </div>
                     <div class="p-6 flex flex-col justify-between flex-grow">
                         <div>
-                            <!-- UPDATED HEADER with TOTAL PRICE -->
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="text-xl font-bold text-gray-900 leading-tight">${car.name}</h3>
-                                ${totalPriceHTML}
-                            </div>
+                            <div class="flex justify-between items-start mb-2"><h3 class="text-xl font-bold text-gray-900 leading-tight">${car.name}</h3></div>
+                            <!-- TOTAL PRICE HERE -->
+                            ${totalPriceHTML ? totalPriceHTML : ''}
                             
                             <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 mb-4 mt-3">
                                 <div class="flex items-center"><i data-lucide="${car.transmission.toLowerCase() === 'automatic' ? 'zap' : 'gauge'}" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${getTranslation(car.transmission.toLowerCase())}</span></div>
