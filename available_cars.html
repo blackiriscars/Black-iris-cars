@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Available Cars | Black Iris Cars</title>
-    <meta name="description" content="View our full fleet of available rental cars.">
-
-    <!-- EXTERNAL SCRIPTS -->
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="data.js"></script>
 
-    <!-- ANALYTICS -->
+    <!-- GOOGLE ANALYTICS -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Y2MG9ZZ46"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -36,16 +34,11 @@
         .hover\:accent-blue-dark:hover { background-color: #2b4daa; } 
         .text-accent-blue { color: #4169e1; }
 
-        /* Sidebar Animation */
         #filter-sidebar { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
         #filter-sidebar.open { transform: translateX(0); }
         [dir="rtl"] #filter-sidebar { transform: translateX(100%); left: auto; right: 0; }
         [dir="rtl"] #filter-sidebar.open { transform: translateX(0); }
         
-        input[type="checkbox"]:checked { background-color: #1a1a1a; border-color: #1a1a1a; }
-        #contact-modal { transition: opacity 0.3s ease-in-out; }
-
-        /* Compact Selectors */
         .compact-select {
             font-size: 0.875rem; font-weight: 600; color: #1a1a1a;
             background-color: transparent; border: 1px solid #d1d5db; border-radius: 0.375rem;
@@ -54,13 +47,15 @@
             background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.2em 1.2em;
             appearance: none; padding-right: 2.5rem;
         }
-        .hidden.md\:flex .compact-select { border: none; padding: 6px 1.5rem 6px 0.5rem; background-position: right 0.2rem center; font-weight: 700; color: #4b5563; transition: color 0.2s; }
-        .hidden.md\:flex .compact-select:hover { color: #4169e1; }
-        [dir="rtl"] .hidden.md\:flex .compact-select { background-position: left 0.2rem center; padding-left: 1.5rem; padding-right: 0.5rem; }
-        [dir="rtl"] .compact-select { background-position: left 0.5rem center; padding-left: 2.5rem; padding-right: 12px; }
-        .compact-select option { color: #000000; font-weight: 400; }
         
-        /* Loader */
+        #results-container {
+            display: grid;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+            gap: 1.5rem; 
+        }
+        @media (min-width: 768px) { #results-container { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (min-width: 1024px) { #results-container { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        
         .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3498db; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -122,6 +117,7 @@
                     <div>
                         <label for="price-range" class="block text-sm font-semibold text-gray-700 mb-2" data-i18n="label-price">Price Range</label>
                         <input type="range" id="price-range" min="0" max="2000" value="2000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer text-primary-dark">
+                        <!-- Just amount, no "Up to" -->
                         <span id="price-value" class="text-lg font-bold text-gray-800 mt-1 block">2000 DH</span> 
                     </div>
                     <div>
@@ -144,7 +140,7 @@
                         <p class="text-sm font-semibold text-gray-700 mb-2">Fuel Type</p>
                         <div class="space-y-2" id="fuel-filters">
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Diesel" class="rounded text-primary-dark ltr:mr-2"> Diesel</label>
-                            <!-- VALUE="Petrol" matches DB. LABEL="Essence" matches UI -->
+                            <!-- Petrol value matches DB, Essence label matches UI -->
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Petrol" class="rounded text-primary-dark ltr:mr-2"> Essence</label>
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Hybrid" class="rounded text-primary-dark ltr:mr-2"> Hybrid</label>
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Electric" class="rounded text-primary-dark ltr:mr-2"> Electric</label>
@@ -154,12 +150,11 @@
                 </form>
             </div>
 
-            <!-- Results Container (RESTORED ORIGINAL LAYOUT) -->
-            <div class="md:col-span-3 lg:col-span-4 space-y-6" id="results-container">
-                <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100">
+            <!-- Results Container -->
+            <div id="results-container">
+                <div class="col-span-full flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100 mb-4">
                     <p class="text-sm text-gray-600" id="car-count">Loading cars...</p> 
                 </div>
-                <!-- Cars will be injected here -->
             </div>
         </div>
     </main>
@@ -198,6 +193,7 @@
         </div>
     </div>
 
+    <!-- FOOTER -->
     <footer id="contact" class="primary-dark text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8 mb-8">
@@ -255,8 +251,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // 1. INITIALIZE ICONS IMMEDIATELY
         lucide.createIcons();
 
+        // Global variables
         let currentLang = 'en';
         let currentCurrency = 'DH';
         let exchangeRates = { EUR: 0.092, USD: 0.10 };
@@ -279,8 +277,10 @@
         
         function updatePriceDisplay() {
             if (!priceRange || !priceValue) return;
+
             const currentSliderValue = parseInt(priceRange.value);
             const symbol = currentCurrency === 'DH' ? ' DH' : (currentCurrency === 'EUR' ? ' €' : ' $');
+            
             priceValue.textContent = `${currentSliderValue}${symbol}`;
         }
 
@@ -309,7 +309,7 @@
             currentCurrency = currency;
             updateAllSelectors('#currency-selector, #currency-selector-mobile', currency);
 
-            // --- FIXED MAX PRICE LOGIC ---
+            // --- FIXED: CURRENCY LIMITS ---
             let newMax = 2000;
             if (currency === 'EUR' || currency === 'USD') {
                 newMax = 200; 
@@ -327,11 +327,13 @@
             rentalReturnDate = localStorage.getItem('rentalReturnDate') || '';
         }
 
-        // --- DUAL LOADER (FETCH BOTH COLLECTIONS) ---
+        // --- FETCH ONLY FROM 'cars' collection to match Admin ---
+        // NOTE: If you see 0 cars, check if your Admin panel is saving to 'cars'. 
+        // If it saves to 'cars_production', change 'cars' below to 'cars_production'.
         async function loadCars() {
             if (!resultsContainer) return;
             
-            const filterHeader = resultsContainer.querySelector('.flex'); // Preserve header
+            const filterHeader = resultsContainer.querySelector('.col-span-full');
             resultsContainer.innerHTML = '';
             if(filterHeader) resultsContainer.appendChild(filterHeader);
 
@@ -342,29 +344,21 @@
             resultsContainer.appendChild(loader);
 
             try {
-                // 1. Fetch 'cars' (Legacy/Backup)
-                const q1 = query(collection(db, "cars"), orderBy("createdAt", "desc"));
-                // 2. Fetch 'cars_production' (Admin Panel)
-                const q2 = query(collection(db, "cars_production"), orderBy("createdAt", "desc"));
-                
-                // Fetch both safely
-                const [snap1, snap2] = await Promise.allSettled([getDocs(q1), getDocs(q2)]);
+                // Fetch from 'cars' collection
+                const q = query(collection(db, "cars"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
                 
                 allCars = [];
-                const addedIds = new Set(); 
-
-                const processDoc = (doc) => {
-                    if (addedIds.has(doc.id)) return;
-                    addedIds.add(doc.id);
-                    
+                querySnapshot.forEach((doc) => {
                     const d = doc.data();
                     
-                    // --- DATA NORMALIZER (FIXES CRASHES) ---
+                    // --- UNIVERSAL MAPPING ---
                     allCars.push({ 
                         id: doc.id,
                         price: Number(d.price) || 0,
+                        // Handle both naming conventions
                         img: d.imageUrl || d.img || 'https://placehold.co/600x400?text=No+Image',
-                        type: d.category || d.type || 'Sedan', 
+                        type: d.category || d.type || 'Sedan',
                         fuel: d.fuelType || d.fuel || 'Diesel',
                         desc: d.description || d.desc || '',
                         transmission: d.transmission || 'Manual',
@@ -372,32 +366,28 @@
                         seats: d.seats || 5,
                         name: d.name || 'Unknown Car'
                     });
-                };
-
-                if (snap1.status === 'fulfilled') snap1.value.forEach(processDoc);
-                if (snap2.status === 'fulfilled') snap2.value.forEach(processDoc);
+                });
                 
                 if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
                 
                 if (allCars.length === 0) {
-                     resultsContainer.innerHTML += `<div class="col-span-full text-center text-red-500 py-10">Connected, but 0 cars found.</div>`;
+                     resultsContainer.innerHTML += `<div class="col-span-full text-center text-red-500 py-10">Connected to 'cars', but found 0 results.</div>`;
                 } else {
                     renderAllCars();
                 }
 
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error("Error:", error);
                 if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
             }
         }
         
         function renderAllCars() {
-            // Preserve the "Loading cars..." or Count header
             const header = resultsContainer.querySelector('.col-span-full');
             resultsContainer.innerHTML = '';
             if(header) resultsContainer.appendChild(header);
 
-            // FILTER LOGIC
+            // Filtering Logic
             const sliderValue = parseInt(priceRange.value); 
             
             const selectedTrans = Array.from(document.querySelectorAll('#transmission-filters input:checked')).map(c => c.value);
@@ -405,26 +395,22 @@
             const selectedFuels = Array.from(document.querySelectorAll('#fuel-filters input:checked')).map(c => c.value);
 
             const filteredCars = allCars.filter(car => {
-                // 1. Price Check
-                let comparePrice = car.price; 
+                let comparePrice = car.price; // DH base
                 if (currentCurrency !== 'DH') {
                     comparePrice = Number(calculatePrice(car.price).price);
                 }
                 if (comparePrice > sliderValue) return false;
 
-                // 2. Transmission
                 if (selectedTrans.length > 0) {
                     if (!selectedTrans.includes(car.transmission)) return false;
                 }
 
-                // 3. Type
                 if (selectedTypes.length > 0) {
                      if (!selectedTypes.includes(car.type)) return false;
                 }
 
-                // 4. Fuel Check
+                // Fuel Logic: Matches "Petrol" in DB with "Petrol" (Essence) filter
                 if (selectedFuels.length > 0) {
-                    // Matches "Petrol" in DB with "Petrol" (Essence) checkbox value
                     if (!selectedFuels.includes(car.fuel)) return false;
                 }
 
@@ -447,7 +433,8 @@
                 const { price, symbol } = calculatePrice(car.price);
                 const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
                 
-                // Display Essence if DB says Petrol
+                const carType = car.type.charAt(0).toUpperCase() + car.type.slice(1); 
+                // Display 'Essence' if DB says 'Petrol'
                 const carFuelDisplay = car.fuel === 'Petrol' ? 'Essence' : car.fuel; 
 
                 let totalPriceHTML = '';
@@ -462,56 +449,42 @@
                          const { price: totalPrice, symbol: totalSymbol } = calculatePrice(total);
                          const forLabel = getTranslation('for-text');
                          const daysLabel = getTranslation('days-text');
-                         totalPriceHTML = `<div class="text-sm text-green-600 font-bold mt-2">Total: ${totalSymbol}${totalPrice} for ${diffDays} days</div>`;
+                         totalPriceHTML = `<div class="text-xs text-green-600 font-bold mt-1 bg-green-50 px-2 py-1 rounded inline-block">Total: ${totalSymbol}${totalPrice} ${currentCurrency === 'DH' ? 'DH' : ''} ${forLabel} ${diffDays} ${daysLabel}</div>`;
                     }
                 }
 
-                // --- RESTORED HORIZONTAL CARD DESIGN ---
                 const carCard = document.createElement('div');
-                carCard.className = "car-card bg-white rounded-xl shadow-md overflow-hidden flex flex-col md:flex-row border border-gray-200 hover:shadow-xl transition duration-300";
+                carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group";
                 
                 carCard.innerHTML = `
-                    <!-- Image Section -->
-                    <div class="md:w-1/3 relative bg-gray-100 min-h-60 flex items-center justify-center"> 
-                        <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover absolute inset-0">
-                        <div class="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded uppercase">
-                            ${car.type.replace('-', ' ')}
+                    <div class="relative h-56 overflow-hidden">
+                        <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
+                        <div class="absolute top-3 left-3 bg-primary-dark text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md">
+                            ${carType.replace('-', ' ')}
                         </div>
                     </div>
                     
-                    <!-- Content Section -->
-                    <div class="p-5 md:w-2/3 flex flex-col justify-between min-h-[220px]">
+                    <div class="p-6 flex flex-col justify-between flex-grow">
                         <div>
-                            <div class="flex justify-between items-start">
-                                <h3 class="text-xl font-bold text-gray-900">${car.name}</h3>
-                                <div class="text-right">
-                                    <span class="block text-xl font-extrabold text-primary-dark">${carPriceString}</span>
-                                    <span class="text-xs text-gray-400" data-i18n="car-day">/ day</span>
-                                </div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold text-gray-900 leading-tight">${car.name}</h3>
                             </div>
                             
-                            <!-- Feature Chips -->
-                            <div class="flex flex-wrap gap-2 mt-4">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-800">
-                                    <i data-lucide="${car.transmission.toLowerCase() === 'automatic' ? 'zap' : 'gauge'}" class="w-3 h-3 mr-1"></i> ${transmissionText}
-                                </span>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                    <i data-lucide="fuel" class="w-3 h-3 mr-1"></i> ${carFuelDisplay}
-                                </span>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                    <i data-lucide="users" class="w-3 h-3 mr-1"></i> ${car.seats} Seats
-                                </span>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                    <i data-lucide="snowflake" class="w-3 h-3 mr-1"></i> A/C
-                                </span>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                    <i data-lucide="palette" class="w-3 h-3 mr-1"></i> ${car.color}
-                                </span>
+                            <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 mb-4 mt-3">
+                                <div class="flex items-center"><i data-lucide="${car.transmission.toLowerCase() === 'automatic' ? 'zap' : 'gauge'}" class="w-4 h-4 text-accent-blue mr-2"></i> <span data-i18n="${car.transmission.toLowerCase()}">${transmissionText}</span></div>
+                                <div class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${carFuelDisplay}</span></div>
+                                <div class="flex items-center"><i data-lucide="users" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.seats} Seats</span></div>
+                                <div class="flex items-center"><i data-lucide="palette" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.color}</span></div>
+                                <div class="flex items-center"><i data-lucide="snowflake" class="w-4 h-4 text-accent-blue mr-2"></i> <span>A/C</span></div>
                             </div>
+                            ${totalPriceHTML}
                         </div>
 
-                        <div class="flex justify-between items-end border-t border-gray-100 pt-4 mt-4">
-                            <div>${totalPriceHTML}</div>
+                        <div class="flex justify-between items-center border-t border-gray-100 pt-4 mt-auto">
+                            <div class="flex flex-col">
+                                <span class="text-xs text-gray-400 font-medium uppercase">Daily Rate</span>
+                                <span class="text-2xl font-extrabold text-primary-dark">${carPriceString}</span>
+                            </div>
                             <button class="accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition duration-300 shadow-md text-sm"
                                 onclick="window.openModal('${car.name}', '${carPriceString}', '${car.img}', '${car.transmission}', '${car.seats}', '${car.color}', '${car.desc}')">
                                 <span data-i18n="btn-book-now">Book Now</span>
