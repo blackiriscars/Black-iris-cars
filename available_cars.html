@@ -10,6 +10,20 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="data.js"></script>
 
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Y2MG9ZZ46"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-2Y2MG9ZZ46');
+    </script>
+    
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="web-app-manifest-192x192.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="manifest" href="site.webmanifest">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
         body { font-family: 'Poppins', sans-serif; background-color: #f4f7f9; transition: all 0.3s ease; }
@@ -19,15 +33,32 @@
         .hover\:accent-blue-dark:hover { background-color: #2b4daa; } 
         .text-accent-blue { color: #4169e1; }
 
+        /* Sidebar Transition */
         #filter-sidebar { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
         #filter-sidebar.open { transform: translateX(0); }
         [dir="rtl"] #filter-sidebar { transform: translateX(100%); left: auto; right: 0; }
         [dir="rtl"] #filter-sidebar.open { transform: translateX(0); }
         
         input[type="checkbox"]:checked { background-color: #1a1a1a; border-color: #1a1a1a; }
-        .compact-select { font-size: 0.875rem; font-weight: 600; color: #1a1a1a; background-color: transparent; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 8px 12px; margin: 0; cursor: pointer; appearance: none; }
+
+        .compact-select {
+            font-size: 0.875rem; font-weight: 600; color: #1a1a1a;
+            background-color: transparent; border: 1px solid #d1d5db; border-radius: 0.375rem;
+            padding: 8px 12px; margin: 0; cursor: pointer;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M6 9l4 4 4-4'/%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.2em 1.2em;
+            appearance: none; padding-right: 2.5rem;
+        }
+        .hidden.md\:flex .compact-select { border: none; padding: 6px 1.5rem 6px 0.5rem; background-position: right 0.2rem center; font-weight: 700; color: #4b5563; transition: color 0.2s; }
+        .hidden.md\:flex .compact-select:hover { color: #4169e1; }
+        [dir="rtl"] .hidden.md\:flex .compact-select { background-position: left 0.2rem center; padding-left: 1.5rem; padding-right: 0.5rem; }
+        [dir="rtl"] .compact-select { background-position: left 0.5rem center; padding-left: 2.5rem; padding-right: 12px; }
         
-        #results-container { display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 1.5rem; }
+        #results-container {
+            display: grid;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+            gap: 1.5rem; 
+        }
         @media (min-width: 768px) { #results-container { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
         @media (min-width: 1024px) { #results-container { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
         
@@ -51,6 +82,7 @@
                     </div>
                     <nav class="hidden md:flex md:ltr:space-x-8">
                         <a href="index.html#featured" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-fleet">Our Fleet</a>
+                        <a href="index.html#why-us" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-why">Why Choose Us</a>
                         <a href="index.html#contact" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-contact">Contact</a>
                     </nav>
                     <button id="filter-menu-button" class="md:hidden text-gray-600 hover:text-accent-blue p-2 rounded-lg transition"><i data-lucide="filter" class="w-6 h-6"></i></button>
@@ -66,7 +98,9 @@
                 </div>
                 <div class="space-y-1">
                     <a href="index.html#featured" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-fleet">Our Fleet</a>
+                    <a href="index.html#why-us" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-why">Why Choose Us</a>
                     <a href="index.html#contact" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-contact">Contact</a>
+                    <a href="index.html#faq" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-faq">FAQ</a>
                 </div>
             </div>
         </div>
@@ -78,6 +112,7 @@
         <div id="filter-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
         
         <div class="md:grid md:grid-cols-4 lg:grid-cols-5 md:gap-8">
+            
             <div id="filter-sidebar" class="fixed top-0 left-0 h-full w-3/4 max-w-xs md:max-w-none bg-white p-6 shadow-2xl z-40 md:relative md:col-span-1 lg:col-span-1 md:h-auto md:p-0 md:shadow-none md:bg-transparent md:transform-none">
                 <button id="filter-close-button" class="md:hidden absolute top-4 right-4 text-gray-800 hover:text-gray-600"><i data-lucide="x" class="w-6 h-6"></i></button>
                 <h3 class="text-2xl font-bold text-primary-dark mb-6 border-b pb-3" data-i18n="h3-filter">Filter Options</h3>
@@ -95,11 +130,21 @@
                         </div>
                     </div>
                     <div>
+                        <p class="text-sm font-semibold text-gray-700 mb-2">Vehicle Type</p>
+                        <div class="space-y-2" id="type-filters">
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="Sedan" class="rounded text-primary-dark ltr:mr-2"> Sedan</label>
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="Hatchback" class="rounded text-primary-dark ltr:mr-2"> Hatchback</label>
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="SUV" class="rounded text-primary-dark ltr:mr-2"> SUV / Crossover</label>
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="Luxury SUV" class="rounded text-primary-dark ltr:mr-2"> Luxury SUV</label>
+                        </div>
+                    </div>
+                    <div>
                         <p class="text-sm font-semibold text-gray-700 mb-2">Fuel Type</p>
                         <div class="space-y-2" id="fuel-filters">
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Diesel" class="rounded text-primary-dark ltr:mr-2"> Diesel</label>
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Petrol" class="rounded text-primary-dark ltr:mr-2"> Essence</label>
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Hybrid" class="rounded text-primary-dark ltr:mr-2"> Hybrid</label>
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Electric" class="rounded text-primary-dark ltr:mr-2"> Electric</label>
                         </div>
                     </div>
                     <button type="button" id="apply-filters-btn" class="w-full accent-blue text-white font-semibold py-2 rounded-lg hover:accent-blue-dark transition shadow-md mt-4">Apply Filters</button>
@@ -128,7 +173,7 @@
                     <div class="flex items-center ltr:justify-start"><i data-lucide="snowflake" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <span data-i18n="modal-ac-label-short">A/C</span></div>
                     <div class="flex items-center ltr:justify-start"><i data-lucide="paint-bucket" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <span id="modal-color" class="font-semibold"></span></div>
                 </div>
-                <p id="modal-car-desc" class="text-gray-600 border-t border-gray-100 pt-4"></p>
+                <p id="modal-car-desc" class="text-gray-600 border-t border-gray-100 pt-4" data-i18n="modal-car-desc"></p>
             </div>
             <div class="flex justify-between items-center mt-6 pt-4 border-t">
                 <span class="text-2xl font-extrabold text-primary-dark"><span id="modal-car-price"></span> <span id="modal-car-currency">DH</span> <span class="text-base font-normal text-gray-500" data-i18n="car-day">/ day</span></span>
@@ -136,6 +181,7 @@
             </div>
             
             <div id="contact-options" class="space-y-4 mt-6 border-t pt-4 hidden">
+                <p class="text-gray-700 text-sm font-semibold text-center" data-i18n="modal-p">Choose contact method:</p>
                 <a id="whatsapp-link" href="#" target="_blank" class="w-full flex items-center justify-center bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition shadow-md">
                     <i data-lucide="message-circle" class="w-5 h-5 ltr:mr-3"></i> <span data-i18n="btn-whatsapp">WhatsApp</span>
                 </a>
@@ -145,6 +191,45 @@
             </div>
         </div>
     </div>
+
+    <footer id="contact" class="primary-dark text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8 mb-8">
+                <div>
+                    <h3 class="text-2xl font-extrabold mb-4 text-gray-300">BLACK IRIS cars</h3>
+                    <p class="text-gray-400 text-sm">Your reliable partner for car rentals across Morocco.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" data-i18n="h4-nav">Quick Navigation</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="index.html#featured" class="hover:text-accent-blue transition" data-i18n="nav-fleet">Our Fleet</a></li>
+                        <li><a href="index.html#why-us" class="hover:text-accent-blue transition" data-i18n="nav-why">Our Promise</a></li>
+                        <li><a href="index.html#testimonials" class="hover:text-accent-blue transition" data-i18n="nav-reviews">Reviews</a></li>
+                        <li><a href="index.html#faq" class="hover:text-accent-blue transition" data-i18n="nav-faq">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" data-i18n="h4-contact">Contact & Booking</h4>
+                    <a href="tel:+212602020402" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
+                        <i data-lucide="phone" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 0602020402
+                    </a>
+                    <p class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start"><i data-lucide="mail" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> <a href="mailto:blackiriscars@gmail.com" class="hover:text-accent-blue">blackiriscars@gmail.com</a></p>
+                    
+                    <a href="#" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
+                        <i data-lucide="map-pin" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 
+                        <span data-i18n="address-text">10 rue ouarzazat hassan rabat</span>
+                    </a>
+
+                    <a href="https://wa.me/212602020402" target="_blank" class="text-sm text-white px-3 py-1 mt-2 inline-flex items-center rounded-lg bg-green-600 hover:bg-green-700 transition">
+                        <i data-lucide="message-circle" class="w-4 h-4 ltr:mr-2"></i> <span data-i18n="whatsapp-text">WhatsApp</span> 0602020402
+                    </a>
+                </div>
+            </div>
+            <div class="text-center text-sm text-gray-500 pt-4">
+                &copy; <span data-i18n="copy-right">2024 BLACK IRIS cars. All rights reserved.</span>
+            </div>
+        </div>
+    </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -169,16 +254,17 @@
         let exchangeRates = { EUR: 0.092, USD: 0.10 };
         let rentalLocation = '', rentalPickupDate = '', rentalReturnDate = '';
         let allCars = [];
-        let priceRange, priceValue, filterSidebar, filterBackdrop, mobileMenu, carCountElement, resultsContainer;
+        
+        // UI Elements
+        let priceRange, priceValue, filterSidebar, filterBackdrop, mobileMenu, mobileMenuBtn, carCountElement, resultsContainer;
 
-        // 1. Translations
+        // --- 1. TRANSLATIONS & UTILS ---
         function getTranslation(key) {
             if (typeof translations === 'undefined' || !translations[currentLang]) return key;
             const translation = translations[currentLang][key];
             return (typeof translation === 'function') ? translation : (translation || key);
         }
 
-        // 2. Pricing
         function calculatePrice(basePrice) {
             if (currentCurrency === 'EUR') return { price: (basePrice * exchangeRates.EUR).toFixed(0), symbol: '€' };
             if (currentCurrency === 'USD') return { price: (basePrice * exchangeRates.USD).toFixed(0), symbol: '$' };
@@ -192,12 +278,11 @@
             priceValue.textContent = `${currentSliderValue}${symbol}`;
         }
 
-        // 3. Selectors Update
         function updateAllSelectors(selector, value) {
             document.querySelectorAll(selector).forEach(sel => sel.value = value);
         }
 
-        // 4. Set Language
+        // --- 2. CORE SETTINGS ---
         function setLanguage(lang) {
             currentLang = lang;
             updateAllSelectors('#language-selector, #language-selector-mobile', lang);
@@ -211,7 +296,6 @@
             lucide.createIcons();
         }
 
-        // 5. Set Currency
         function setCurrency(currency) {
             currentCurrency = currency;
             updateAllSelectors('#currency-selector, #currency-selector-mobile', currency);
@@ -223,7 +307,6 @@
             renderAllCars();
         }
 
-        // 6. Fetch Currency Rates
         async function fetchRates() {
             try {
                 const response = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/mad.json');
@@ -233,54 +316,44 @@
                     exchangeRates.USD = data.mad.usd;
                 }
             } catch (error) { console.log('Using static rates'); }
-            loadCars(); // Start loading cars after rates check
+            loadCars();
         }
 
-        // 7. Load Cars from Firestore
+        // --- 3. DATA LOADING ---
         async function loadCars() {
             if (!resultsContainer) return;
             resultsContainer.innerHTML = '<div class="col-span-full text-center py-20"><div class="loader mx-auto mb-4"></div></div>';
             
             try {
-                // Fetch from 'cars' collection
                 const q = query(collection(db, "cars")); 
                 const querySnapshot = await getDocs(q);
                 
                 allCars = [];
                 querySnapshot.forEach((doc) => {
                     const d = doc.data();
-                    // MAPPING ADMIN DATA TO FRONTEND DATA
                     allCars.push({ 
                         id: doc.id,
                         name: d.name || 'Unknown Car',
                         price: Number(d.price) || 0,
-                        // Admin saves as 'imageUrl', frontend uses 'img'
                         img: d.imageUrl || 'https://placehold.co/600x400?text=No+Image',
-                        // Admin saves as 'category', frontend filters might use 'type'
                         type: d.category || 'Sedan', 
-                        // Admin saves as 'fuelType', frontend uses 'fuel'
                         fuel: d.fuelType || 'Diesel',
-                        // Admin saves as 'transmission'
                         transmission: d.transmission || 'Manual',
                         desc: d.description || '',
                         color: d.color || 'Standard',
                         seats: d.seats || 5
                     });
                 });
-                
                 renderAllCars();
-
             } catch (error) {
                 console.error("Error:", error);
-                resultsContainer.innerHTML = `<div class="col-span-full text-center text-red-500 py-10">Error loading cars. Check console.</div>`;
+                resultsContainer.innerHTML = `<div class="col-span-full text-center text-red-500 py-10">Error loading cars.</div>`;
             }
         }
         
-        // 8. Render Function
         function renderAllCars() {
             resultsContainer.innerHTML = '';
             
-            // Re-add the count header
             const header = document.createElement('div');
             header.className = 'col-span-full flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100 mb-4';
             header.innerHTML = '<p class="text-sm text-gray-600" id="car-count">...</p>';
@@ -289,20 +362,16 @@
 
             const sliderValue = parseInt(priceRange.value); 
             const selectedTrans = Array.from(document.querySelectorAll('#transmission-filters input:checked')).map(c => c.value);
+            const selectedTypes = Array.from(document.querySelectorAll('#type-filters input:checked')).map(c => c.value);
             const selectedFuels = Array.from(document.querySelectorAll('#fuel-filters input:checked')).map(c => c.value);
 
             const filteredCars = allCars.filter(car => {
-                // Price Filter
                 let comparePrice = car.price; 
                 if (currentCurrency !== 'DH') comparePrice = Number(calculatePrice(car.price).price);
                 if (comparePrice > sliderValue) return false;
-
-                // Transmission Filter
                 if (selectedTrans.length > 0 && !selectedTrans.includes(car.transmission)) return false;
-
-                // Fuel Filter
+                if (selectedTypes.length > 0 && !selectedTypes.includes(car.type)) return false;
                 if (selectedFuels.length > 0 && !selectedFuels.includes(car.fuel)) return false;
-
                 return true;
             });
 
@@ -321,7 +390,6 @@
                 const { price, symbol } = calculatePrice(car.price);
                 const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
                 
-                // Card HTML
                 const carCard = document.createElement('div');
                 carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group";
                 carCard.innerHTML = `
@@ -347,14 +415,13 @@
                         </div>
                     </div>
                 `;
-                // Click event for modal
                 carCard.addEventListener('click', () => window.openModal(car.name, carPriceString, car.img, car.transmission, car.seats, car.color, car.desc));
                 resultsContainer.appendChild(carCard);
             });
             lucide.createIcons();
         }
 
-        // 9. Modal Function
+        // --- 4. MODAL ---
         window.openModal = function(carName, carPriceWithSymbol, carImg, carTrans, carSeats, carColor, carDesc) {
             const dict = translations[currentLang];
             document.getElementById('modal-car-name').textContent = carName;
@@ -366,15 +433,11 @@
             document.getElementById('modal-car-price').textContent = carPriceWithSymbol.replace(/ DH| €| \$/g, '');
             document.getElementById('modal-car-currency').textContent = currentCurrency === 'DH' ? 'DH' : (currentCurrency === 'EUR' ? '€' : '$');
             
-            // Set WhatsApp/Email links
-            let whatsappMessage, emailSubject, emailBody;
-            if (rentalPickupDate) {
-                 whatsappMessage = dict['book-whatsapp-msg-full'](carName, carPriceWithSymbol, rentalLocation, rentalPickupDate, rentalReturnDate);
-            } else {
-                 whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
-            }
+            let whatsappMessage;
+            if (rentalPickupDate) whatsappMessage = dict['book-whatsapp-msg-full'](carName, carPriceWithSymbol, rentalLocation, rentalPickupDate, rentalReturnDate);
+            else whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
+            
             document.getElementById('whatsapp-link').href = `https://wa.me/212602020402?text=${encodeURIComponent(whatsappMessage)}`;
-
             document.getElementById('contact-options').classList.add('hidden');
             document.getElementById('modal-book-button').classList.remove('hidden'); 
             
@@ -386,40 +449,120 @@
             const modal = document.getElementById('car-detail-modal');
             modal.classList.remove('hidden');
             setTimeout(() => { document.getElementById('modal-detail-content').classList.remove('scale-95', 'opacity-0'); }, 10);
+            document.body.classList.add('overflow-hidden');
         }
 
-        // 10. Initialization
+        // --- 5. INITIALIZATION & EVENTS ---
         document.addEventListener('DOMContentLoaded', () => {
             priceRange = document.getElementById('price-range');
             priceValue = document.getElementById('price-value');
             filterSidebar = document.getElementById('filter-sidebar');
+            filterBackdrop = document.getElementById('filter-backdrop'); // Get the backdrop
             resultsContainer = document.getElementById('results-container');
             
-            // Filters
+            // MENU VARIABLES
+            mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuBtn = document.getElementById('mobile-menu-button');
+
+            // --- MOBILE MENU LOGIC (FIXED) ---
+            function toggleMobileMenu() {
+                const isClosed = mobileMenu.classList.contains('opacity-0');
+                if (isClosed) {
+                    // Open Menu
+                    mobileMenu.classList.remove('opacity-0', '-translate-y-2');
+                    mobileMenu.style.pointerEvents = 'auto';
+                } else {
+                    // Close Menu
+                    mobileMenu.classList.add('opacity-0', '-translate-y-2');
+                    mobileMenu.style.pointerEvents = 'none';
+                }
+            }
+
+            // Click Button to Toggle
+            mobileMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Stop click from hitting the document listener immediately
+                toggleMobileMenu();
+            });
+
+            // Click Outside to Close Menu
+            document.addEventListener('click', (e) => {
+                // If menu is open AND click is NOT inside menu AND click is NOT on the button
+                if (mobileMenu.style.pointerEvents === 'auto' && !mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                    mobileMenu.classList.add('opacity-0', '-translate-y-2');
+                    mobileMenu.style.pointerEvents = 'none';
+                }
+            });
+
+            // --- FILTER SIDEBAR LOGIC (FIXED) ---
+            function openSidebar() {
+                filterSidebar.classList.add('open');
+                filterBackdrop.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden'); // Prevent scrolling body
+            }
+
+            function closeSidebar() {
+                filterSidebar.classList.remove('open');
+                filterBackdrop.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+
+            document.getElementById('filter-menu-button').addEventListener('click', (e) => {
+                e.stopPropagation();
+                openSidebar();
+            });
+
+            document.getElementById('filter-close-button').addEventListener('click', closeSidebar);
+            
+            // CLICK BACKDROP TO CLOSE FILTER
+            filterBackdrop.addEventListener('click', closeSidebar);
+
+            // --- GENERAL EVENTS ---
             document.querySelectorAll('#filter-form input').forEach(inp => {
                 inp.addEventListener('change', renderAllCars);
             });
             priceRange.addEventListener('input', updatePriceDisplay);
             priceRange.addEventListener('change', renderAllCars);
-            document.getElementById('apply-filters-btn').addEventListener('click', () => { renderAllCars(); filterSidebar.classList.remove('open'); });
             
-            // Close Modal
-            document.getElementById('close-detail-modal-btn').addEventListener('click', () => {
-                 document.getElementById('car-detail-modal').classList.add('hidden');
+            // Apply filter button also closes sidebar for better UX
+            document.getElementById('apply-filters-btn').addEventListener('click', () => { 
+                renderAllCars(); 
+                closeSidebar(); 
             });
             
-            // Sidebar Toggles
-            document.getElementById('filter-menu-button').addEventListener('click', () => filterSidebar.classList.add('open'));
-            document.getElementById('filter-close-button').addEventListener('click', () => filterSidebar.classList.remove('open'));
+            document.getElementById('close-detail-modal-btn').addEventListener('click', () => {
+                 document.getElementById('car-detail-modal').classList.add('hidden');
+                 document.body.classList.remove('overflow-hidden');
+            });
 
-            // Load saved preferences
+            // Language & Currency
+            document.querySelectorAll('#language-selector, #language-selector-mobile').forEach(sel => {
+                sel.addEventListener('change', (e) => {
+                    setLanguage(e.target.value);
+                    localStorage.setItem('languagePreference', e.target.value);
+                });
+            });
+
+            document.querySelectorAll('#currency-selector, #currency-selector-mobile').forEach(sel => {
+                sel.addEventListener('change', (e) => {
+                    setCurrency(e.target.value);
+                    localStorage.setItem('currencyPreference', e.target.value);
+                });
+            });
+
+            // Load Preferences
             const savedLang = localStorage.getItem('languagePreference') || 'en';
+            const savedCurrency = localStorage.getItem('currencyPreference') || 'DH';
             rentalLocation = localStorage.getItem('rentalLocation');
             rentalPickupDate = localStorage.getItem('rentalPickupDate');
             rentalReturnDate = localStorage.getItem('rentalReturnDate');
 
+            updateAllSelectors('#language-selector, #language-selector-mobile', savedLang);
+            updateAllSelectors('#currency-selector, #currency-selector-mobile', savedCurrency);
+            currentLang = savedLang;
+            currentCurrency = savedCurrency;
+
             setLanguage(savedLang);
-            fetchRates(); // This starts the data loading
+            fetchRates();
         });
     </script>
 </body>
