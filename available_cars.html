@@ -36,15 +36,14 @@
         .hover\:accent-blue-dark:hover { background-color: #2b4daa; } 
         .text-accent-blue { color: #4169e1; }
 
-        /* Sidebar Animation */
+        /* Animation & Sidebar */
         #filter-sidebar { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
         #filter-sidebar.open { transform: translateX(0); }
         [dir="rtl"] #filter-sidebar { transform: translateX(100%); left: auto; right: 0; }
         [dir="rtl"] #filter-sidebar.open { transform: translateX(0); }
         
         input[type="checkbox"]:checked { background-color: #1a1a1a; border-color: #1a1a1a; }
-        #contact-modal { transition: opacity 0.3s ease-in-out; }
-
+        
         /* Compact Selectors */
         .compact-select {
             font-size: 0.875rem; font-weight: 600; color: #1a1a1a;
@@ -58,7 +57,6 @@
         .hidden.md\:flex .compact-select:hover { color: #4169e1; }
         [dir="rtl"] .hidden.md\:flex .compact-select { background-position: left 0.2rem center; padding-left: 1.5rem; padding-right: 0.5rem; }
         [dir="rtl"] .compact-select { background-position: left 0.5rem center; padding-left: 2.5rem; padding-right: 12px; }
-        .compact-select option { color: #000000; font-weight: 400; }
         
         /* Grid Layout */
         #results-container {
@@ -140,24 +138,26 @@
                     <div>
                         <p class="text-sm font-semibold text-gray-700 mb-2">Transmission</p>
                         <div class="space-y-2" id="transmission-filters">
-                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="transmission" value="automatic" class="rounded text-primary-dark ltr:mr-2"> <span data-i18n="automatic">Automatic</span></label>
-                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="transmission" value="manual" class="rounded text-primary-dark ltr:mr-2"> <span data-i18n="manual">Manual</span></label>
+                            <!-- MATCHING ADMIN VALUES -->
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="transmission" value="Automatic" class="rounded text-primary-dark ltr:mr-2"> <span data-i18n="automatic">Automatic</span></label>
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="transmission" value="Manual" class="rounded text-primary-dark ltr:mr-2"> <span data-i18n="manual">Manual</span></label>
                         </div>
                     </div>
                     <div>
                         <p class="text-sm font-semibold text-gray-700 mb-2">Vehicle Type</p>
                         <div class="space-y-2" id="type-filters">
-                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="sedan" class="rounded text-primary-dark ltr:mr-2"> Sedan</label>
-                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="hatchback" class="rounded text-primary-dark ltr:mr-2"> Hatchback</label>
-                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="suv" class="rounded text-primary-dark ltr:mr-2"> SUV / Crossover</label>
-                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="luxury-suv" class="rounded text-primary-dark ltr:mr-2"> Luxury SUV</label>
+                            <!-- MATCHING ADMIN VALUES -->
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="Sedan" class="rounded text-primary-dark ltr:mr-2"> Sedan</label>
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="Hatchback" class="rounded text-primary-dark ltr:mr-2"> Hatchback</label>
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="SUV" class="rounded text-primary-dark ltr:mr-2"> SUV / Crossover</label>
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="Luxury SUV" class="rounded text-primary-dark ltr:mr-2"> Luxury SUV</label>
                         </div>
                     </div>
-                    <!-- FIXED FUEL FILTERS: Value="Petrol" matches DB, Label="Essence" matches Request -->
                     <div>
                         <p class="text-sm font-semibold text-gray-700 mb-2">Fuel Type</p>
                         <div class="space-y-2" id="fuel-filters">
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Diesel" class="rounded text-primary-dark ltr:mr-2"> Diesel</label>
+                            <!-- MATCHING ADMIN VALUE 'Petrol' but showing 'Essence' -->
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Petrol" class="rounded text-primary-dark ltr:mr-2"> Essence</label>
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Hybrid" class="rounded text-primary-dark ltr:mr-2"> Hybrid</label>
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Electric" class="rounded text-primary-dark ltr:mr-2"> Electric</label>
@@ -212,7 +212,6 @@
 
     <!-- FOOTER -->
     <footer id="contact" class="primary-dark text-white py-12">
-        <!-- Content same as index.html -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8 mb-8">
                 <div>
@@ -295,10 +294,8 @@
         
         function updatePriceDisplay() {
             if (!priceRange || !priceValue) return;
-
             const currentSliderValue = parseInt(priceRange.value);
             const symbol = currentCurrency === 'DH' ? ' DH' : (currentCurrency === 'EUR' ? ' €' : ' $');
-            
             priceValue.textContent = `${currentSliderValue}${symbol}`;
         }
 
@@ -327,9 +324,10 @@
             currentCurrency = currency;
             updateAllSelectors('#currency-selector, #currency-selector-mobile', currency);
 
+            // --- CURRENCY FILTER LIMITS ---
             let newMax = 2000;
             if (currency === 'EUR' || currency === 'USD') {
-                newMax = 200; // Fixed hard limit for USD/EUR
+                newMax = 200; 
             }
             priceRange.max = newMax;
             priceRange.value = newMax; 
@@ -344,7 +342,6 @@
             rentalReturnDate = localStorage.getItem('rentalReturnDate') || '';
         }
 
-        // --- DUAL LOAD + DATA NORMALIZATION ---
         async function loadCars() {
             if (!resultsContainer) return;
             
@@ -359,7 +356,7 @@
             resultsContainer.appendChild(loader);
 
             try {
-                // Fetch from BOTH collections
+                // FETCH FROM BOTH COLLECTIONS TO ENSURE DATA IS FOUND
                 const q1 = query(collection(db, "cars"));
                 const q2 = query(collection(db, "cars_production"));
                 
@@ -374,29 +371,16 @@
                     
                     const d = doc.data();
                     
-                    // --- DATA NORMALIZER ---
-                    // This creates a valid car object NO MATTER WHAT is missing in DB
-                    
-                    // 1. Get raw values with fallbacks
-                    let rawType = d.category || d.type || 'Sedan';
-                    let rawFuel = d.fuelType || d.fuel || 'Diesel';
-                    let rawTrans = d.transmission || 'Manual';
-                    let rawImg = d.imageUrl || d.img || 'https://placehold.co/600x400?text=No+Image';
-
+                    // --- ROBUST DATA NORMALIZATION (FIXES FILTER CRASHES) ---
                     allCars.push({ 
                         id: doc.id,
                         price: Number(d.price) || 0,
-                        img: rawImg,
+                        img: d.imageUrl || d.img || 'https://placehold.co/600x400?text=No+Image',
                         
-                        // Display Values (Keep Original Casing)
-                        displayType: rawType,
-                        displayFuel: rawFuel === 'Petrol' ? 'Essence' : rawFuel, 
-                        displayTrans: rawTrans,
-                        
-                        // Filter Values (Lowercase, Standardized)
-                        filterType: rawType.toLowerCase().trim().replace(/\s/g, '-'),
-                        filterFuel: rawFuel.toLowerCase().trim(),
-                        filterTrans: rawTrans.toLowerCase().trim(),
+                        // Store original exact values for filters to match against checkboxes
+                        type: d.category || d.type || 'Sedan', 
+                        fuel: d.fuelType || d.fuel || 'Diesel',
+                        transmission: d.transmission || 'Manual',
                         
                         color: d.color || 'Standard',
                         seats: d.seats || 5,
@@ -409,12 +393,7 @@
                 snap2.forEach(processDoc);
                 
                 if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
-                
-                if (allCars.length === 0) {
-                     resultsContainer.innerHTML += `<div class="col-span-full text-center text-red-500 py-10">Connected, but found 0 cars. Please add cars in Admin.</div>`;
-                } else {
-                    renderAllCars();
-                }
+                renderAllCars();
 
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -429,25 +408,23 @@
 
             // Filtering Logic
             const sliderValue = parseInt(priceRange.value); 
-            const transmissionFilters = document.querySelectorAll('#transmission-filters input[type="checkbox"]');
-            const typeFilters = document.querySelectorAll('#type-filters input[type="checkbox"]');
-            const fuelFilters = document.querySelectorAll('#fuel-filters input[type="checkbox"]');
-
-            const selectedTrans = Array.from(transmissionFilters).filter(c => c.checked).map(c => c.value.toLowerCase());
-            const selectedTypes = Array.from(typeFilters).filter(c => c.checked).map(c => c.value.toLowerCase());
-            const selectedFuels = Array.from(fuelFilters).filter(c => c.checked).map(c => c.value.toLowerCase());
+            
+            // Get selected filter values (Arrays of strings)
+            const selectedTrans = Array.from(document.querySelectorAll('#transmission-filters input:checked')).map(c => c.value);
+            const selectedTypes = Array.from(document.querySelectorAll('#type-filters input:checked')).map(c => c.value);
+            const selectedFuels = Array.from(document.querySelectorAll('#fuel-filters input:checked')).map(c => c.value);
 
             const filteredCars = allCars.filter(car => {
-                // Price Check
-                let comparePrice = car.price; 
+                // Price Logic
+                let comparePrice = car.price; // DH base
                 if (currentCurrency !== 'DH') {
                     comparePrice = Number(calculatePrice(car.price).price);
                 }
 
-                // Match Logic
-                const transMatch = selectedTrans.length === 0 || selectedTrans.includes(car.filterTrans);
-                const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(car.filterType);
-                const fuelMatch = selectedFuels.length === 0 || selectedFuels.includes(car.filterFuel);
+                // Exact matching logic (DB Value must be in Selected Array)
+                const transMatch = selectedTrans.length === 0 || selectedTrans.includes(car.transmission);
+                const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(car.type);
+                const fuelMatch = selectedFuels.length === 0 || selectedFuels.includes(car.fuel);
                 const priceMatch = comparePrice <= sliderValue;
 
                 return priceMatch && transMatch && typeMatch && fuelMatch;
@@ -465,12 +442,12 @@
             }
 
             filteredCars.forEach(car => {
-                const transmissionText = getTranslation(car.displayTrans); 
+                const transmissionText = getTranslation(car.transmission.toLowerCase()); 
                 const { price, symbol } = calculatePrice(car.price);
                 const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
                 
-                const carType = car.displayType.charAt(0).toUpperCase() + car.displayType.slice(1); 
-                const carFuel = car.displayFuel;
+                // Display logic
+                const carFuelDisplay = car.fuel === 'Petrol' ? 'Essence' : car.fuel; 
 
                 let totalPriceHTML = '';
                 if (rentalPickupDate && rentalReturnDate) {
@@ -495,7 +472,7 @@
                     <div class="relative h-56 overflow-hidden">
                         <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
                         <div class="absolute top-3 left-3 bg-primary-dark text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md">
-                            ${carType.replace('-', ' ')}
+                            ${car.type.replace('-', ' ')}
                         </div>
                     </div>
                     
@@ -506,8 +483,8 @@
                             </div>
                             
                             <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 mb-4 mt-3">
-                                <div class="flex items-center"><i data-lucide="${car.filterTrans === 'automatic' ? 'zap' : 'gauge'}" class="w-4 h-4 text-accent-blue mr-2"></i> <span data-i18n="${car.filterTrans}">${transmissionText}</span></div>
-                                <div class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${carFuel}</span></div>
+                                <div class="flex items-center"><i data-lucide="${car.transmission.toLowerCase() === 'automatic' ? 'zap' : 'gauge'}" class="w-4 h-4 text-accent-blue mr-2"></i> <span data-i18n="${car.transmission.toLowerCase()}">${transmissionText}</span></div>
+                                <div class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${carFuelDisplay}</span></div>
                                 <div class="flex items-center"><i data-lucide="users" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.seats} Seats</span></div>
                                 <div class="flex items-center"><i data-lucide="palette" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.color}</span></div>
                                 <div class="flex items-center"><i data-lucide="snowflake" class="w-4 h-4 text-accent-blue mr-2"></i> <span>A/C</span></div>
