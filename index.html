@@ -166,22 +166,23 @@
                         <label for="location" class="block text-sm font-medium text-gray-700" data-i18n="label-pickup-city">Pick-up City</label>
                         <select id="location" name="location" required class="mt-1 block w-full rounded-lg border-gray-300 border">
                             <option value="" data-i18n="select-location">Select a location</option>
+                            <option value="Black Iris Cars AGENCE (Temara)">Black Iris Cars AGENCE (Temara)</option>
                             <option value="Casablanca Airport">Casablanca Mohammed V Airport (CMN)</option>
                             <option value="Marrakech Airport">Marrakech Menara Airport (RAK)</option>
                             <option value="Rabat Airport">Rabat–Salé Airport (RBA)</option>
                             <option value="Tangier Airport">Tangier Ibn Battouta Airport (TNG)</option>
-                            <option value="Agadir Airport">Agadir Al Massira Airport (AGA)</option>
+                            <option value="Fes Airport">Fes Saïss Airport (FEZ)</option>
                             <option disabled>──────────</option>
-                            <option value="Casablanca">Casablanca City</option>
-                            <option value="Marrakech">Marrakech City</option>
-                            <option value="Rabat">Rabat City</option>
-                            <option value="Tangier">Tangier City</option>
-                            <option value="Agadir">Agadir City</option>
-                            <option value="Fes">Fes City</option>
-                            <option value="Essaouira">Essaouira City</option>
+                            <option value="Casablanca">Casablanca</option>
+                            <option value="Marrakech">Marrakech</option>
+                            <option value="Rabat">Rabat</option>
+                            <option value="Tangier">Tangier</option>
+                            <option value="Fes">Fes</option>
+                            <option value="Meknes">Meknes</option>
+                            <option value="Sale">Sale</option>
+                            <option value="Essaouira">Essaouira</option>
                             <option value="Kenitra">Kenitra</option>
                             <option value="Temara">Temara</option>
-                            <option value="Tetouan">Tetouan</option>
                         </select>
                     </div>
                     <div>
@@ -338,10 +339,10 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4" data-i18n="h4-nav">Quick Navigation</h4>
                     <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="#featured" class="hover:text-accent-blue transition" data-i18n="nav-fleet">Our Fleet</a></li>
-                        <li><a href="#why-us" class="hover:text-accent-blue transition" data-i18n="nav-why">Our Promise</a></li>
-                        <li><a href="#testimonials" class="hover:text-accent-blue transition" data-i18n="nav-reviews">Reviews</a></li>
-                        <li><a href="#faq" class="hover:text-accent-blue transition" data-i18n="nav-faq">FAQ</a></li>
+                        <li><a href="index.html#featured" class="hover:text-accent-blue transition" data-i18n="nav-fleet">Our Fleet</a></li>
+                        <li><a href="index.html#why-us" class="hover:text-accent-blue transition" data-i18n="nav-why">Our Promise</a></li>
+                        <li><a href="index.html#testimonials" class="hover:text-accent-blue transition" data-i18n="nav-reviews">Reviews</a></li>
+                        <li><a href="index.html#faq" class="hover:text-accent-blue transition" data-i18n="nav-faq">FAQ</a></li>
                     </ul>
                 </div>
                 <div>
@@ -444,6 +445,21 @@
             const contactOptions = document.getElementById('contact-options');
             const whatsappLink = document.getElementById('whatsapp-link');
             const emailLink = document.getElementById('email-link');
+
+            // Set Min Date for Inputs
+            const pickupInput = document.getElementById('pickup-date');
+            const returnInput = document.getElementById('return-date');
+            if(pickupInput && returnInput) {
+                const today = new Date().toISOString().split('T')[0];
+                pickupInput.setAttribute('min', today);
+                returnInput.setAttribute('min', today);
+                pickupInput.addEventListener('change', function() {
+                    returnInput.setAttribute('min', this.value);
+                    if(returnInput.value && returnInput.value < this.value) {
+                        returnInput.value = this.value;
+                    }
+                });
+            }
 
             // FAQ Accordion
             const details = document.querySelectorAll("details");
