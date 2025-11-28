@@ -251,14 +251,13 @@
         // 1. INITIALIZE ICONS IMMEDIATELY
         lucide.createIcons();
 
-        // Global variables/helpers (accessible to helper functions below)
+        // Global variables
         let currentLang = 'en';
         let currentCurrency = 'DH';
         let exchangeRates = { EUR: 0.092, USD: 0.10 };
         let rentalLocation = '', rentalPickupDate = '', rentalReturnDate = '';
         let allCars = [];
         
-        // Element references populated inside DOMContentLoaded
         let priceRange, priceValue, filterSidebar, filterBackdrop, mobileMenu, mobileMenuButton, carCountElement, resultsContainer;
 
         function getTranslation(key) {
@@ -279,7 +278,6 @@
             const currentSliderValue = parseInt(priceRange.value);
             const symbol = currentCurrency === 'DH' ? ' DH' : (currentCurrency === 'EUR' ? ' €' : ' $');
             
-            // Just display the Number + Symbol (e.g., "200 $")
             priceValue.textContent = `${currentSliderValue}${symbol}`;
         }
 
@@ -308,10 +306,9 @@
             currentCurrency = currency;
             updateAllSelectors('#currency-selector, #currency-selector-mobile', currency);
 
-            // --- FIXED: CURRENCY FILTER LIMITS ---
             let newMax = 2000;
             if (currency === 'EUR' || currency === 'USD') {
-                newMax = 200; // Fixed hard limit for USD/EUR
+                newMax = 200; 
             }
             priceRange.max = newMax;
             priceRange.value = newMax; 
@@ -326,7 +323,8 @@
             rentalReturnDate = localStorage.getItem('rentalReturnDate') || '';
         }
 
-        // --- UPDATED LOAD CARS (UNIVERSAL DATA FIX) ---
+        // --- DUAL LOAD CARS: FETCH FROM BOTH COLLECTIONS ---
+        // This ensures ANY data stored in ANY way will show up.
         async function loadCars() {
             if (!resultsContainer) return;
             
@@ -341,30 +339,41 @@
             resultsContainer.appendChild(loader);
 
             try {
-                // Query the "cars" collection
-                const q = query(collection(db, "cars"), orderBy("createdAt", "desc"));
-                const querySnapshot = await getDocs(q);
+                // Fetch from BOTH collections to guarantee data visibility
+                const q1 = query(collection(db, "cars"));
+                const q2 = query(collection(db, "cars_production"));
+                
+                const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
                 
                 allCars = [];
-                querySnapshot.forEach((doc) => {
+                const addedIds = new Set(); // Avoid duplicates if data exists in both
+
+                const processDoc = (doc) => {
+                    if (addedIds.has(doc.id)) return;
+                    addedIds.add(doc.id);
+                    
                     const d = doc.data();
                     
-                    // --- UNIVERSAL DATA MAPPING (CRITICAL FIX) ---
-                    // This checks BOTH old and new field names to prevent crashes/empty data
+                    // UNIVERSAL MAPPING with SAFETY DEFAULTS
                     allCars.push({ 
                         id: doc.id,
-                        name: d.name,
                         price: Number(d.price) || 0,
-                        // Fix for mismatched keys
+                        // Check imageUrl (Admin) OR img (Old Admin)
                         img: d.imageUrl || d.img || 'https://placehold.co/600x400?text=No+Image',
-                        type: (d.category || d.type || 'Sedan').toLowerCase(), // Normalize to lowercase
+                        // Check category (Admin) OR type (Old Admin)
+                        type: (d.category || d.type || 'Sedan').toLowerCase(), 
+                        // Check fuelType (Admin) OR fuel (Old Admin)
                         fuel: d.fuelType || d.fuel || 'Diesel',
                         desc: d.description || d.desc || '',
-                        transmission: (d.transmission || 'Manual').toLowerCase(), // Normalize
+                        transmission: (d.transmission || 'Manual').toLowerCase(), 
                         color: d.color || 'Standard',
-                        seats: d.seats || 5
+                        seats: d.seats || 5,
+                        name: d.name
                     });
-                });
+                };
+
+                snap1.forEach(processDoc);
+                snap2.forEach(processDoc);
                 
                 if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
                 renderAllCars();
@@ -372,7 +381,7 @@
             } catch (error) {
                 console.error("Error:", error);
                 if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
-                alert("Connection error. Please reload.");
+                // Removed alert to avoid annoying users, console log is enough
             }
         }
         
@@ -396,7 +405,7 @@
                     comparePrice = Number(calculatePrice(car.price).price);
                 }
 
-                // Safe Filtering (prevents crashes on missing data)
+                // Defensive Filtering
                 const carTrans = (car.transmission || '').toLowerCase();
                 const carType = (car.type || '').toLowerCase();
 
@@ -421,12 +430,10 @@
                 const { price, symbol } = calculatePrice(car.price);
                 const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
                 
-                // Capitalize first letter for display
                 const carType = car.type.charAt(0).toUpperCase() + car.type.slice(1); 
                 const carFuel = car.fuel; 
                 const carColor = car.color;
 
-                // Total Price Logic
                 let totalPriceHTML = '';
                 if (rentalPickupDate && rentalReturnDate) {
                     const start = new Date(rentalPickupDate);
@@ -462,9 +469,9 @@
                             
                             <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 mb-4 mt-3">
                                 <div class="flex items-center"><i data-lucide="${car.transmission === 'automatic' ? 'zap' : 'gauge'}" class="w-4 h-4 text-accent-blue mr-2"></i> <span data-i18n="${car.transmission}">${transmissionText}</span></div>
-                                <div class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${carFuel}</span></div>
+                                <div class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.fuel}</span></div>
                                 <div class="flex items-center"><i data-lucide="users" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.seats} <span data-i18n="car-seats-label-spaced">Seats</span></span></div>
-                                <div class="flex items-center"><i data-lucide="palette" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${carColor}</span></div>
+                                <div class="flex items-center"><i data-lucide="palette" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.color}</span></div>
                                 <div class="flex items-center"><i data-lucide="snowflake" class="w-4 h-4 text-accent-blue mr-2"></i> <span>A/C</span></div>
                             </div>
                             ${totalPriceHTML}
