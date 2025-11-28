@@ -2,238 +2,218 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Available Cars | Black Iris Cars</title>
-    <meta name="description" content="View our full fleet of available rental cars. From economy hatchbacks to luxury SUVs, find the perfect car for your trip in Morocco.">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="data.js"></script>
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Y2MG9ZZ46"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-2Y2MG9ZZ46');
-    </script>
-    
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="web-app-manifest-192x192.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="manifest" href="site.webmanifest">
-    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
-        body { font-family: 'Poppins', sans-serif; background-color: #f4f7f9; transition: all 0.3s ease; }
-        .primary-dark { background-color: #1a1a1a; } 
-        .text-primary-dark { color: #1a1a1a; } 
-        .accent-blue { background-color: #4169e1; } 
-        .hover\:accent-blue-dark:hover { background-color: #2b4daa; } 
-        .text-accent-blue { color: #4169e1; }
-
-        /* Sidebar Animation */
-        #filter-sidebar { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
-        #filter-sidebar.open { transform: translateX(0); }
-        [dir="rtl"] #filter-sidebar { transform: translateX(100%); left: auto; right: 0; }
-        [dir="rtl"] #filter-sidebar.open { transform: translateX(0); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        input[type="checkbox"]:checked { background-color: #1a1a1a; border-color: #1a1a1a; }
-        #contact-modal { transition: opacity 0.3s ease-in-out; }
-
-        /* Compact Selectors */
-        .compact-select {
-            font-size: 0.875rem; font-weight: 600; color: #1a1a1a;
-            background-color: transparent; border: 1px solid #d1d5db; border-radius: 0.375rem;
-            padding: 8px 12px; margin: 0; cursor: pointer;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M6 9l4 4 4-4'/%3e%3c/svg%3e");
-            background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.2em 1.2em;
-            appearance: none; padding-right: 2.5rem;
+        .nav-item.active {
+            background-color: rgb(67 56 202); 
+            border-left: 4px solid rgb(199 210 254);
         }
-        .hidden.md\:flex .compact-select { border: none; padding: 6px 1.5rem 6px 0.5rem; background-position: right 0.2rem center; font-weight: 700; color: #4b5563; transition: color 0.2s; }
-        .hidden.md\:flex .compact-select:hover { color: #4169e1; }
-        [dir="rtl"] .hidden.md\:flex .compact-select { background-position: left 0.2rem center; padding-left: 1.5rem; padding-right: 0.5rem; }
-        [dir="rtl"] .compact-select { background-position: left 0.5rem center; padding-left: 2.5rem; padding-right: 12px; }
-        .compact-select option { color: #000000; font-weight: 400; }
-        
-        /* Loader */
-        .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3498db; width: 30px; height: 30px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        /* New Grid Layout for Car Cards */
-        #results-container {
-            display: grid;
-            grid-template-columns: repeat(1, minmax(0, 1fr));
-            gap: 1.5rem; /* Matches the 8px gap used in the index page's featured grid */
-        }
-        @media (min-width: 768px) {
-             #results-container { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        }
-        @media (min-width: 1024px) {
-             #results-container { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        }
+        #sidebar { transition: transform 0.3s ease-in-out; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="antialiased" dir="ltr">
+<body class="bg-gray-50 text-gray-800 font-sans h-[100dvh] w-full overflow-hidden flex flex-col md:flex-row">
 
-    <header class="bg-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <a href="index.html" class="flex items-center">
-                    <img src="https://i.postimg.cc/B6LWwXNL/923d79fe-5117-4849-9761-57e1fe5a8d96.jpg" alt="Logo" class="w-10 h-10 mr-2 rounded-full border border-gray-100">
-                    <span class="text-2xl font-extrabold text-primary-dark">BLACK IRIS cars</span>
-                </a>
-                <div class="flex items-center space-x-3 sm:space-x-4">
-                    <div class="hidden md:flex items-center space-x-3 border-r border-gray-200 pr-3 sm:pr-4">
-                        <select id="currency-selector" class="compact-select"><option value="DH">DH</option><option value="EUR">EUR</option><option value="USD">USD</option></select>
-                        <select id="language-selector" class="compact-select"><option value="en">EN</option><option value="fr">FR</option><option value="ar">AR</option></select>
-                    </div>
-                    <nav class="hidden md:flex md:ltr:space-x-8">
-                        <a href="index.html#featured" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-fleet">Our Fleet</a>
-                        <a href="index.html#why-us" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-why">Why Choose Us</a>
-                        <a href="index.html#contact" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-contact">Contact</a>
-                    </nav>
-                    <button id="filter-menu-button" class="md:hidden text-gray-600 hover:text-accent-blue p-2 rounded-lg transition"><i data-lucide="filter" class="w-6 h-6"></i></button>
-                    <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-accent-blue p-2 rounded-lg transition"><i data-lucide="menu" class="w-6 h-6"></i></button>
+    <div id="login-screen" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div class="bg-indigo-600 p-8 text-center">
+                <i class="fas fa-shield-alt text-5xl text-indigo-200 mb-4"></i>
+                <h2 class="text-2xl font-bold text-white tracking-wide">Black Iris Fleet</h2>
+                <p class="text-indigo-200 text-sm mt-1">Admin Control Panel</p>
+            </div>
+            <form id="loginForm" class="p-8 space-y-6">
+                <div id="loginError" class="hidden bg-red-50 text-red-600 text-sm p-3 rounded-lg flex items-center gap-2">
+                    <i class="fas fa-exclamation-circle"></i> <span id="errorMsg">Invalid credentials</span>
                 </div>
-            </div>
-        </div>
-        <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 opacity-0 -translate-y-2 transform transition-all duration-300 ease-out fixed top-16 left-0 right-0 z-40" style="pointer-events: none;">
-            <div class="px-4 pt-4 pb-3 space-y-4">
-                <div class="flex items-center space-x-4">
-                    <select id="currency-selector-mobile" class="compact-select w-full"><option value="DH">DH</option><option value="EUR">EUR</option><option value="USD">USD</option></select>
-                    <select id="language-selector-mobile" class="compact-select w-full"><option value="en">EN</option><option value="fr">Français</option><option value="ar">العربية</option></select>
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-gray-700">Email Address</label>
+                    <div class="relative"><i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="email" id="email" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="admin@blackiris.com" required></div>
                 </div>
-                <div class="space-y-1">
-                    <a href="index.html#featured" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-fleet">Our Fleet</a>
-                    <a href="index.html#why-us" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-why">Why Choose Us</a>
-                    <a href="index.html#contact" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-contact">Contact</a>
-                    <a href="index.html#faq" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-faq">FAQ</a>
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-gray-700">Password</label>
+                    <div class="relative"><i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="password" id="password" class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="••••••••" required></div>
                 </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <h1 class="text-3xl sm:text-4xl font-extrabold text-primary-dark mb-4" data-i18n="h1-available">Available Rental Cars</h1>
-        
-        <div id="filter-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
-        
-        <div class="md:grid md:grid-cols-4 lg:grid-cols-5 md:gap-8">
-            
-            <div id="filter-sidebar" class="fixed top-0 left-0 h-full w-3/4 max-w-xs md:max-w-none bg-white p-6 shadow-2xl z-40 md:relative md:col-span-1 lg:col-span-1 md:h-auto md:p-0 md:shadow-none md:bg-transparent md:transform-none">
-                <button id="filter-close-button" class="md:hidden absolute top-4 right-4 text-gray-800 hover:text-gray-600"><i data-lucide="x" class="w-6 h-6"></i></button>
-                <h3 class="text-2xl font-bold text-primary-dark mb-6 border-b pb-3" data-i18n="h3-filter">Filter Options</h3>
-                <form id="filter-form" class="space-y-6">
-                    <div>
-                        <label for="price-range" class="block text-sm font-semibold text-gray-700 mb-2" data-i18n="label-price">Price Range (DH/day)</label>
-                        <input type="range" id="price-range" min="0" max="2000" value="2000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer text-primary-dark">
-                        <span id="price-value" class="text-sm text-gray-600 mt-1 block">Up to 2000 DH</span>
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-700 mb-2">Transmission</p>
-                        <div class="space-y-2" id="transmission-filters">
-                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="transmission" value="automatic" class="rounded text-primary-dark ltr:mr-2"> <span data-i18n="automatic">Automatic</span></label>
-                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="transmission" value="manual" class="rounded text-primary-dark ltr:mr-2"> <span data-i18n="manual">Manual</span></label>
-                        </div>
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-700 mb-2">Vehicle Type</p>
-                        <div class="space-y-2" id="type-filters">
-                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="sedan" class="rounded text-primary-dark ltr:mr-2"> Sedan</label>
-                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="hatchback" class="rounded text-primary-dark ltr:mr-2"> Hatchback</label>
-                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="suv" class="rounded text-primary-dark ltr:mr-2"> SUV / Crossover</label>
-                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="luxury-suv" class="rounded text-primary-dark ltr:mr-2"> Luxury SUV</label>
-                        </div>
-                    </div>
-                    <button type="button" id="apply-filters-btn" class="w-full accent-blue text-white font-semibold py-2 rounded-lg hover:accent-blue-dark transition shadow-md mt-4">Apply Filters</button>
-                </form>
-            </div>
-
-            <div id="results-container">
-                <div class="col-span-full flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100 mb-4">
-                    <p class="text-sm text-gray-600" id="car-count">Loading cars...</p> 
-                </div>
-                </div>
-        </div>
-    </main>
-
-    <div id="car-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
-        <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-lg m-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-detail-content">
-            <div class="flex justify-between items-start mb-4">
-                <h3 id="modal-car-name" class="text-2xl font-bold text-primary-dark">Car Name</h3>
-                <button id="close-detail-modal-btn" class="text-gray-500 hover:text-primary-dark"><i data-lucide="x" class="w-6 h-6"></i></button>
-            </div>
-            <div class="space-y-4">
-                <img id="modal-car-image" src="" alt="Car" class="w-full h-48 object-cover rounded-lg mb-4 border border-gray-200">
-                <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
-                    <div class="flex items-center ltr:justify-start"><i data-lucide="car" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <span id="modal-transmission" class="font-semibold"></span></div>
-                    <div class="flex items-center ltr:justify-start"><i data-lucide="users" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <span id="modal-seats-value" class="font-semibold"></span> <span data-i18n="car-seats-label-spaced"> Seats</span></div>
-                    <div class="flex items-center ltr:justify-start"><i data-lucide="snowflake" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <span data-i18n="modal-ac-label-short">A/C</span></div>
-                    <div class="flex items-center ltr:justify-start"><i data-lucide="paint-bucket" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <span id="modal-color" class="font-semibold"></span></div>
-                </div>
-                <p id="modal-car-desc" class="text-gray-600 border-t border-gray-100 pt-4" data-i18n="modal-car-desc"></p>
-            </div>
-            <div class="flex justify-between items-center mt-6 pt-4 border-t">
-                <span class="text-2xl font-extrabold text-primary-dark"><span id="modal-car-price"></span> <span id="modal-car-currency">DH</span> <span class="text-base font-normal text-gray-500" data-i18n="car-day">/ day</span></span>
-                <button id="modal-book-button" class="accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition shadow-md" data-i18n="btn-book-now">Book Now</button>
-            </div>
-            
-            <div id="contact-options" class="space-y-4 mt-6 border-t pt-4 hidden">
-                <p class="text-gray-700 text-sm font-semibold text-center" data-i18n="modal-p">Choose contact method:</p>
-                <a id="whatsapp-link" href="#" target="_blank" class="w-full flex items-center justify-center bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition shadow-md">
-                    <i data-lucide="message-circle" class="w-5 h-5 ltr:mr-3"></i> <span data-i18n="btn-whatsapp">WhatsApp</span>
-                </a>
-                <a id="email-link" href="#" class="w-full flex items-center justify-center bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition shadow-md">
-                    <i data-lucide="mail" class="w-5 h-5 ltr:mr-3"></i> <span data-i18n="btn-email">Email</span>
-                </a>
-            </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-[0.98]">Sign In to Dashboard</button>
+            </form>
         </div>
     </div>
 
-    <footer id="contact" class="primary-dark text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8 mb-8">
-                <div>
-                    <h3 class="text-2xl font-extrabold mb-4 text-gray-300">BLACK IRIS cars</h3>
-                    <p class="text-gray-400 text-sm">Your reliable partner for car rentals across Morocco.</p>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4" data-i18n="h4-nav">Quick Navigation</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="index.html#featured" class="hover:text-accent-blue transition" data-i18n="nav-fleet">Our Fleet</a></li>
-                        <li><a href="index.html#why-us" class="hover:text-accent-blue transition" data-i18n="nav-why">Our Promise</a></li>
-                        <li><a href="index.html#testimonials" class="hover:text-accent-blue transition" data-i18n="nav-reviews">Reviews</a></li>
-                        <li><a href="index.html#faq" class="hover:text-accent-blue transition" data-i18n="nav-faq">FAQ</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4" data-i18n="h4-contact">Contact & Booking</h4>
-                    <a href="tel:+212602020402" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
-                        <i data-lucide="phone" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 0602020402
-                    </a>
-                    <p class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start"><i data-lucide="mail" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> <a href="mailto:blackiriscars@gmail.com" class="hover:text-accent-blue">blackiriscars@gmail.com</a></p>
-                    
-                    <a href="PASTE_YOUR_GOOGLE_MAPS_LINK_HERE" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
-                        <i data-lucide="map-pin" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 
-                        <span data-i18n="address-text">10 rue ouarzazat hassan rabat</span>
-                    </a>
+    <header class="md:hidden h-16 bg-indigo-900 text-white flex items-center justify-between px-4 fixed top-0 w-full z-40 shadow-md">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-shield-alt text-indigo-300"></i>
+            <span class="font-bold text-lg tracking-wide">AdminPanel</span>
+        </div>
+        <button type="button" onclick="toggleMenu()" class="p-2 active:bg-indigo-800 rounded-lg transition-colors cursor-pointer z-50">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+    </header>
 
-                    <a href="https://wa.me/212602020402" target="_blank" class="text-sm text-white px-3 py-1 mt-2 inline-flex items-center rounded-lg bg-green-600 hover:bg-green-700 transition">
-                        <i data-lucide="message-circle" class="w-4 h-4 ltr:mr-2"></i> <span data-i18n="whatsapp-text">WhatsApp</span> 0602020402
-                    </a>
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-indigo-900 text-white shadow-2xl z-50 flex flex-col transform -translate-x-full md:translate-x-0 md:relative md:w-64">
+        <div class="h-16 flex items-center justify-between px-6 bg-indigo-950 border-b border-indigo-800 shrink-0">
+            <span class="text-xl font-bold tracking-wide">Menu</span>
+            <button type="button" onclick="toggleMenu()" class="md:hidden p-2 text-indigo-300 hover:text-white cursor-pointer"><i class="fas fa-times text-xl"></i></button>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-2">
+                <li><button type="button" onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item active w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-chart-line w-5 text-center"></i><span class="font-medium">Dashboard</span></button></li>
+                <li class="px-6 pt-4 pb-1 text-xs font-bold text-indigo-400 uppercase">Inventory</li>
+                <li><button type="button" onclick="switchTab('fleet')" id="nav-fleet" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-car w-5 text-center"></i><span class="font-medium">Fleet Inventory</span></button></li>
+                <li><button type="button" onclick="switchTab('add-car', true)" id="nav-add-car" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-plus-circle w-5 text-center"></i><span class="font-medium">Add New Car</span></button></li>
+                <li class="px-6 pt-4 pb-1 text-xs font-bold text-indigo-400 uppercase">Operations</li>
+                <li><button type="button" onclick="switchTab('bookings')" id="nav-bookings" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-calendar-alt w-5 text-center"></i><span class="font-medium">Bookings</span></button></li>
+            </ul>
+        </nav>
+        <div class="p-4 pb-8 md:pb-4 border-t border-indigo-800 bg-indigo-950 shrink-0">
+            <button type="button" onclick="handleLogout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-medium shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-transform"><i class="fas fa-sign-out-alt"></i> Exit Panel</button>
+        </div>
+    </aside>
+
+    <div id="mobileOverlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/50 z-45 hidden md:hidden backdrop-blur-sm"></div>
+
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full bg-gray-50 z-0">
+        <header class="hidden md:flex h-16 bg-white shadow-sm items-center justify-between px-8 border-b border-gray-200 shrink-0 z-10">
+            <h2 id="desktopTitle" class="text-xl font-bold text-gray-800">Dashboard Overview</h2>
+        </header>
+
+        <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 pt-20 md:p-8 md:pt-8 w-full">
+            
+            <div id="view-dashboard" class="page-view animate-fade-in block space-y-6">
+                <h2 class="md:hidden text-2xl font-bold text-gray-800 mb-4">Dashboard Overview</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center"><div><p class="text-xs font-bold text-gray-400 uppercase">Total Fleet</p><h3 class="text-3xl font-bold text-gray-800 mt-1" id="stat-total">0</h3></div><div class="h-10 w-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center"><i class="fas fa-car"></i></div></div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center"><div><p class="text-xs font-bold text-gray-400 uppercase">Available</p><h3 class="text-3xl font-bold text-green-600 mt-1" id="stat-available">0</h3></div><div class="h-10 w-10 rounded-full bg-green-50 text-green-600 flex items-center justify-center"><i class="fas fa-check"></i></div></div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center"><div><p class="text-xs font-bold text-gray-400 uppercase">Rented</p><h3 class="text-3xl font-bold text-orange-600 mt-1" id="stat-rented">0</h3></div><div class="h-10 w-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center"><i class="fas fa-key"></i></div></div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center"><div><p class="text-xs font-bold text-gray-400 uppercase">Maintenance</p><h3 class="text-3xl font-bold text-red-600 mt-1" id="stat-maintenance">0</h3></div><div class="h-10 w-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center"><i class="fas fa-tools"></i></div></div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 mb-4"><i class="fas fa-chart-pie text-2xl"></i></div>
+                    <h3 class="text-lg font-bold text-gray-900">Quick Actions</h3>
+                    <div class="flex flex-col sm:flex-row justify-center gap-3 mt-4">
+                        <button type="button" onclick="switchTab('fleet')" class="w-full sm:w-auto px-6 py-3 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg shadow-sm active:bg-gray-50 hover:bg-gray-50 transition-colors cursor-pointer relative z-10">View Inventory</button>
+                        <button type="button" onclick="switchTab('add-car', true)" class="w-full sm:w-auto px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg shadow-md active:bg-indigo-700 hover:bg-indigo-700 transition-colors cursor-pointer relative z-10">Add Vehicle</button>
+                    </div>
                 </div>
             </div>
-            <div class="text-center text-sm text-gray-500 pt-4">
-                &copy; <span data-i18n="copy-right">2024 BLACK IRIS cars. All rights reserved.</span>
+
+            <div id="view-fleet" class="page-view hidden space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <h2 class="text-2xl font-bold text-gray-800">Fleet Inventory</h2>
+                    <div class="relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="searchInput" placeholder="Search cars..." class="w-full md:w-64 pl-10 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none"></div>
+                </div>
+                <div id="loading" class="py-12 text-center"><i class="fas fa-spinner fa-spin text-3xl text-indigo-600 mb-2"></i><p class="text-gray-500">Loading fleet...</p></div>
+                <div id="carsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-20"></div>
+            </div>
+
+            <div id="view-add-car" class="page-view hidden space-y-4">
+                <h2 id="formPageTitle" class="text-2xl font-bold text-gray-800">Add New Vehicle</h2>
+                <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+                    <form id="addCarForm" class="p-5 md:p-8 space-y-6">
+                        <input type="hidden" id="editCarId"> <div><label class="block text-sm font-bold text-gray-700 mb-2">Name of Car</label><input type="text" id="carName" required class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="e.g. BMW X5"></div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Category</label>
+                            <div class="relative">
+                                <select id="carCategory" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    <option value="Sedan">Sedan</option><option value="SUV">SUV</option><option value="Luxury SUV">Luxury SUV</option><option value="Luxury">Luxury</option><option value="Sports">Sports</option><option value="Convertible">Convertible</option><option value="Van">Van</option><option value="Truck">Truck</option>
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Price/Day</label><input type="number" id="carPrice" required class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Seats</label><input type="number" id="carSeats" value="5" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Transmission</label><div class="relative"><select id="carTransmission" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none"><option value="Automatic">Auto</option><option value="Manual">Manual</option></select><i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i></div></div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Fuel</label>
+                                <div class="relative">
+                                    <select id="carFuel" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none">
+                                        <option value="Petrol">Essence</option>
+                                        <option value="Diesel">Diesel</option>
+                                        <option value="Electric">Electric</option>
+                                        <option value="Hybrid">Hybrid</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div><label class="block text-sm font-bold text-gray-700 mb-2">Status</label><div class="relative"><select id="carStatus" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none"><option value="Available">Available</option><option value="Rented">Rented</option><option value="Maintenance">Maintenance</option></select><i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i></div></div>
+                        <div><label class="block text-sm font-bold text-gray-700 mb-2">Image URL</label><input type="url" id="carImage" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="https://..."></div>
+                        <div><label class="block text-sm font-bold text-gray-700 mb-2">Description</label><textarea id="carDescription" rows="3" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea></div>
+                        <button type="submit" id="submitBtn" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg active:scale-[0.98] transition-transform cursor-pointer">Save Vehicle</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="view-bookings" class="page-view hidden space-y-4">
+                <h2 class="text-2xl font-bold text-gray-800">Bookings</h2>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center"><i class="fas fa-calendar-times text-4xl text-gray-300 mb-4"></i><p class="text-gray-500">No active bookings.</p></div>
             </div>
         </div>
-    </footer>
+    </main>
+
+    <script>
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // Modified switchTab to handle resetting the form
+        function switchTab(tabName, shouldReset = false) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            if (!sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+            
+            // If clicking "Add New Car" menu, reset the form to "Add Mode"
+            if (tabName === 'add-car' && shouldReset) {
+                resetForm();
+            }
+
+            document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            const target = document.getElementById('view-' + tabName);
+            if(target) target.classList.remove('hidden');
+            
+            const navBtn = document.getElementById('nav-' + tabName);
+            if(navBtn) navBtn.classList.add('active');
+            
+            const titles = {'dashboard': 'Dashboard Overview','fleet': 'Fleet Inventory','add-car': 'Add New Vehicle','bookings': 'Booking Management'};
+            const titleEl = document.getElementById('desktopTitle');
+            if(titleEl) titleEl.innerText = titles[tabName] || 'Admin Panel';
+        }
+
+        function resetForm() {
+            document.getElementById('addCarForm').reset();
+            document.getElementById('editCarId').value = ''; // Clear ID
+            document.getElementById('formPageTitle').innerText = 'Add New Vehicle';
+            document.getElementById('submitBtn').innerText = 'Save Vehicle';
+            document.getElementById('carSeats').value = 5; // Reset default
+        }
+    </script>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        // --- FIXED: ADDED signOut for the Exit button ---
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
@@ -244,385 +224,214 @@
           appId: "1:875590751512:web:7377b8c8fe507053f7ba6d",
           measurementId: "G-4Y7L69L9BS"
         };
-
+        
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
-
-        // 1. INITIALIZE ICONS IMMEDIATELY
-        lucide.createIcons();
-
-        // Global variables/helpers (accessible to helper functions below)
-        let currentLang = 'en';
-        let currentCurrency = 'DH';
-        let exchangeRates = { EUR: 0.092, USD: 0.10 };
-        let rentalLocation = '', rentalPickupDate = '', rentalReturnDate = '';
-        let allCars = [];
         
-        // Element references populated inside DOMContentLoaded
-        let priceRange, priceValue, filterSidebar, filterBackdrop, mobileMenu, mobileMenuButton, carCountElement, resultsContainer;
+        // --- FIXED: COLLECTION PATH ALIGNED WITH PUBLIC SITE ---
+        const collectionPath = 'cars'; 
 
-        function getTranslation(key) {
-            if (typeof translations === 'undefined' || !translations[currentLang]) return key;
-            const translation = translations[currentLang][key];
-            return (typeof translation === 'function') ? translation : (translation || key);
-        }
-
-        function calculatePrice(basePrice) {
-            if (currentCurrency === 'EUR') return { price: (basePrice * exchangeRates.EUR).toFixed(0), symbol: '€' };
-            if (currentCurrency === 'USD') return { price: (basePrice * exchangeRates.USD).toFixed(0), symbol: '$' };
-            return { price: basePrice, symbol: '' };
-        }
+        let currentUser = null;
+        let carsData = [];
         
-        function updatePriceDisplay() {
-            if (!priceRange || !priceValue) return;
-
-            const currentMaxPrice = parseInt(priceRange.value);
-            const displayedPrice = currentCurrency === 'DH' 
-                ? currentMaxPrice 
-                : calculatePrice(currentMaxPrice).price;
-
-            const symbol = currentCurrency === 'DH' ? ' DH' : (currentCurrency === 'EUR' ? ' €' : ' $');
-            const prefix = getTranslation('up-to-text') || 'Up to';
-
-            priceValue.textContent = `${prefix} ${displayedPrice}${symbol}`;
-        }
-
-        function updateAllSelectors(selector, value) {
-            document.querySelectorAll(selector).forEach(sel => sel.value = value);
-        }
-
-        function setLanguage(lang) {
-            currentLang = lang;
-            updateAllSelectors('#language-selector, #language-selector-mobile', lang);
-            const dictionary = translations[lang];
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
-                if (dictionary[key] && typeof dictionary[key] === 'string') element.textContent = dictionary[key];
-            });
-            document.body.setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');
-            document.querySelectorAll('select option').forEach(option => {
-                const key = option.getAttribute('data-i18n');
-                if (key && dictionary[key] && typeof dictionary[key] === 'string') option.textContent = dictionary[key];
-            });
-            updatePriceDisplay();
-            renderAllCars();
-            lucide.createIcons();
-        }
-
-        function setCurrency(currency) {
-            currentCurrency = currency;
-            updateAllSelectors('#currency-selector, #currency-selector-mobile', currency);
-            updatePriceDisplay();
-            renderAllCars();
-        }
-
-        function getLocalStorageData() {
-            rentalLocation = localStorage.getItem('rentalLocation') || '';
-            rentalPickupDate = localStorage.getItem('rentalPickupDate') || '';
-            rentalReturnDate = localStorage.getItem('rentalReturnDate') || '';
-        }
-
-        async function loadCars() {
-            if (!resultsContainer) return;
+        // --- NEW: ONE-TIME MIGRATION FUNCTION ---
+        async function migrateOldData() {
+            const oldCollectionPath = 'cars_production'; // The old collection name
             
-            const filterHeader = resultsContainer.querySelector('.col-span-full');
-            resultsContainer.innerHTML = '';
-            if(filterHeader) resultsContainer.appendChild(filterHeader);
+            // Fetch all documents from the old collection
+            const oldSnapshot = await getDocs(collection(db, oldCollectionPath));
 
-            const loader = document.createElement('div');
-            loader.className = "col-span-full text-center py-20 text-gray-500";
-            loader.innerHTML = '<div class="loader mx-auto mb-4"></div>';
-            loader.id = "temp-loader";
-            resultsContainer.appendChild(loader);
-
-            try {
-                const q = query(collection(db, "cars"), orderBy("createdAt", "desc"));
-                const querySnapshot = await getDocs(q);
+            if (!oldSnapshot.empty) {
+                console.log(`Found ${oldSnapshot.size} cars in the old collection. Starting migration...`);
                 
-                allCars = [];
-                querySnapshot.forEach((doc) => {
-                    const d = doc.data();
-                    allCars.push({ 
-                        ...d, 
-                        id: doc.id,
-                        price: Number(d.price) || 0, 
-                        transmission: (d.transmission || '').toLowerCase(),
-                        type: (d.type || 'suv').toLowerCase() 
-                    });
-                });
-                
-                if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
-                renderAllCars();
-
-            } catch (error) {
-                console.error("Error:", error);
-                if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
-                alert("Connection error. Please reload.");
-            }
-        }
-        
-        function renderAllCars() {
-            // Clear all previous car cards (leave the header)
-            const header = resultsContainer.querySelector('.col-span-full');
-            resultsContainer.innerHTML = '';
-            if(header) resultsContainer.appendChild(header);
-
-            // Filtering Logic
-            const maxPrice = parseInt(priceRange.value) || 2000; 
-            const transmissionFilters = document.querySelectorAll('#transmission-filters input[type="checkbox"]');
-            const typeFilters = document.querySelectorAll('#type-filters input[type="checkbox"]');
-
-            const selectedTrans = Array.from(transmissionFilters).filter(c => c.checked).map(c => c.value.toLowerCase());
-            const selectedTypes = Array.from(typeFilters).filter(c => c.checked).map(c => c.value.toLowerCase());
-
-            const filteredCars = allCars.filter(car => {
-                return car.price <= maxPrice &&
-                       (selectedTrans.length === 0 || selectedTrans.includes(car.transmission)) &&
-                       (selectedTypes.length === 0 || selectedTypes.includes(car.type));
-            });
-
-            const countText = getTranslation('sort-count-text');
-            if(carCountElement) carCountElement.textContent = `${filteredCars.length} ${countText}`;
-
-            if (filteredCars.length === 0) {
-                const msg = document.createElement('div');
-                msg.className = "col-span-full text-center py-10 text-gray-500";
-                msg.textContent = "No cars match filters.";
-                resultsContainer.appendChild(msg);
-                return;
-            }
-
-            filteredCars.forEach(car => {
-                const transmissionText = getTranslation(car.transmission); 
-                const { price, symbol } = calculatePrice(car.price);
-                const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
-                const carType = car.type ? car.type.toUpperCase() : 'CAR';
-                const carFuel = car.fuel || 'Petrol';
-                const carColor = car.color || 'Standard';
-
-
-                // Total Price Calculation Logic
-                let totalPriceHTML = '';
-                if (rentalPickupDate && rentalReturnDate) {
-                    const start = new Date(rentalPickupDate);
-                    const end = new Date(rentalReturnDate);
-                    const diffTime = end - start;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                    if (diffDays > 0) {
-                         const total = (car.price * diffDays);
-                         const { price: totalPrice, symbol: totalSymbol } = calculatePrice(total);
-                         const forLabel = getTranslation('for-text');
-                         const daysLabel = getTranslation('days-text');
-                         totalPriceHTML = `<div class="text-xs text-green-600 font-bold mt-1 bg-green-50 px-2 py-1 rounded inline-block">Total: ${totalSymbol}${totalPrice} ${currentCurrency === 'DH' ? 'DH' : ''} ${forLabel} ${diffDays} ${daysLabel}</div>`;
-                    }
-                }
-
-                const carCard = document.createElement('div');
-                // Vertical stack, hover effect, match index style
-                carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group";
-                
-                carCard.innerHTML = `
-                    <div class="relative h-56 overflow-hidden">
-                        <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
-                        <div class="absolute top-3 left-3 bg-primary-dark text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md">
-                            ${carType.replace('-', ' ')}
-                        </div>
-                    </div>
+                const migrationPromises = [];
+                oldSnapshot.forEach((oldDoc) => {
+                    const data = oldDoc.data();
                     
-                    <div class="p-6 flex flex-col justify-between flex-grow">
-                        <div>
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="text-xl font-bold text-gray-900 leading-tight">${car.name}</h3>
-                            </div>
-                            
-                            <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 mb-4 mt-3">
-                                <div class="flex items-center"><i data-lucide="${car.transmission === 'automatic' ? 'zap' : 'gauge'}" class="w-4 h-4 text-accent-blue mr-2"></i> <span data-i18n="${car.transmission}">${transmissionText}</span></div>
-                                <div class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${carFuel}</span></div>
-                                <div class="flex items-center"><i data-lucide="users" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.seats} <span data-i18n="car-seats-label-spaced">Seats</span></span></div>
-                                <div class="flex items-center"><i data-lucide="palette" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${carColor}</span></div>
-                                <div class="flex items-center"><i data-lucide="snowflake" class="w-4 h-4 text-accent-blue mr-2"></i> <span>A/C</span></div>
-                                
-                            </div>
-                            ${totalPriceHTML}
-                        </div>
-
-                        <div class="flex justify-between items-center border-t border-gray-100 pt-4 mt-auto">
-                            <div class="flex flex-col">
-                                <span class="text-xs text-gray-400 font-medium uppercase">Daily Rate</span>
-                                <span class="text-2xl font-extrabold text-primary-dark">${carPriceString}</span>
-                            </div>
-                            <button class="accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition duration-300 shadow-md text-sm"
-                                onclick="window.openModal('${car.name}', '${carPriceString}', '${car.img}', '${transmissionText}', '${car.seats}', '${carColor}', '${car.desc}')">
-                                <span data-i18n="btn-book-now">Book Now</span>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                resultsContainer.appendChild(carCard);
-            });
-            
-            lucide.createIcons();
-        }
-
-        window.openModal = function(carName, carPriceWithSymbol, carImg, carTrans, carSeats, carColor, carDesc) {
-            const dict = translations[currentLang];
-            const detailModal = document.getElementById('car-detail-modal');
-            const modalDetailContent = document.getElementById('modal-detail-content');
-            const modalBookButton = document.getElementById('modal-book-button');
-            const contactOptions = document.getElementById('contact-options');
-
-            let whatsappMessage, emailSubject, emailBody;
-            
-            document.getElementById('modal-car-name').textContent = carName;
-            document.getElementById('modal-car-image').src = carImg;
-            document.getElementById('modal-transmission').textContent = carTrans;
-            document.getElementById('modal-seats-value').textContent = carSeats;
-            document.getElementById('modal-color').textContent = carColor;
-            document.getElementById('modal-car-desc').textContent = carDesc;
-            document.getElementById('modal-car-price').textContent = carPriceWithSymbol.replace(/ DH| €| \$/g, '');
-            document.getElementById('modal-car-currency').textContent = currentCurrency === 'DH' ? 'DH' : (currentCurrency === 'EUR' ? '€' : '$');
-            
-            if (rentalLocation && rentalPickupDate && rentalReturnDate) {
-                let pickupDisplay = new Date(rentalPickupDate).toLocaleDateString(currentLang, { dateStyle: 'medium' });
-                let returnDisplay = new Date(rentalReturnDate).toLocaleDateString(currentLang, { dateStyle: 'medium' });
-                whatsappMessage = dict['book-whatsapp-msg-full'](carName, carPriceWithSymbol, rentalLocation, pickupDisplay, returnDisplay);
-                emailSubject = dict['book-email-subj-full'](carName, rentalLocation);
-                emailBody = dict['book-email-body-full'](carName, carPriceWithSymbol, rentalLocation, pickupDisplay, returnDisplay);
-            } else {
-                whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
-                emailSubject = dict['book-email-subj-concise'](carName);
-                emailBody = dict['book-email-body-concise'](carName, carPriceWithSymbol);
-            }
-        
-            document.getElementById('whatsapp-link').href = `https://wa.me/212602020402?text=${encodeURIComponent(whatsappMessage)}`;
-            document.getElementById('email-link').href = `mailto:blackiriscars@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-            
-            contactOptions.classList.add('hidden');
-            modalBookButton.classList.remove('hidden'); 
-            
-            modalBookButton.onclick = () => {
-                contactOptions.classList.remove('hidden');
-                modalBookButton.classList.add('hidden');
-            };
-
-            detailModal.classList.remove('hidden');
-            setTimeout(() => { modalDetailContent.classList.remove('scale-95', 'opacity-0'); }, 10);
-            document.body.classList.add('overflow-hidden');
-        }
-
-        function closeModal() {
-            const detailModal = document.getElementById('car-detail-modal');
-            const modalDetailContent = document.getElementById('modal-detail-content');
-            modalDetailContent.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => { detailModal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }, 300); 
-        }
-
-        const closeDetailModalBtn = document.getElementById('close-detail-modal-btn');
-        closeDetailModalBtn.addEventListener('click', closeModal);
-
-        // --- NEW: Mutual Exclusion Logic Helpers ---
-        function closeSidebar() {
-            filterSidebar.classList.remove('open');
-            filterBackdrop.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
-        }
-
-        function closeMobileMenu() { 
-            mobileMenu.classList.add('opacity-0', '-translate-y-2'); 
-            mobileMenu.style.pointerEvents = 'none'; 
-        }
-
-        function toggleSidebar() {
-            if (filterSidebar.classList.contains('open')) {
-                closeSidebar();
-            } else {
-                closeMobileMenu(); // Close menu if opening sidebar
-                filterSidebar.classList.add('open');
-                filterBackdrop.classList.remove('hidden');
-                document.body.classList.add('overflow-hidden');
+                    // 1. Write the old data to the new 'cars' collection
+                    const writePromise = addDoc(collection(db, collectionPath), data);
+                    migrationPromises.push(writePromise);
+                    
+                    // 2. Delete the old document from 'cars_production'
+                    const deletePromise = deleteDoc(doc(db, oldCollectionPath, oldDoc.id));
+                    migrationPromises.push(deletePromise);
+                });
+                
+                await Promise.all(migrationPromises);
+                console.log("Migration complete. The old car is now under the 'cars' collection.");
             }
         }
-        // ------------------------------------------
 
-        // --- Event Listeners and Initialization ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Assigning to global scope (without var/let/const) makes them available to helper functions
-            const langSelectors = document.querySelectorAll('#language-selector, #language-selector-mobile');
-            const currencySelectors = document.querySelectorAll('#currency-selector, #currency-selector-mobile');
-            const applyFiltersBtn = document.getElementById('apply-filters-btn');
-            
-            // Assign global references
-            priceRange = document.getElementById('price-range');
-            priceValue = document.getElementById('price-value');
-            filterSidebar = document.getElementById('filter-sidebar');
-            filterBackdrop = document.getElementById('filter-backdrop'); 
-            mobileMenu = document.getElementById('mobile-menu');
-            mobileMenuButton = document.getElementById('mobile-menu-button');
-            carCountElement = document.getElementById('car-count');
-            resultsContainer = document.getElementById('results-container');
-            const filterButton = document.getElementById('filter-menu-button'); 
-            const filterCloseButton = document.getElementById('filter-close-button');
+        onAuthStateChanged(auth, (user) => {
+            const loginScreen = document.getElementById('login-screen');
+            if (user) {
+                currentUser = user;
+                loginScreen.classList.add('hidden'); 
+                
+                // Run migration check upon login
+                migrateOldData(); 
 
+                loadCars();
+            } else {
+                currentUser = null;
+                loginScreen.classList.remove('hidden'); 
+            }
+        });
 
-            // Event Listeners for Mutual Exclusion
-            filterButton.addEventListener('click', (e) => { 
-                e.stopPropagation(); 
-                toggleSidebar(); 
-            });
-            filterCloseButton.addEventListener('click', toggleSidebar);
-            filterBackdrop.addEventListener('click', toggleSidebar);
-            
-            mobileMenuButton.addEventListener('click', (e) => { 
-                e.stopPropagation(); 
-                if (mobileMenu.classList.contains('opacity-0')) {
-                    closeSidebar(); // Close sidebar if opening menu
-                    mobileMenu.classList.remove('opacity-0', '-translate-y-2');
-                    mobileMenu.style.pointerEvents = 'auto'; 
-                } else {
-                    closeMobileMenu();
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = e.target.querySelector('button[type="submit"]');
+            try {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (err) {
+                document.getElementById('errorMsg').innerText = err.message.replace('Firebase:', '').trim();
+                document.getElementById('loginError').classList.remove('hidden');
+                btn.innerHTML = 'Sign In to Dashboard';
+            }
+        });
+
+        window.handleLogout = async function() {
+            if(confirm("Are you sure you want to exit the admin panel?")) {
+                await signOut(auth); // Now functional
+                window.location.reload();
+            }
+        }
+
+        // --- EDIT LOGIC ---
+        window.editCar = function(id) {
+            const car = carsData.find(c => c.id === id);
+            if (!car) return;
+
+            // 1. Switch to form tab (without resetting)
+            switchTab('add-car', false);
+
+            // 2. Populate fields (using original field names like 'fuelType', 'imageUrl', 'description')
+            document.getElementById('editCarId').value = car.id;
+            document.getElementById('carName').value = car.name;
+            document.getElementById('carCategory').value = car.category;
+            document.getElementById('carPrice').value = car.price;
+            document.getElementById('carSeats').value = car.seats;
+            document.getElementById('carTransmission').value = car.transmission;
+            document.getElementById('carFuel').value = car.fuelType; // Original key
+            document.getElementById('carStatus').value = car.status;
+            document.getElementById('carImage').value = car.imageUrl || ''; // Original key
+            document.getElementById('carDescription').value = car.description || ''; // Original key
+
+            // 3. Update UI to "Edit Mode"
+            document.getElementById('formPageTitle').innerText = 'Edit Vehicle';
+            document.getElementById('submitBtn').innerText = 'Update Vehicle';
+            window.scrollTo(0, 0); // Scroll to top
+        };
+
+        window.deleteCar = async function(id) {
+            if(confirm('Delete this car?')) {
+                try {
+                    await deleteDoc(doc(db, collectionPath, id));
+                } catch(e) {
+                    alert('Error: ' + e.message);
                 }
+            }
+        };
+
+        function loadCars() {
+            const loading = document.getElementById('loading');
+            onSnapshot(collection(db, collectionPath), (snapshot) => {
+                if(loading) loading.classList.add('hidden');
+                carsData = [];
+                snapshot.forEach(doc => carsData.push({ id: doc.id, ...doc.data() }));
+                updateStats();
+                renderCars(carsData);
             });
+        }
 
-            // Prevent background interaction if menu/filter is open
-            document.getElementById('car-detail-modal').addEventListener('click', (e) => { 
-                if (e.target === document.getElementById('car-detail-modal')) closeModal(); 
+        function updateStats() {
+            const safeSet = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
+            safeSet('stat-total', carsData.length);
+            safeSet('stat-available', carsData.filter(c => c.status === 'Available').length);
+            safeSet('stat-rented', carsData.filter(c => c.status === 'Rented').length);
+            safeSet('stat-maintenance', carsData.filter(c => c.status === 'Maintenance').length);
+        }
+
+        function renderCars(list) {
+            const grid = document.getElementById('carsGrid');
+            if(!grid) return;
+            grid.innerHTML = '';
+            if(list.length === 0) { grid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-10">No cars found. Start adding!</div>`; return; }
+            list.forEach(car => {
+                const statusColor = {'Available': 'bg-green-100 text-green-700','Rented': 'bg-orange-100 text-orange-700','Maintenance': 'bg-red-100 text-red-700'}[car.status] || 'bg-gray-100';
+                const div = document.createElement('div');
+                div.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col";
+                div.innerHTML = `
+                    <div class="relative h-48 bg-gray-200"><img src="${car.imageUrl || ''}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400?text=No+Image'"><div class="absolute top-2 right-2"><span class="px-2 py-1 rounded-md text-xs font-bold uppercase ${statusColor}">${car.status}</span></div></div>
+                    <div class="p-4 flex-1 flex flex-col"><h3 class="font-bold text-lg text-gray-900">${car.name}</h3><p class="text-sm text-gray-500 mb-2">${car.category} • ${car.fuelType}</p>
+                    <div class="mt-auto flex items-center justify-between">
+                        <span class="font-bold text-indigo-600 text-lg">$${car.price}<span class="text-xs text-gray-400 font-normal">/day</span></span>
+                        <div class="flex gap-2">
+                            <button onclick="window.editCar('${car.id}')" class="text-blue-600 p-2 hover:bg-blue-50 rounded cursor-pointer transition-colors"><i class="fas fa-edit"></i></button>
+                            <button onclick="window.deleteCar('${car.id}')" class="text-red-500 p-2 hover:bg-red-50 rounded cursor-pointer transition-colors"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div></div>`;
+                grid.appendChild(div);
             });
+        }
 
-
-            // Price Filter Listeners
-            priceRange.addEventListener('input', updatePriceDisplay); // Update text as slider moves
-            priceRange.addEventListener('change', renderAllCars); // Apply filter when slider stops
-
-            applyFiltersBtn.addEventListener('click', () => { 
-                renderAllCars(); 
-                if (filterSidebar.classList.contains('open')) closeSidebar(); 
+        const searchInput = document.getElementById('searchInput');
+        if(searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                renderCars(carsData.filter(c => c.name.toLowerCase().includes(term)));
             });
+        }
 
-            // Currency & Language Selectors
-            langSelectors.forEach(selector => {
-                selector.addEventListener('change', (event) => {
-                    setLanguage(event.target.value);
-                    localStorage.setItem('languagePreference', event.target.value);
-                });
-            });
-            currencySelectors.forEach(selector => {
-                selector.addEventListener('change', (event) => {
-                    setCurrency(event.target.value);
-                    localStorage.setItem('currencyPreference', event.target.value);
-                });
-            });
+        // UNIFIED ADD / UPDATE HANDLER
+        document.getElementById('addCarForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!currentUser) return;
+            
+            const btn = document.getElementById('submitBtn');
+            const originalText = btn.innerText;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            btn.disabled = true;
 
-            // Init Logic
-            getLocalStorageData(); 
-            const savedLang = localStorage.getItem('languagePreference') || 'en';
-            const savedCurrency = localStorage.getItem('currencyPreference') || 'DH';
-            updateAllSelectors('#language-selector, #language-selector-mobile', savedLang);
-            updateAllSelectors('#currency-selector, #currency-selector-mobile', savedCurrency);
-            currentLang = savedLang;
-            currentCurrency = savedCurrency;
-            setLanguage(savedLang); // This calls updatePriceDisplay and loadCars
-            fetchRates();
+            const editId = document.getElementById('editCarId').value;
+            
+            try {
+                // Using ORIGINAL keys: category, fuelType, imageUrl, description
+                const carData = {
+                    name: document.getElementById('carName').value,
+                    category: document.getElementById('carCategory').value,
+                    price: Number(document.getElementById('carPrice').value),
+                    seats: Number(document.getElementById('carSeats').value),
+                    transmission: document.getElementById('carTransmission').value,
+                    fuelType: document.getElementById('carFuel').value, // Original key
+                    status: document.getElementById('carStatus').value,
+                    imageUrl: document.getElementById('carImage').value,
+                    description: document.getElementById('carDescription').value,
+                    updatedAt: serverTimestamp()
+                };
+
+                if (editId) {
+                    // UPDATE EXISTING
+                    await updateDoc(doc(db, collectionPath, editId), carData);
+                } else {
+                    // CREATE NEW
+                    carData.createdAt = serverTimestamp();
+                    await addDoc(collection(db, collectionPath), carData);
+                }
+
+                resetForm(); // Clear form
+                window.switchTab('fleet', false); // Go to fleet list
+                
+            } catch (err) {
+                alert('Error saving: ' + err.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         });
     </script>
 </body>
