@@ -10,7 +10,6 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="data.js"></script>
 
-    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Y2MG9ZZ46"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -19,7 +18,6 @@
       gtag('config', 'G-2Y2MG9ZZ46');
     </script>
     
-    <!-- Favicons -->
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192"  href="web-app-manifest-192x192.png">
     <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
@@ -369,7 +367,6 @@
         </div>
     </footer>
 
-    <!-- Modals -->
     <div id="car-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
         <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-lg m-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-detail-content">
             <div class="flex justify-between items-start mb-4">
@@ -391,7 +388,6 @@
                 <button id="modal-book-button" class="accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition shadow-md" data-i18n="btn-book-now">Book Now</button>
             </div>
             
-            <!-- FIXED: Explicitly visible buttons with bg colors -->
             <div id="contact-options" class="space-y-4 mt-6 border-t pt-4 hidden">
                 <p class="text-gray-700 text-sm font-semibold text-center" data-i18n="modal-p">Choose contact method:</p>
                 <a id="whatsapp-link" href="#" target="_blank" class="w-full flex items-center justify-center bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition shadow-md">
@@ -404,7 +400,6 @@
         </div>
     </div>
 
-    <!-- SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -516,52 +511,65 @@
                 rentalReturnDate = localStorage.getItem('rentalReturnDate') || '';
             }
 
-            // --- FIREBASE LOAD ---
+            // --- FIREBASE LOAD (UPDATED) ---
             async function loadCars() {
                 const container = document.getElementById('featured-car-grid');
                 if (!container) return;
-                container.innerHTML = '<div class="col-span-3 text-center py-10"><div class="loader mx-auto"></div></div>'; 
-
+                
                 try {
+                    // Always read from 'cars'
                     const q = query(collection(db, "cars"), orderBy("createdAt", "desc"));
                     const querySnapshot = await getDocs(q);
                     container.innerHTML = '';
 
                     let count = 0;
                     querySnapshot.forEach((doc) => {
-                        if(count >= 9) return; // Limit to 9
+                        if(count >= 6) return; // Limit to 6 featured cars
                         const car = doc.data();
                         
                         const transmissionText = getTranslation(car.transmission.toLowerCase());
-                        const seatsKey = car.seats === 6 ? 'car-seats-6' : 'car-seats';
-                        const seatsText = getTranslation(seatsKey);
                         const { price, symbol } = calculatePrice(car.price);
                         const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
+                        
+                        // Default Fallbacks for new fields
+                        const carType = car.type ? car.type.toUpperCase() : 'CAR';
+                        const carFuel = car.fuel || 'Petrol';
+                        const carColor = car.color || 'Standard';
 
                         const carCard = document.createElement('div');
-                        carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1";
+                        carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group";
                         
                         carCard.innerHTML = `
-                            <img src="${car.img}" alt="${car.name}" class="w-full h-48 object-cover">
+                            <div class="relative h-56 overflow-hidden">
+                                <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
+                                <div class="absolute top-3 left-3 bg-primary-dark text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md">
+                                    ${carType.replace('-', ' ')}
+                                </div>
+                            </div>
                             <div class="p-6 flex flex-col justify-between flex-grow">
                                 <div>
-                                    <h3 class="text-2xl font-bold text-gray-900">${car.name} (<span data-i18n="${car.transmission.toLowerCase()}">${transmissionText}</span>)</h3>
-                                    <p class="text-gray-500 mb-4 min-h-[5rem]">${car.desc}</p> 
-                                    <div class="grid grid-cols-2 gap-2 text-sm text-gray-700 mb-4">
-                                        <span class="flex items-center ltr:justify-start"><i data-lucide="${car.transmission === 'Automatic' ? 'car' : 'gauge'}" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span>${transmissionText}</span></span>
-                                        <span class="flex items-center ltr:justify-start"><i data-lucide="snowflake" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> A/C</span>
-                                        <span class="flex items-center ltr:justify-start"><i data-lucide="users" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> <span data-i18n="${seatsKey}">${seatsText}</span></span>
-                                        <span class="flex items-center ltr:justify-start"><i data-lucide="paint-bucket" class="w-4 h-4 ltr:mr-2 text-primary-dark"></i> ${car.color}</span>
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h3 class="text-xl font-bold text-gray-900 leading-tight">${car.name}</h3>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 mb-4 mt-3">
+                                        <div class="flex items-center"><i data-lucide="${car.transmission === 'automatic' ? 'zap' : 'gauge'}" class="w-4 h-4 text-accent-blue mr-2"></i> <span data-i18n="${car.transmission}">${transmissionText}</span></div>
+                                        <div class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${carFuel}</span></div>
+                                        <div class="flex items-center"><i data-lucide="users" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.seats} Seats</span></div>
+                                        <div class="flex items-center"><i data-lucide="palette" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${carColor}</span></div>
                                     </div>
                                 </div>
-                                <div class="flex justify-between items-center border-t pt-4">
-                                    <span class="text-2xl font-extrabold text-primary-dark">${carPriceString} <span data-i18n="car-day" class="text-base font-normal text-gray-500">/ day</span></span>
-                                    <span class="accent-blue text-white font-semibold py-2 px-6 rounded-lg shadow-md" data-i18n="btn-book-now">Book Now</span>
+                                <div class="flex justify-between items-center border-t border-gray-100 pt-4 mt-auto">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs text-gray-400 font-medium uppercase">Daily Rate</span>
+                                        <span class="text-2xl font-extrabold text-primary-dark">${carPriceString}</span>
+                                    </div>
+                                    <span class="accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition shadow-md">Book Now</span>
                                 </div>
                             </div>
                         `;
                         // Click Event
-                        carCard.addEventListener('click', () => openModal(car.name, carPriceString, car.img, transmissionText, car.seats, car.color, car.desc));
+                        carCard.addEventListener('click', () => openModal(car.name, carPriceString, car.img, transmissionText, car.seats, carColor, car.desc));
                         container.appendChild(carCard);
                         count++;
                     });
@@ -572,7 +580,8 @@
                 }
             }
 
-            // --- Modal Logic ---
+
+            // --- Modal Logic (Remains the same, but uses new fields: carColor, carDesc) ---
             function openModal(carName, carPriceWithSymbol, carImg, carTrans, carSeats, carColor, carDesc) {
                 const dict = translations[currentLang];
                 let whatsappMessage, emailSubject, emailBody;
@@ -582,8 +591,8 @@
                 document.getElementById('modal-car-image').src = carImg;
                 document.getElementById('modal-transmission').textContent = carTrans;
                 document.getElementById('modal-seats-value').textContent = carSeats;
-                document.getElementById('modal-color').textContent = carColor;
-                document.getElementById('modal-car-desc').textContent = carDesc;
+                document.getElementById('modal-color').textContent = carColor; // Now using carColor
+                document.getElementById('modal-car-desc').textContent = carDesc; // Now using carDesc
                 document.getElementById('modal-car-price').textContent = carPriceWithSymbol.replace(/ DH| €| \$/g, '');
                 document.getElementById('modal-car-currency').textContent = currentCurrency === 'DH' ? 'DH' : (currentCurrency === 'EUR' ? '€' : '$');
                 
@@ -687,5 +696,3 @@
     </script>
 </body>
 </html>
-
-
