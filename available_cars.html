@@ -113,7 +113,7 @@
         
         <div class="md:grid md:grid-cols-4 lg:grid-cols-5 md:gap-8">
             
-            <!-- Filter Sidebar (VISUAL ONLY - FILTERS DISABLED) -->
+            <!-- Filter Sidebar -->
             <div id="filter-sidebar" class="fixed top-0 left-0 h-full w-3/4 max-w-xs md:max-w-none bg-white p-6 shadow-2xl z-40 md:relative md:col-span-1 lg:col-span-1 md:h-auto md:p-0 md:shadow-none md:bg-transparent md:transform-none">
                 <button id="filter-close-button" class="md:hidden absolute top-4 right-4 text-gray-800 hover:text-gray-600"><i data-lucide="x" class="w-6 h-6"></i></button>
                 <h3 class="text-2xl font-bold text-primary-dark mb-6 border-b pb-3" data-i18n="h3-filter">Filter Options</h3>
@@ -143,6 +143,7 @@
                         <p class="text-sm font-semibold text-gray-700 mb-2">Fuel Type</p>
                         <div class="space-y-2" id="fuel-filters">
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Diesel" class="rounded text-primary-dark ltr:mr-2"> Diesel</label>
+                            <!-- Value=Petrol (DB), Label=Essence (UI) -->
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Petrol" class="rounded text-primary-dark ltr:mr-2"> Essence</label>
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Hybrid" class="rounded text-primary-dark ltr:mr-2"> Hybrid</label>
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Electric" class="rounded text-primary-dark ltr:mr-2"> Electric</label>
@@ -306,10 +307,15 @@
         function setCurrency(currency) {
             currentCurrency = currency;
             updateAllSelectors('#currency-selector, #currency-selector-mobile', currency);
+
+            // --- CURRENCY SLIDER FIX ---
             let newMax = 2000;
-            if (currency === 'EUR' || currency === 'USD') { newMax = 200; }
+            if (currency === 'EUR' || currency === 'USD') {
+                newMax = 200; 
+            }
             priceRange.max = newMax;
             priceRange.value = newMax; 
+            
             updatePriceDisplay();
             renderAllCars();
         }
@@ -320,6 +326,7 @@
             rentalReturnDate = localStorage.getItem('rentalReturnDate') || '';
         }
 
+        // --- ROBUST DUAL FETCHING (Like Index Page but Better) ---
         async function loadCars() {
             if (!resultsContainer) return;
             
@@ -334,10 +341,13 @@
             resultsContainer.appendChild(loader);
 
             try {
+                // 1. Fetch 'cars' (Index uses this, so we must too)
                 const q1 = query(collection(db, "cars"));
+                // 2. Fetch 'cars_production' (Admin uses this)
                 const q2 = query(collection(db, "cars_production"));
                 
-                const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+                // Run both, handle potential failures in one without stopping the other
+                const [snap1, snap2] = await Promise.allSettled([getDocs(q1), getDocs(q2)]);
                 
                 allCars = [];
                 const addedIds = new Set(); 
@@ -348,11 +358,12 @@
                     
                     const d = doc.data();
                     
+                    // --- UNIVERSAL DATA MAPPING ---
                     allCars.push({ 
                         id: doc.id,
                         price: Number(d.price) || 0,
                         img: d.imageUrl || d.img || 'https://placehold.co/600x400?text=No+Image',
-                        type: d.category || d.type || 'Sedan', 
+                        type: d.category || d.type || 'Sedan',
                         fuel: d.fuelType || d.fuel || 'Diesel',
                         desc: d.description || d.desc || '',
                         transmission: d.transmission || 'Manual',
@@ -362,12 +373,12 @@
                     });
                 };
 
-                snap1.forEach(processDoc);
-                snap2.forEach(processDoc);
+                if (snap1.status === 'fulfilled') snap1.value.forEach(processDoc);
+                if (snap2.status === 'fulfilled') snap2.value.forEach(processDoc);
                 
                 if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
                 
-                renderAllCars(); // Call Render
+                renderAllCars();
 
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -380,10 +391,39 @@
             resultsContainer.innerHTML = '';
             if(header) resultsContainer.appendChild(header);
 
-            // FILTERING DISABLED: Forcing cars to show initially to verify data presence.
-            // The filter variables are collected but the logic below is set to PASS ALL by default if filters are empty.
+            // FILTER LOGIC
+            const sliderValue = parseInt(priceRange.value); 
             
-            const filteredCars = allCars; // <--- BYPASSING FILTER LOGIC TEMPORARILY TO FORCE SHOW CARS
+            const selectedTrans = Array.from(document.querySelectorAll('#transmission-filters input:checked')).map(c => c.value);
+            const selectedTypes = Array.from(document.querySelectorAll('#type-filters input:checked')).map(c => c.value);
+            const selectedFuels = Array.from(document.querySelectorAll('#fuel-filters input:checked')).map(c => c.value);
+
+            const filteredCars = allCars.filter(car => {
+                // Price Check
+                let comparePrice = car.price; // DH
+                if (currentCurrency !== 'DH') {
+                    comparePrice = Number(calculatePrice(car.price).price);
+                }
+                if (comparePrice > sliderValue) return false;
+
+                // Trans Check
+                if (selectedTrans.length > 0) {
+                    if (!selectedTrans.includes(car.transmission)) return false;
+                }
+
+                // Type Check
+                if (selectedTypes.length > 0) {
+                     if (!selectedTypes.includes(car.type)) return false;
+                }
+
+                // Fuel Check
+                if (selectedFuels.length > 0) {
+                    // If filter has 'Petrol', we match 'Petrol' from DB. UI shows Essence.
+                    if (!selectedFuels.includes(car.fuel)) return false;
+                }
+
+                return true;
+            });
 
             const countText = getTranslation('sort-count-text');
             if(carCountElement) carCountElement.textContent = `${filteredCars.length} ${countText}`;
@@ -391,7 +431,7 @@
             if (filteredCars.length === 0) {
                 const msg = document.createElement('div');
                 msg.className = "col-span-full text-center py-10 text-gray-500";
-                msg.textContent = "No cars found in database.";
+                msg.textContent = "No cars match filters.";
                 resultsContainer.appendChild(msg);
                 return;
             }
@@ -401,7 +441,7 @@
                 const { price, symbol } = calculatePrice(car.price);
                 const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
                 
-                const carType = car.type; 
+                // Auto-Fix: Show Essence if DB says Petrol
                 const carFuelDisplay = car.fuel === 'Petrol' ? 'Essence' : car.fuel; 
 
                 let totalPriceHTML = '';
