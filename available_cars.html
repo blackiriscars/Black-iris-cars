@@ -402,10 +402,13 @@
                                 <div class="flex items-center"><i data-lucide="users" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.seats} Seats</span></div>
                                 <div class="flex items-center"><i data-lucide="snowflake" class="w-4 h-4 text-accent-blue mr-2"></i> <span>A/C</span></div>
                             </div>
-                            ${totalPriceHTML}
                         </div>
                         <div class="flex justify-between items-center border-t border-gray-100 pt-4 mt-auto">
-                            <div class="flex flex-col"><span class="text-xs text-gray-400 font-medium uppercase">Daily Rate</span><span class="text-2xl font-extrabold text-primary-dark">${carPriceString}</span></div>
+                            <div class="flex flex-col">
+                                <span class="text-xs text-gray-400 font-medium uppercase">Daily Rate</span>
+                                <span class="text-2xl font-extrabold text-primary-dark">${carPriceString}</span>
+                                ${totalPriceHTML}
+                            </div>
                             <button class="accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition duration-300 shadow-md text-sm book-btn"><span data-i18n="btn-book-now">Book Now</span></button>
                         </div>
                     </div>
