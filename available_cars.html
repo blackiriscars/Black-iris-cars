@@ -134,6 +134,7 @@
                         <div class="space-y-2" id="type-filters">
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="Sedan" class="rounded text-primary-dark ltr:mr-2"> Sedan</label>
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="Hatchback" class="rounded text-primary-dark ltr:mr-2"> Hatchback</label>
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="Coupe" class="rounded text-primary-dark ltr:mr-2"> Coupe</label>
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="SUV" class="rounded text-primary-dark ltr:mr-2"> SUV / Crossover</label>
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="Luxury SUV" class="rounded text-primary-dark ltr:mr-2"> Luxury SUV</label>
                         </div>
@@ -257,6 +258,7 @@
         
         // UI Elements
         let priceRange, priceValue, filterSidebar, filterBackdrop, mobileMenu, mobileMenuBtn, carCountElement, resultsContainer;
+        let filterMenuBtn;
 
         // --- 1. TRANSLATIONS & UTILS ---
         function getTranslation(key) {
@@ -392,10 +394,12 @@
                 
                 const carCard = document.createElement('div');
                 carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group";
+                
+                // --- FIXED GLASS TAG ---
                 carCard.innerHTML = `
                     <div class="relative h-56 overflow-hidden">
                         <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
-                        <div class="absolute top-3 left-3 bg-primary-dark text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md">
+                        <div class="absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md border border-white/20">
                             ${car.type}
                         </div>
                     </div>
@@ -457,47 +461,18 @@
             priceRange = document.getElementById('price-range');
             priceValue = document.getElementById('price-value');
             filterSidebar = document.getElementById('filter-sidebar');
-            filterBackdrop = document.getElementById('filter-backdrop'); // Get the backdrop
+            filterBackdrop = document.getElementById('filter-backdrop'); 
             resultsContainer = document.getElementById('results-container');
             
             // MENU VARIABLES
             mobileMenu = document.getElementById('mobile-menu');
             mobileMenuBtn = document.getElementById('mobile-menu-button');
+            filterMenuBtn = document.getElementById('filter-menu-button');
 
-            // --- MOBILE MENU LOGIC (FIXED) ---
-            function toggleMobileMenu() {
-                const isClosed = mobileMenu.classList.contains('opacity-0');
-                if (isClosed) {
-                    // Open Menu
-                    mobileMenu.classList.remove('opacity-0', '-translate-y-2');
-                    mobileMenu.style.pointerEvents = 'auto';
-                } else {
-                    // Close Menu
-                    mobileMenu.classList.add('opacity-0', '-translate-y-2');
-                    mobileMenu.style.pointerEvents = 'none';
-                }
-            }
-
-            // Click Button to Toggle
-            mobileMenuBtn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Stop click from hitting the document listener immediately
-                toggleMobileMenu();
-            });
-
-            // Click Outside to Close Menu
-            document.addEventListener('click', (e) => {
-                // If menu is open AND click is NOT inside menu AND click is NOT on the button
-                if (mobileMenu.style.pointerEvents === 'auto' && !mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-                    mobileMenu.classList.add('opacity-0', '-translate-y-2');
-                    mobileMenu.style.pointerEvents = 'none';
-                }
-            });
-
-            // --- FILTER SIDEBAR LOGIC (FIXED) ---
-            function openSidebar() {
-                filterSidebar.classList.add('open');
-                filterBackdrop.classList.remove('hidden');
-                document.body.classList.add('overflow-hidden'); // Prevent scrolling body
+            // --- HELPER CLOSING FUNCTIONS ---
+            function closeMobileMenu() {
+                mobileMenu.classList.add('opacity-0', '-translate-y-2');
+                mobileMenu.style.pointerEvents = 'none';
             }
 
             function closeSidebar() {
@@ -506,15 +481,58 @@
                 document.body.classList.remove('overflow-hidden');
             }
 
-            document.getElementById('filter-menu-button').addEventListener('click', (e) => {
+            // --- MENU TOGGLE LOGIC ---
+            mobileMenuBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                openSidebar();
+                // 1. Force sidebar to close if it's open
+                closeSidebar();
+
+                // 2. Toggle Menu
+                const isClosed = mobileMenu.classList.contains('opacity-0');
+                if (isClosed) {
+                    mobileMenu.classList.remove('opacity-0', '-translate-y-2');
+                    mobileMenu.style.pointerEvents = 'auto';
+                } else {
+                    closeMobileMenu();
+                }
             });
 
+            // --- FILTER TOGGLE LOGIC ---
+            filterMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // 1. Force mobile menu to close if it's open
+                closeMobileMenu();
+
+                // 2. Open Sidebar
+                filterSidebar.classList.add('open');
+                filterBackdrop.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            });
+
+            // Close Filter Button
             document.getElementById('filter-close-button').addEventListener('click', closeSidebar);
             
-            // CLICK BACKDROP TO CLOSE FILTER
+            // Close if Backdrop Clicked
             filterBackdrop.addEventListener('click', closeSidebar);
+
+            // --- GLOBAL CLICK HANDLER (HEADER CLICK FIX) ---
+            document.addEventListener('click', (e) => {
+                // Logic: If clicking outside, close everything.
+                const clickedInsideMenu = mobileMenu.contains(e.target) || mobileMenuBtn.contains(e.target);
+                const clickedInsideFilter = filterSidebar.contains(e.target) || filterMenuBtn.contains(e.target);
+
+                // If Menu is open and we didn't click inside it -> Close it
+                if (mobileMenu.style.pointerEvents === 'auto' && !clickedInsideMenu) {
+                    closeMobileMenu();
+                }
+
+                // If Filter is open and we didn't click inside it (and we aren't clicking the filter button) -> Close it
+                // Note: filterBackdrop handles the rest of the screen, but Header is z-50 (above backdrop).
+                // This explicitly catches header clicks.
+                if (filterSidebar.classList.contains('open') && !clickedInsideFilter) {
+                    closeSidebar();
+                }
+            });
 
             // --- GENERAL EVENTS ---
             document.querySelectorAll('#filter-form input').forEach(inp => {
@@ -523,7 +541,7 @@
             priceRange.addEventListener('input', updatePriceDisplay);
             priceRange.addEventListener('change', renderAllCars);
             
-            // Apply filter button also closes sidebar for better UX
+            // Apply filter button also closes sidebar
             document.getElementById('apply-filters-btn').addEventListener('click', () => { 
                 renderAllCars(); 
                 closeSidebar(); 
