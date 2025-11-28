@@ -4,20 +4,237 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Available Cars | Black Iris Cars</title>
+    <meta name="description" content="View our full fleet of available rental cars. From economy hatchbacks to luxury SUVs, find the perfect car for your trip in Morocco.">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="data.js"></script>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Y2MG9ZZ46"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-2Y2MG9ZZ46');
+    </script>
+    
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="web-app-manifest-192x192.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="manifest" href="site.webmanifest">
+    
     <style>
-        /* ... (Keep CSS) ... */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #f4f7f9; transition: all 0.3s ease; }
+        .primary-dark { background-color: #1a1a1a; } 
+        .text-primary-dark { color: #1a1a1a; } 
+        .accent-blue { background-color: #4169e1; } 
+        .hover\:accent-blue-dark:hover { background-color: #2b4daa; } 
+        .text-accent-blue { color: #4169e1; }
+
+        /* Sidebar Animation */
+        #filter-sidebar { transition: transform 0.3s ease-in-out; transform: translateX(-100%); }
+        #filter-sidebar.open { transform: translateX(0); }
+        [dir="rtl"] #filter-sidebar { transform: translateX(100%); left: auto; right: 0; }
+        [dir="rtl"] #filter-sidebar.open { transform: translateX(0); }
+        
+        input[type="checkbox"]:checked { background-color: #1a1a1a; border-color: #1a1a1a; }
+        #contact-modal { transition: opacity 0.3s ease-in-out; }
+
+        /* Compact Selectors */
+        .compact-select {
+            font-size: 0.875rem; font-weight: 600; color: #1a1a1a;
+            background-color: transparent; border: 1px solid #d1d5db; border-radius: 0.375rem;
+            padding: 8px 12px; margin: 0; cursor: pointer;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M6 9l4 4 4-4'/%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.2em 1.2em;
+            appearance: none; padding-right: 2.5rem;
+        }
+        .hidden.md\:flex .compact-select { border: none; padding: 6px 1.5rem 6px 0.5rem; background-position: right 0.2rem center; font-weight: 700; color: #4b5563; transition: color 0.2s; }
+        .hidden.md\:flex .compact-select:hover { color: #4169e1; }
+        [dir="rtl"] .hidden.md\:flex .compact-select { background-position: left 0.2rem center; padding-left: 1.5rem; padding-right: 0.5rem; }
+        [dir="rtl"] .compact-select { background-position: left 0.5rem center; padding-left: 2.5rem; padding-right: 12px; }
+        .compact-select option { color: #000000; font-weight: 400; }
+        
+        /* Loader */
+        .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3498db; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* New Grid Layout for Car Cards */
+        #results-container {
+            display: grid;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+            gap: 1.5rem; 
+        }
+        @media (min-width: 768px) {
+             #results-container { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (min-width: 1024px) {
+             #results-container { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
     </style>
 </head>
 <body class="antialiased" dir="ltr">
+
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="index.html" class="flex items-center">
+                    <img src="https://i.postimg.cc/B6LWwXNL/923d79fe-5117-4849-9761-57e1fe5a8d96.jpg" alt="Logo" class="w-10 h-10 mr-2 rounded-full border border-gray-100">
+                    <span class="text-2xl font-extrabold text-primary-dark">BLACK IRIS cars</span>
+                </a>
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <div class="hidden md:flex items-center space-x-3 border-r border-gray-200 pr-3 sm:pr-4">
+                        <select id="currency-selector" class="compact-select"><option value="DH">DH</option><option value="EUR">EUR</option><option value="USD">USD</option></select>
+                        <select id="language-selector" class="compact-select"><option value="en">EN</option><option value="fr">FR</option><option value="ar">AR</option></select>
+                    </div>
+                    <nav class="hidden md:flex md:ltr:space-x-8">
+                        <a href="index.html#featured" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-fleet">Our Fleet</a>
+                        <a href="index.html#why-us" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-why">Why Choose Us</a>
+                        <a href="index.html#contact" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-contact">Contact</a>
+                    </nav>
+                    <button id="filter-menu-button" class="md:hidden text-gray-600 hover:text-accent-blue p-2 rounded-lg transition"><i data-lucide="filter" class="w-6 h-6"></i></button>
+                    <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-accent-blue p-2 rounded-lg transition"><i data-lucide="menu" class="w-6 h-6"></i></button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 opacity-0 -translate-y-2 transform transition-all duration-300 ease-out fixed top-16 left-0 right-0 z-40" style="pointer-events: none;">
+            <div class="px-4 pt-4 pb-3 space-y-4">
+                <div class="flex items-center space-x-4">
+                    <select id="currency-selector-mobile" class="compact-select w-full"><option value="DH">DH</option><option value="EUR">EUR</option><option value="USD">USD</option></select>
+                    <select id="language-selector-mobile" class="compact-select w-full"><option value="en">EN</option><option value="fr">Français</option><option value="ar">العربية</option></select>
+                </div>
+                <div class="space-y-1">
+                    <a href="index.html#featured" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-fleet">Our Fleet</a>
+                    <a href="index.html#why-us" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-why">Why Choose Us</a>
+                    <a href="index.html#contact" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-contact">Contact</a>
+                    <a href="index.html#faq" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-faq">FAQ</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-primary-dark mb-4" data-i18n="h1-available">Available Rental Cars</h1>
+        
+        <div id="filter-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+        
+        <div class="md:grid md:grid-cols-4 lg:grid-cols-5 md:gap-8">
+            
+            <div id="filter-sidebar" class="fixed top-0 left-0 h-full w-3/4 max-w-xs md:max-w-none bg-white p-6 shadow-2xl z-40 md:relative md:col-span-1 lg:col-span-1 md:h-auto md:p-0 md:shadow-none md:bg-transparent md:transform-none">
+                <button id="filter-close-button" class="md:hidden absolute top-4 right-4 text-gray-800 hover:text-gray-600"><i data-lucide="x" class="w-6 h-6"></i></button>
+                <h3 class="text-2xl font-bold text-primary-dark mb-6 border-b pb-3" data-i18n="h3-filter">Filter Options</h3>
+                <form id="filter-form" class="space-y-6">
+                    <div>
+                        <label for="price-range" class="block text-sm font-semibold text-gray-700 mb-2" data-i18n="label-price">Price Range (DH/day)</label>
+                        <input type="range" id="price-range" min="0" max="2000" value="2000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer text-primary-dark">
+                        <span id="price-value" class="text-lg font-bold text-gray-800 mt-1 block">2000 DH</span> 
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700 mb-2">Transmission</p>
+                        <div class="space-y-2" id="transmission-filters">
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="transmission" value="automatic" class="rounded text-primary-dark ltr:mr-2"> <span data-i18n="automatic">Automatic</span></label>
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="transmission" value="manual" class="rounded text-primary-dark ltr:mr-2"> <span data-i18n="manual">Manual</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-700 mb-2">Vehicle Type</p>
+                        <div class="space-y-2" id="type-filters">
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="sedan" class="rounded text-primary-dark ltr:mr-2"> Sedan</label>
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="hatchback" class="rounded text-primary-dark ltr:mr-2"> Hatchback</label>
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="suv" class="rounded text-primary-dark ltr:mr-2"> SUV / Crossover</label>
+                            <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="luxury-suv" class="rounded text-primary-dark ltr:mr-2"> Luxury SUV</label>
+                        </div>
+                    </div>
+                    <button type="button" id="apply-filters-btn" class="w-full accent-blue text-white font-semibold py-2 rounded-lg hover:accent-blue-dark transition shadow-md mt-4">Apply Filters</button>
+                </form>
+            </div>
+
+            <div id="results-container">
+                <div class="col-span-full flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100 mb-4">
+                    <p class="text-sm text-gray-600" id="car-count">Loading cars...</p> 
+                </div>
+                </div>
+        </div>
+    </main>
+
+    <div id="car-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
+        <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-lg m-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-detail-content">
+            <div class="flex justify-between items-start mb-4">
+                <h3 id="modal-car-name" class="text-2xl font-bold text-primary-dark">Car Name</h3>
+                <button id="close-detail-modal-btn" class="text-gray-500 hover:text-primary-dark"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="space-y-4">
+                <img id="modal-car-image" src="" alt="Car" class="w-full h-48 object-cover rounded-lg mb-4 border border-gray-200">
+                <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                    <div class="flex items-center ltr:justify-start"><i data-lucide="car" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <span id="modal-transmission" class="font-semibold"></span></div>
+                    <div class="flex items-center ltr:justify-start"><i data-lucide="users" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <span id="modal-seats-value" class="font-semibold"></span> <span data-i18n="car-seats-label-spaced"> Seats</span></div>
+                    <div class="flex items-center ltr:justify-start"><i data-lucide="snowflake" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <span data-i18n="modal-ac-label-short">A/C</span></div>
+                    <div class="flex items-center ltr:justify-start"><i data-lucide="paint-bucket" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <span id="modal-color" class="font-semibold"></span></div>
+                </div>
+                <p id="modal-car-desc" class="text-gray-600 border-t border-gray-100 pt-4" data-i18n="modal-car-desc"></p>
+            </div>
+            <div class="flex justify-between items-center mt-6 pt-4 border-t">
+                <span class="text-2xl font-extrabold text-primary-dark"><span id="modal-car-price"></span> <span id="modal-car-currency">DH</span> <span class="text-base font-normal text-gray-500" data-i18n="car-day">/ day</span></span>
+                <button id="modal-book-button" class="accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition shadow-md" data-i18n="btn-book-now">Book Now</button>
+            </div>
+            
+            <div id="contact-options" class="space-y-4 mt-6 border-t pt-4 hidden">
+                <p class="text-gray-700 text-sm font-semibold text-center" data-i18n="modal-p">Choose contact method:</p>
+                <a id="whatsapp-link" href="#" target="_blank" class="w-full flex items-center justify-center bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition shadow-md">
+                    <i data-lucide="message-circle" class="w-5 h-5 ltr:mr-3"></i> <span data-i18n="btn-whatsapp">WhatsApp</span>
+                </a>
+                <a id="email-link" href="#" class="w-full flex items-center justify-center bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition shadow-md">
+                    <i data-lucide="mail" class="w-5 h-5 ltr:mr-3"></i> <span data-i18n="btn-email">Email</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <footer id="contact" class="primary-dark text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8 mb-8">
+                <div>
+                    <h3 class="text-2xl font-extrabold mb-4 text-gray-300">BLACK IRIS cars</h3>
+                    <p class="text-gray-400 text-sm">Your reliable partner for car rentals across Morocco.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" data-i18n="h4-nav">Quick Navigation</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="index.html#featured" class="hover:text-accent-blue transition" data-i18n="nav-fleet">Our Fleet</a></li>
+                        <li><a href="index.html#why-us" class="hover:text-accent-blue transition" data-i18n="nav-why">Our Promise</a></li>
+                        <li><a href="index.html#testimonials" class="hover:text-accent-blue transition" data-i18n="nav-reviews">Reviews</a></li>
+                        <li><a href="index.html#faq" class="hover:text-accent-blue transition" data-i18n="nav-faq">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" data-i18n="h4-contact">Contact & Booking</h4>
+                    <a href="tel:+212602020402" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
+                        <i data-lucide="phone" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 0602020402
+                    </a>
+                    <p class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start"><i data-lucide="mail" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> <a href="mailto:blackiriscars@gmail.com" class="hover:text-accent-blue">blackiriscars@gmail.com</a></p>
+                    
+                    <a href="PASTE_YOUR_GOOGLE_MAPS_LINK_HERE" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
+                        <i data-lucide="map-pin" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 
+                        <span data-i18n="address-text">10 rue ouarzazat hassan rabat</span>
+                    </a>
+
+                    <a href="https://wa.me/212602020402" target="_blank" class="text-sm text-white px-3 py-1 mt-2 inline-flex items-center rounded-lg bg-green-600 hover:bg-green-700 transition">
+                        <i data-lucide="message-circle" class="w-4 h-4 ltr:mr-2"></i> <span data-i18n="whatsapp-text">WhatsApp</span> 0602020402
+                    </a>
+                </div>
+            </div>
+            <div class="text-center text-sm text-gray-500 pt-4">
+                &copy; <span data-i18n="copy-right">2024 BLACK IRIS cars. All rights reserved.</span>
+            </div>
+        </div>
+    </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // ... (Keep Config) ...
         const firebaseConfig = {
           apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
           authDomain: "black-iris-fleet-9c64e.firebaseapp.com",
@@ -33,14 +250,15 @@
 
         lucide.createIcons();
 
-        // ... (Global Vars) ...
+        // Global variables/helpers (accessible to helper functions below)
         let currentLang = 'en';
         let currentCurrency = 'DH';
         let exchangeRates = { EUR: 0.092, USD: 0.10 };
+        let rentalLocation = '', rentalPickupDate = '', rentalReturnDate = '';
         let allCars = [];
-        let priceRange, priceValue, carCountElement, resultsContainer;
+        
+        let priceRange, priceValue, filterSidebar, filterBackdrop, mobileMenu, mobileMenuButton, carCountElement, resultsContainer;
 
-        // ... (Helpers: getTranslation, updateAllSelectors...) ...
         function getTranslation(key) {
             if (typeof translations === 'undefined' || !translations[currentLang]) return key;
             const translation = translations[currentLang][key];
@@ -52,13 +270,44 @@
             if (currentCurrency === 'USD') return { price: (basePrice * exchangeRates.USD).toFixed(0), symbol: '$' };
             return { price: basePrice, symbol: '' };
         }
+        
+        function updatePriceDisplay() {
+            if (!priceRange || !priceValue) return;
 
-        // --- UPDATED CURRENCY SETTER (FIXED MAX) ---
+            const currentSliderValue = parseInt(priceRange.value);
+            const symbol = currentCurrency === 'DH' ? ' DH' : (currentCurrency === 'EUR' ? ' €' : ' $');
+            
+            // Just display the Number + Symbol (e.g., "200 $")
+            priceValue.textContent = `${currentSliderValue}${symbol}`;
+        }
+
+        function updateAllSelectors(selector, value) {
+            document.querySelectorAll(selector).forEach(sel => sel.value = value);
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            updateAllSelectors('#language-selector, #language-selector-mobile', lang);
+            const dictionary = translations[lang];
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (dictionary[key] && typeof dictionary[key] === 'string') element.textContent = dictionary[key];
+            });
+            document.body.setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');
+            document.querySelectorAll('select option').forEach(option => {
+                const key = option.getAttribute('data-i18n');
+                if (key && dictionary[key] && typeof dictionary[key] === 'string') option.textContent = dictionary[key];
+            });
+            renderAllCars();
+            lucide.createIcons();
+        }
+
         function setCurrency(currency) {
             currentCurrency = currency;
-            document.querySelectorAll('#currency-selector, #currency-selector-mobile').forEach(s => s.value = currency);
+            updateAllSelectors('#currency-selector, #currency-selector-mobile', currency);
 
-            let newMax = 2000; // Default DH
+            // --- CURRENCY FILTER LOGIC (FIXED) ---
+            let newMax = 2000;
             if (currency === 'EUR' || currency === 'USD') {
                 newMax = 200; // Fixed hard limit for USD/EUR
             }
@@ -69,31 +318,44 @@
             renderAllCars();
         }
 
-        function updatePriceDisplay() {
-            const val = priceRange.value;
-            const symbol = currentCurrency === 'DH' ? ' DH' : (currentCurrency === 'EUR' ? ' €' : ' $');
-            priceValue.textContent = `${val}${symbol}`;
+        function getLocalStorageData() {
+            rentalLocation = localStorage.getItem('rentalLocation') || '';
+            rentalPickupDate = localStorage.getItem('rentalPickupDate') || '';
+            rentalReturnDate = localStorage.getItem('rentalReturnDate') || '';
         }
 
-        // --- UPDATED LOAD CARS (UNIVERSAL MAPPER) ---
         async function loadCars() {
             if (!resultsContainer) return;
-            resultsContainer.innerHTML = ''; // Clear
             
+            const filterHeader = resultsContainer.querySelector('.col-span-full');
+            resultsContainer.innerHTML = '';
+            if(filterHeader) resultsContainer.appendChild(filterHeader);
+
+            const loader = document.createElement('div');
+            loader.className = "col-span-full text-center py-20 text-gray-500";
+            loader.innerHTML = '<div class="loader mx-auto mb-4"></div>';
+            loader.id = "temp-loader";
+            resultsContainer.appendChild(loader);
+
             try {
+                // FIXED: Use correct 'cars' collection and handle field mapping
                 const q = query(collection(db, "cars"), orderBy("createdAt", "desc"));
                 const querySnapshot = await getDocs(q);
                 
                 allCars = [];
                 querySnapshot.forEach((doc) => {
                     const d = doc.data();
-                    // UNIVERSAL MAPPING
+                    
+                    // --- UNIVERSAL DATA MAPPING ---
+                    // This fixes the "Cars Not Showing" issue by checking both field names
                     allCars.push({ 
                         id: doc.id,
                         price: Number(d.price) || 0,
-                        // Fix for mismatched keys
+                        // Check imageUrl (Admin) OR img (Old Admin)
                         img: d.imageUrl || d.img || 'https://placehold.co/600x400?text=No+Image',
+                        // Check category (Admin) OR type (Old Admin)
                         type: d.category || d.type || 'Sedan',
+                        // Check fuelType (Admin) OR fuel (Old Admin)
                         fuel: d.fuelType || d.fuel || 'Diesel',
                         desc: d.description || d.desc || '',
                         transmission: (d.transmission || '').toLowerCase(),
@@ -102,8 +364,15 @@
                         name: d.name
                     });
                 });
+                
+                if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
                 renderAllCars();
-            } catch (error) { console.error(error); }
+
+            } catch (error) {
+                console.error("Error:", error);
+                if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
+                alert("Connection error. Please reload.");
+            }
         }
         
         function renderAllCars() {
@@ -111,61 +380,270 @@
             resultsContainer.innerHTML = '';
             if(header) resultsContainer.appendChild(header);
 
+            // Filtering Logic
             const sliderValue = parseInt(priceRange.value); 
-            
+            const transmissionFilters = document.querySelectorAll('#transmission-filters input[type="checkbox"]');
+            const typeFilters = document.querySelectorAll('#type-filters input[type="checkbox"]');
+
+            const selectedTrans = Array.from(transmissionFilters).filter(c => c.checked).map(c => c.value.toLowerCase());
+            const selectedTypes = Array.from(typeFilters).filter(c => c.checked).map(c => c.value.toLowerCase());
+
             const filteredCars = allCars.filter(car => {
-                // Calculate comparison price based on current currency
-                let comparePrice = car.price; // DH base
+                // IMPORTANT: Compare Price based on Current Currency
+                let comparePrice = car.price; // Default DH
                 if (currentCurrency !== 'DH') {
                     comparePrice = Number(calculatePrice(car.price).price);
                 }
-                return comparePrice <= sliderValue;
-                // ... (Transmission/Type filters omitted for brevity, add them back if needed) ...
+
+                return comparePrice <= sliderValue &&
+                       (selectedTrans.length === 0 || selectedTrans.includes(car.transmission)) &&
+                       (selectedTypes.length === 0 || selectedTypes.includes(car.type.toLowerCase()));
             });
 
-            // ... (Rest of render logic matching Index style) ...
+            const countText = getTranslation('sort-count-text');
+            if(carCountElement) carCountElement.textContent = `${filteredCars.length} ${countText}`;
+
+            if (filteredCars.length === 0) {
+                const msg = document.createElement('div');
+                msg.className = "col-span-full text-center py-10 text-gray-500";
+                msg.textContent = "No cars match filters.";
+                resultsContainer.appendChild(msg);
+                return;
+            }
+
             filteredCars.forEach(car => {
-                 const { price, symbol } = calculatePrice(car.price);
-                 const priceStr = `${symbol}${price}${currentCurrency==='DH'?' DH':''}`;
-                 
-                 const div = document.createElement('div');
-                 div.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group";
-                 div.innerHTML = `
+                const transmissionText = getTranslation(car.transmission); 
+                const { price, symbol } = calculatePrice(car.price);
+                const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
+                const carType = car.type ? car.type.toUpperCase() : 'CAR';
+                const carFuel = car.fuel || 'Petrol';
+                const carColor = car.color || 'Standard';
+
+                // Total Price Calculation Logic
+                let totalPriceHTML = '';
+                if (rentalPickupDate && rentalReturnDate) {
+                    const start = new Date(rentalPickupDate);
+                    const end = new Date(rentalReturnDate);
+                    const diffTime = end - start;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (diffDays > 0) {
+                         const total = (car.price * diffDays);
+                         const { price: totalPrice, symbol: totalSymbol } = calculatePrice(total);
+                         const forLabel = getTranslation('for-text');
+                         const daysLabel = getTranslation('days-text');
+                         totalPriceHTML = `<div class="text-xs text-green-600 font-bold mt-1 bg-green-50 px-2 py-1 rounded inline-block">Total: ${totalSymbol}${totalPrice} ${currentCurrency === 'DH' ? 'DH' : ''} ${forLabel} ${diffDays} ${daysLabel}</div>`;
+                    }
+                }
+
+                const carCard = document.createElement('div');
+                carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group";
+                
+                carCard.innerHTML = `
                     <div class="relative h-56 overflow-hidden">
-                        <img src="${car.img}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
-                        <div class="absolute top-3 left-3 bg-primary-dark text-white text-xs font-bold px-3 py-1 rounded-full uppercase shadow-md">${car.type}</div>
+                        <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
+                        <div class="absolute top-3 left-3 bg-primary-dark text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md">
+                            ${carType.replace('-', ' ')}
+                        </div>
                     </div>
+                    
                     <div class="p-6 flex flex-col justify-between flex-grow">
                         <div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-2">${car.name}</h3>
-                            <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 mb-4">
-                                <div class="flex items-center"><i data-lucide="zap" class="w-4 h-4 text-accent-blue mr-2"></i> ${car.transmission}</div>
-                                <div class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 text-accent-blue mr-2"></i> ${car.fuel}</div>
-                                <div class="flex items-center"><i data-lucide="users" class="w-4 h-4 text-accent-blue mr-2"></i> ${car.seats} Seats</div>
-                                <div class="flex items-center"><i data-lucide="palette" class="w-4 h-4 text-accent-blue mr-2"></i> ${car.color}</div>
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold text-gray-900 leading-tight">${car.name}</h3>
                             </div>
+                            
+                            <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 mb-4 mt-3">
+                                <div class="flex items-center"><i data-lucide="${car.transmission === 'automatic' ? 'zap' : 'gauge'}" class="w-4 h-4 text-accent-blue mr-2"></i> <span data-i18n="${car.transmission}">${transmissionText}</span></div>
+                                <div class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${carFuel}</span></div>
+                                <div class="flex items-center"><i data-lucide="users" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.seats} <span data-i18n="car-seats-label-spaced">Seats</span></span></div>
+                                <div class="flex items-center"><i data-lucide="palette" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${carColor}</span></div>
+                                <div class="flex items-center"><i data-lucide="snowflake" class="w-4 h-4 text-accent-blue mr-2"></i> <span>A/C</span></div>
+                            </div>
+                            ${totalPriceHTML}
                         </div>
+
                         <div class="flex justify-between items-center border-t border-gray-100 pt-4 mt-auto">
-                            <div><span class="text-xs text-gray-400 font-medium uppercase">Daily Rate</span><br><span class="text-2xl font-extrabold text-primary-dark">${priceStr}</span></div>
-                            <span class="accent-blue text-white font-semibold py-2 px-6 rounded-lg shadow-md">Book Now</span>
+                            <div class="flex flex-col">
+                                <span class="text-xs text-gray-400 font-medium uppercase">Daily Rate</span>
+                                <span class="text-2xl font-extrabold text-primary-dark">${carPriceString}</span>
+                            </div>
+                            <button class="accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition duration-300 shadow-md text-sm"
+                                onclick="window.openModal('${car.name}', '${carPriceString}', '${car.img}', '${transmissionText}', '${car.seats}', '${carColor}', '${car.desc}')">
+                                <span data-i18n="btn-book-now">Book Now</span>
+                            </button>
                         </div>
                     </div>
-                 `;
-                 resultsContainer.appendChild(div);
+                `;
+                resultsContainer.appendChild(carCard);
             });
+            
             lucide.createIcons();
         }
 
-        // ... (Keep Listeners & Init) ...
+        window.openModal = function(carName, carPriceWithSymbol, carImg, carTrans, carSeats, carColor, carDesc) {
+            const dict = translations[currentLang];
+            const detailModal = document.getElementById('car-detail-modal');
+            const modalDetailContent = document.getElementById('modal-detail-content');
+            const modalBookButton = document.getElementById('modal-book-button');
+            const contactOptions = document.getElementById('contact-options');
+
+            let whatsappMessage, emailSubject, emailBody;
+            
+            document.getElementById('modal-car-name').textContent = carName;
+            document.getElementById('modal-car-image').src = carImg;
+            document.getElementById('modal-transmission').textContent = carTrans;
+            document.getElementById('modal-seats-value').textContent = carSeats;
+            document.getElementById('modal-color').textContent = carColor;
+            document.getElementById('modal-car-desc').textContent = carDesc;
+            document.getElementById('modal-car-price').textContent = carPriceWithSymbol.replace(/ DH| €| \$/g, '');
+            document.getElementById('modal-car-currency').textContent = currentCurrency === 'DH' ? 'DH' : (currentCurrency === 'EUR' ? '€' : '$');
+            
+            if (rentalLocation && rentalPickupDate && rentalReturnDate) {
+                let pickupDisplay = new Date(rentalPickupDate).toLocaleDateString(currentLang, { dateStyle: 'medium' });
+                let returnDisplay = new Date(rentalReturnDate).toLocaleDateString(currentLang, { dateStyle: 'medium' });
+                whatsappMessage = dict['book-whatsapp-msg-full'](carName, carPriceWithSymbol, rentalLocation, pickupDisplay, returnDisplay);
+                emailSubject = dict['book-email-subj-full'](carName, rentalLocation);
+                emailBody = dict['book-email-body-full'](carName, carPriceWithSymbol, rentalLocation, pickupDisplay, returnDisplay);
+            } else {
+                whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
+                emailSubject = dict['book-email-subj-concise'](carName);
+                emailBody = dict['book-email-body-concise'](carName, carPriceWithSymbol);
+            }
+        
+            document.getElementById('whatsapp-link').href = `https://wa.me/212602020402?text=${encodeURIComponent(whatsappMessage)}`;
+            document.getElementById('email-link').href = `mailto:blackiriscars@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+            
+            contactOptions.classList.add('hidden');
+            modalBookButton.classList.remove('hidden'); 
+            
+            modalBookButton.onclick = () => {
+                contactOptions.classList.remove('hidden');
+                modalBookButton.classList.add('hidden');
+            };
+
+            detailModal.classList.remove('hidden');
+            setTimeout(() => { modalDetailContent.classList.remove('scale-95', 'opacity-0'); }, 10);
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeModal() {
+            const detailModal = document.getElementById('car-detail-modal');
+            const modalDetailContent = document.getElementById('modal-detail-content');
+            modalDetailContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { detailModal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }, 300); 
+        }
+
+        const closeDetailModalBtn = document.getElementById('close-detail-modal-btn');
+        closeDetailModalBtn.addEventListener('click', closeModal);
+
+        // --- Mutual Exclusion Logic Helpers ---
+        function closeSidebar() {
+            filterSidebar.classList.remove('open');
+            filterBackdrop.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        function closeMobileMenu() { 
+            mobileMenu.classList.add('opacity-0', '-translate-y-2'); 
+            mobileMenu.style.pointerEvents = 'none'; 
+        }
+
+        function toggleSidebar() {
+            if (filterSidebar.classList.contains('open')) {
+                closeSidebar();
+            } else {
+                closeMobileMenu(); 
+                filterSidebar.classList.add('open');
+                filterBackdrop.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            }
+        }
+
+        // --- Event Listeners and Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
-            // ... (Init variables) ...
+            const langSelectors = document.querySelectorAll('#language-selector, #language-selector-mobile');
+            const currencySelectors = document.querySelectorAll('#currency-selector, #currency-selector-mobile');
+            const applyFiltersBtn = document.getElementById('apply-filters-btn');
+            
             priceRange = document.getElementById('price-range');
             priceValue = document.getElementById('price-value');
+            filterSidebar = document.getElementById('filter-sidebar');
+            filterBackdrop = document.getElementById('filter-backdrop'); 
+            mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton = document.getElementById('mobile-menu-button');
+            carCountElement = document.getElementById('car-count');
             resultsContainer = document.getElementById('results-container');
+            const filterButton = document.getElementById('filter-menu-button'); 
+            const filterCloseButton = document.getElementById('filter-close-button');
+
+
+            filterButton.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                toggleSidebar(); 
+            });
+            filterCloseButton.addEventListener('click', toggleSidebar);
+            filterBackdrop.addEventListener('click', toggleSidebar);
             
-            // ... (Init functions) ...
-            setCurrency('DH'); // Default
-            loadCars();
+            mobileMenuButton.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                if (mobileMenu.classList.contains('opacity-0')) {
+                    closeSidebar(); 
+                    mobileMenu.classList.remove('opacity-0', '-translate-y-2');
+                    mobileMenu.style.pointerEvents = 'auto'; 
+                } else {
+                    closeMobileMenu();
+                }
+            });
+
+            // GLOBAL CLICK HANDLER FOR MUTUAL EXCLUSION
+            document.addEventListener('click', (e) => {
+                const isMobile = window.innerWidth < 768;
+                
+                // If menu is open, clicking outside closes it
+                if (isMobile && mobileMenu.style.pointerEvents === 'auto') {
+                    if (!mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+                        closeMobileMenu();
+                    }
+                }
+            });
+
+            // Prevent background interaction if detail modal is open
+            document.getElementById('car-detail-modal').addEventListener('click', (e) => { 
+                if (e.target === document.getElementById('car-detail-modal')) closeModal(); 
+            });
+
+            priceRange.addEventListener('input', updatePriceDisplay); 
+            priceRange.addEventListener('change', renderAllCars); 
+
+            applyFiltersBtn.addEventListener('click', () => { 
+                renderAllCars(); 
+                if (filterSidebar.classList.contains('open')) closeSidebar(); 
+            });
+
+            langSelectors.forEach(selector => {
+                selector.addEventListener('change', (event) => {
+                    setLanguage(event.target.value);
+                    localStorage.setItem('languagePreference', event.target.value);
+                });
+            });
+            currencySelectors.forEach(selector => {
+                selector.addEventListener('change', (event) => {
+                    setCurrency(event.target.value);
+                    localStorage.setItem('currencyPreference', event.target.value);
+                });
+            });
+
+            // Init
+            getLocalStorageData(); 
+            const savedLang = localStorage.getItem('languagePreference') || 'en';
+            const savedCurrency = localStorage.getItem('currencyPreference') || 'DH';
+            updateAllSelectors('#language-selector, #language-selector-mobile', savedLang);
+            updateAllSelectors('#currency-selector, #currency-selector-mobile', savedCurrency);
+            currentLang = savedLang;
+            currentCurrency = savedCurrency;
+            setLanguage(savedLang); 
+            fetchRates();
         });
     </script>
 </body>
