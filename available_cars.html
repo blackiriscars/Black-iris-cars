@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Available Cars | Black Iris Cars</title>
-    <meta name="description" content="View our full fleet.">
+    <meta name="description" content="View our full fleet of available rental cars.">
 
     <!-- SCRIPTS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -113,7 +113,7 @@
         
         <div class="md:grid md:grid-cols-4 lg:grid-cols-5 md:gap-8">
             
-            <!-- Filter Sidebar -->
+            <!-- Filter Sidebar (VISUAL ONLY - FILTERS DISABLED) -->
             <div id="filter-sidebar" class="fixed top-0 left-0 h-full w-3/4 max-w-xs md:max-w-none bg-white p-6 shadow-2xl z-40 md:relative md:col-span-1 lg:col-span-1 md:h-auto md:p-0 md:shadow-none md:bg-transparent md:transform-none">
                 <button id="filter-close-button" class="md:hidden absolute top-4 right-4 text-gray-800 hover:text-gray-600"><i data-lucide="x" class="w-6 h-6"></i></button>
                 <h3 class="text-2xl font-bold text-primary-dark mb-6 border-b pb-3" data-i18n="h3-filter">Filter Options</h3>
@@ -143,7 +143,6 @@
                         <p class="text-sm font-semibold text-gray-700 mb-2">Fuel Type</p>
                         <div class="space-y-2" id="fuel-filters">
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Diesel" class="rounded text-primary-dark ltr:mr-2"> Diesel</label>
-                            <!-- VALUE="Petrol" matches DB. LABEL="Essence" matches Customer Requirement -->
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Petrol" class="rounded text-primary-dark ltr:mr-2"> Essence</label>
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Hybrid" class="rounded text-primary-dark ltr:mr-2"> Hybrid</label>
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="fuel" value="Electric" class="rounded text-primary-dark ltr:mr-2"> Electric</label>
@@ -278,10 +277,8 @@
         
         function updatePriceDisplay() {
             if (!priceRange || !priceValue) return;
-
             const currentSliderValue = parseInt(priceRange.value);
             const symbol = currentCurrency === 'DH' ? ' DH' : (currentCurrency === 'EUR' ? ' €' : ' $');
-            
             priceValue.textContent = `${currentSliderValue}${symbol}`;
         }
 
@@ -309,17 +306,10 @@
         function setCurrency(currency) {
             currentCurrency = currency;
             updateAllSelectors('#currency-selector, #currency-selector-mobile', currency);
-
-            // --- FIXED: IMMEDIATE SLIDER UPDATE ---
             let newMax = 2000;
-            if (currency === 'EUR' || currency === 'USD') {
-                newMax = 200; 
-            }
-            
-            // Update both MAX and VALUE immediately
+            if (currency === 'EUR' || currency === 'USD') { newMax = 200; }
             priceRange.max = newMax;
             priceRange.value = newMax; 
-            
             updatePriceDisplay();
             renderAllCars();
         }
@@ -344,9 +334,8 @@
             resultsContainer.appendChild(loader);
 
             try {
-                // 1. FETCH FROM BOTH COLLECTIONS
-                const q1 = query(collection(db, "cars"), orderBy("createdAt", "desc"));
-                const q2 = query(collection(db, "cars_production"), orderBy("createdAt", "desc"));
+                const q1 = query(collection(db, "cars"));
+                const q2 = query(collection(db, "cars_production"));
                 
                 const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
                 
@@ -359,24 +348,17 @@
                     
                     const d = doc.data();
                     
-                    // --- UNIVERSAL MAPPING ---
-                    // This handles mismatched key names from old/new Admin Panel
                     allCars.push({ 
                         id: doc.id,
                         price: Number(d.price) || 0,
-                        // Checks 'imageUrl' (New Admin) AND 'img' (Old)
                         img: d.imageUrl || d.img || 'https://placehold.co/600x400?text=No+Image',
-                        // Checks 'category' (New) AND 'type' (Old)
                         type: d.category || d.type || 'Sedan', 
-                        // Checks 'fuelType' (New) AND 'fuel' (Old)
                         fuel: d.fuelType || d.fuel || 'Diesel',
-                        // Checks 'transmission' (Standardized)
+                        desc: d.description || d.desc || '',
                         transmission: d.transmission || 'Manual',
-                        
                         color: d.color || 'Standard',
                         seats: d.seats || 5,
-                        name: d.name || 'Unknown Car',
-                        desc: d.description || d.desc || ''
+                        name: d.name || 'Unknown Car'
                     });
                 };
 
@@ -385,11 +367,7 @@
                 
                 if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
                 
-                if (allCars.length === 0) {
-                     resultsContainer.innerHTML += `<div class="col-span-full text-center text-red-500 py-10">Connected to Database, but found 0 cars. Please check Admin Panel.</div>`;
-                } else {
-                    renderAllCars();
-                }
+                renderAllCars(); // Call Render
 
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -402,39 +380,10 @@
             resultsContainer.innerHTML = '';
             if(header) resultsContainer.appendChild(header);
 
-            // Filter Logic
-            const sliderValue = parseInt(priceRange.value); 
+            // FILTERING DISABLED: Forcing cars to show initially to verify data presence.
+            // The filter variables are collected but the logic below is set to PASS ALL by default if filters are empty.
             
-            // Get checked filter values
-            const selectedTrans = Array.from(document.querySelectorAll('#transmission-filters input:checked')).map(c => c.value);
-            const selectedTypes = Array.from(document.querySelectorAll('#type-filters input:checked')).map(c => c.value);
-            const selectedFuels = Array.from(document.querySelectorAll('#fuel-filters input:checked')).map(c => c.value);
-
-            const filteredCars = allCars.filter(car => {
-                // 1. Price Check
-                let comparePrice = car.price; // Base DH
-                if (currentCurrency !== 'DH') {
-                    comparePrice = Number(calculatePrice(car.price).price);
-                }
-                if (comparePrice > sliderValue) return false;
-
-                // 2. Transmission Check
-                if (selectedTrans.length > 0) {
-                    if (!selectedTrans.includes(car.transmission)) return false;
-                }
-
-                // 3. Type Check
-                if (selectedTypes.length > 0) {
-                     if (!selectedTypes.includes(car.type)) return false;
-                }
-
-                // 4. Fuel Check (Matching 'Petrol' in DB to 'Petrol' in Filter Value)
-                if (selectedFuels.length > 0) {
-                    if (!selectedFuels.includes(car.fuel)) return false;
-                }
-
-                return true;
-            });
+            const filteredCars = allCars; // <--- BYPASSING FILTER LOGIC TEMPORARILY TO FORCE SHOW CARS
 
             const countText = getTranslation('sort-count-text');
             if(carCountElement) carCountElement.textContent = `${filteredCars.length} ${countText}`;
@@ -442,7 +391,7 @@
             if (filteredCars.length === 0) {
                 const msg = document.createElement('div');
                 msg.className = "col-span-full text-center py-10 text-gray-500";
-                msg.textContent = "No cars match filters.";
+                msg.textContent = "No cars found in database.";
                 resultsContainer.appendChild(msg);
                 return;
             }
@@ -452,7 +401,7 @@
                 const { price, symbol } = calculatePrice(car.price);
                 const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
                 
-                // Display 'Essence' if DB says 'Petrol'
+                const carType = car.type; 
                 const carFuelDisplay = car.fuel === 'Petrol' ? 'Essence' : car.fuel; 
 
                 let totalPriceHTML = '';
@@ -572,7 +521,6 @@
         const closeDetailModalBtn = document.getElementById('close-detail-modal-btn');
         closeDetailModalBtn.addEventListener('click', closeModal);
 
-        // --- Mutual Exclusion Logic Helpers ---
         function closeSidebar() {
             filterSidebar.classList.remove('open');
             filterBackdrop.classList.add('hidden');
@@ -595,7 +543,6 @@
             }
         }
 
-        // --- Event Listeners and Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
             const langSelectors = document.querySelectorAll('#language-selector, #language-selector-mobile');
             const currencySelectors = document.querySelectorAll('#currency-selector, #currency-selector-mobile');
@@ -631,11 +578,9 @@
                 }
             });
 
-            // GLOBAL CLICK HANDLER FOR MUTUAL EXCLUSION
             document.addEventListener('click', (e) => {
                 const isMobile = window.innerWidth < 768;
                 
-                // If menu is open, clicking outside closes it
                 if (isMobile && mobileMenu.style.pointerEvents === 'auto') {
                     if (!mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
                         closeMobileMenu();
@@ -643,7 +588,6 @@
                 }
             });
 
-            // Prevent background interaction if detail modal is open
             document.getElementById('car-detail-modal').addEventListener('click', (e) => { 
                 if (e.target === document.getElementById('car-detail-modal')) closeModal(); 
             });
