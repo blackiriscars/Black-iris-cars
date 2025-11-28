@@ -203,46 +203,6 @@
         </div>
     </div>
 
-    <!-- FOOTER -->
-    <footer id="contact" class="primary-dark text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8 mb-8">
-                <div>
-                    <h3 class="text-2xl font-extrabold mb-4 text-gray-300">BLACK IRIS cars</h3>
-                    <p class="text-gray-400 text-sm">Your reliable partner for car rentals across Morocco.</p>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4" data-i18n="h4-nav">Quick Navigation</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="index.html#featured" class="hover:text-accent-blue transition" data-i18n="nav-fleet">Our Fleet</a></li>
-                        <li><a href="index.html#why-us" class="hover:text-accent-blue transition" data-i18n="nav-why">Our Promise</a></li>
-                        <li><a href="index.html#testimonials" class="hover:text-accent-blue transition" data-i18n="nav-reviews">Reviews</a></li>
-                        <li><a href="index.html#faq" class="hover:text-accent-blue transition" data-i18n="nav-faq">FAQ</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4" data-i18n="h4-contact">Contact & Booking</h4>
-                    <a href="tel:+212602020402" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
-                        <i data-lucide="phone" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 0602020402
-                    </a>
-                    <p class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start"><i data-lucide="mail" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> <a href="mailto:blackiriscars@gmail.com" class="hover:text-accent-blue">blackiriscars@gmail.com</a></p>
-                    
-                    <a href="#" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
-                        <i data-lucide="map-pin" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 
-                        <span data-i18n="address-text">10 rue ouarzazat hassan rabat</span>
-                    </a>
-
-                    <a href="https://wa.me/212602020402" target="_blank" class="text-sm text-white px-3 py-1 mt-2 inline-flex items-center rounded-lg bg-green-600 hover:bg-green-700 transition">
-                        <i data-lucide="message-circle" class="w-4 h-4 ltr:mr-2"></i> <span data-i18n="whatsapp-text">WhatsApp</span> 0602020402
-                    </a>
-                </div>
-            </div>
-            <div class="text-center text-sm text-gray-500 pt-4">
-                &copy; <span data-i18n="copy-right">2024 BLACK IRIS cars. All rights reserved.</span>
-            </div>
-        </div>
-    </footer>
-
     <!-- LOGIC SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -404,7 +364,7 @@
                 const { price, symbol } = calculatePrice(car.price);
                 const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
                 
-                // --- TOTAL PRICE LOGIC ---
+                // --- TOTAL PRICE LOGIC (BLUE COLOR FIX) ---
                 let totalPriceHTML = '';
                 if (rentalPickupDate && rentalReturnDate) {
                     const start = new Date(rentalPickupDate);
@@ -417,34 +377,36 @@
                          const { price: totalPrice, symbol: totalSymbol } = calculatePrice(total);
                          const forLabel = getTranslation('for-text');
                          const daysLabel = getTranslation('days-text');
-                         totalPriceHTML = `<div class="text-xs text-green-600 font-bold mt-1 bg-green-50 px-2 py-1 rounded inline-block">Total: ${totalSymbol}${totalPrice} ${currentCurrency === 'DH' ? 'DH' : ''} ${forLabel} ${diffDays} ${daysLabel}</div>`;
+                         // Changed classes to text-accent-blue and bg-blue-50
+                         totalPriceHTML = `<div class="text-xs text-accent-blue font-bold mt-1 bg-blue-50 px-2 py-1 rounded inline-block">Total: ${totalSymbol}${totalPrice} ${currentCurrency === 'DH' ? 'DH' : ''} ${forLabel} ${diffDays} ${daysLabel}</div>`;
                     }
                 }
 
                 const carCard = document.createElement('div');
-                // REDUCED SIZE: h-56 -> h-40, p-6 -> p-4
+                // RESTORED TO ORIGINAL SIZE (h-56, p-6)
                 carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group";
+                
                 carCard.innerHTML = `
-                    <div class="relative h-40 overflow-hidden">
+                    <div class="relative h-56 overflow-hidden">
                         <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
                         <div class="absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md border border-white/20">
                             ${car.type}
                         </div>
                     </div>
-                    <div class="p-4 flex flex-col justify-between flex-grow">
+                    <div class="p-6 flex flex-col justify-between flex-grow">
                         <div>
-                            <div class="flex justify-between items-start mb-2"><h3 class="text-lg font-bold text-gray-900 leading-tight">${car.name}</h3></div>
-                            <div class="grid grid-cols-2 gap-y-1 gap-x-2 text-sm text-gray-600 mb-2 mt-1">
-                                <div class="flex items-center"><i data-lucide="${car.transmission.toLowerCase() === 'automatic' ? 'zap' : 'gauge'}" class="w-3 h-3 text-accent-blue mr-1"></i> <span>${getTranslation(car.transmission.toLowerCase())}</span></div>
-                                <div class="flex items-center"><i data-lucide="fuel" class="w-3 h-3 text-accent-blue mr-1"></i> <span>${car.fuel}</span></div>
-                                <div class="flex items-center"><i data-lucide="users" class="w-3 h-3 text-accent-blue mr-1"></i> <span>${car.seats} Seats</span></div>
-                                <div class="flex items-center"><i data-lucide="snowflake" class="w-3 h-3 text-accent-blue mr-1"></i> <span>A/C</span></div>
+                            <div class="flex justify-between items-start mb-2"><h3 class="text-xl font-bold text-gray-900 leading-tight">${car.name}</h3></div>
+                            <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 mb-4 mt-3">
+                                <div class="flex items-center"><i data-lucide="${car.transmission.toLowerCase() === 'automatic' ? 'zap' : 'gauge'}" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${getTranslation(car.transmission.toLowerCase())}</span></div>
+                                <div class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.fuel}</span></div>
+                                <div class="flex items-center"><i data-lucide="users" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.seats} Seats</span></div>
+                                <div class="flex items-center"><i data-lucide="snowflake" class="w-4 h-4 text-accent-blue mr-2"></i> <span>A/C</span></div>
                             </div>
                             ${totalPriceHTML}
                         </div>
-                        <div class="flex justify-between items-center border-t border-gray-100 pt-3 mt-auto">
-                            <div class="flex flex-col"><span class="text-xs text-gray-400 font-medium uppercase">Daily Rate</span><span class="text-xl font-extrabold text-primary-dark">${carPriceString}</span></div>
-                            <button class="accent-blue text-white font-semibold py-2 px-4 rounded-lg hover:accent-blue-dark transition duration-300 shadow-md text-sm book-btn"><span data-i18n="btn-book-now">Book Now</span></button>
+                        <div class="flex justify-between items-center border-t border-gray-100 pt-4 mt-auto">
+                            <div class="flex flex-col"><span class="text-xs text-gray-400 font-medium uppercase">Daily Rate</span><span class="text-2xl font-extrabold text-primary-dark">${carPriceString}</span></div>
+                            <button class="accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition duration-300 shadow-md text-sm book-btn"><span data-i18n="btn-book-now">Book Now</span></button>
                         </div>
                     </div>
                 `;
