@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Available Cars | Black Iris Cars</title>
-    <meta name="description" content="View our full fleet of available rental cars.">
+    <meta name="description" content="View our full fleet.">
 
-    <!-- EXTERNAL SCRIPTS -->
+    <!-- 1. SCRIPTS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="data.js"></script>
 
-    <!-- GOOGLE ANALYTICS -->
+    <!-- 2. ANALYTICS -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Y2MG9ZZ46"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -20,7 +20,7 @@
       gtag('config', 'G-2Y2MG9ZZ46');
     </script>
     
-    <!-- FAVICONS -->
+    <!-- 3. FAVICONS -->
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192"  href="web-app-manifest-192x192.png">
     <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
@@ -43,8 +43,7 @@
         [dir="rtl"] #filter-sidebar.open { transform: translateX(0); }
         
         input[type="checkbox"]:checked { background-color: #1a1a1a; border-color: #1a1a1a; }
-        #contact-modal { transition: opacity 0.3s ease-in-out; }
-
+        
         /* Compact Selectors */
         .compact-select {
             font-size: 0.875rem; font-weight: 600; color: #1a1a1a;
@@ -58,7 +57,6 @@
         .hidden.md\:flex .compact-select:hover { color: #4169e1; }
         [dir="rtl"] .hidden.md\:flex .compact-select { background-position: left 0.2rem center; padding-left: 1.5rem; padding-right: 0.5rem; }
         [dir="rtl"] .compact-select { background-position: left 0.5rem center; padding-left: 2.5rem; padding-right: 12px; }
-        .compact-select option { color: #000000; font-weight: 400; }
         
         /* Grid Layout */
         #results-container {
@@ -72,6 +70,10 @@
         @media (min-width: 1024px) {
              #results-container { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         }
+        
+        /* Loader */
+        .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3498db; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="antialiased" dir="ltr">
@@ -131,7 +133,7 @@
                     <div>
                         <label for="price-range" class="block text-sm font-semibold text-gray-700 mb-2" data-i18n="label-price">Price Range</label>
                         <input type="range" id="price-range" min="0" max="2000" value="2000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer text-primary-dark">
-                        <!-- Just Amount Display -->
+                        <!-- Pure Number Display -->
                         <span id="price-value" class="text-lg font-bold text-gray-800 mt-1 block">2000 DH</span> 
                     </div>
                     <div>
@@ -150,7 +152,7 @@
                             <label class="flex items-center text-gray-600 ltr:justify-start"><input type="checkbox" name="car-type" value="luxury-suv" class="rounded text-primary-dark ltr:mr-2"> Luxury SUV</label>
                         </div>
                     </div>
-                    <!-- Fuel Filters: Essence replaced Petrol -->
+                    <!-- CHANGED: Fuel Filters with Essence -->
                     <div>
                         <p class="text-sm font-semibold text-gray-700 mb-2">Fuel Type</p>
                         <div class="space-y-2" id="fuel-filters">
@@ -209,7 +211,6 @@
 
     <!-- FOOTER -->
     <footer id="contact" class="primary-dark text-white py-12">
-        <!-- Content same as index.html -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8 mb-8">
                 <div>
@@ -266,7 +267,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // 1. INITIALIZE ICONS IMMEDIATELY
         lucide.createIcons();
 
         // Global variables
@@ -341,7 +341,7 @@
             rentalReturnDate = localStorage.getItem('rentalReturnDate') || '';
         }
 
-        // --- NEW: FAIL-SAFE LOADER (FETCH FROM BOTH COLLECTIONS) ---
+        // --- DUAL LOAD + DATA NORMALIZATION ---
         async function loadCars() {
             if (!resultsContainer) return;
             
@@ -356,7 +356,7 @@
             resultsContainer.appendChild(loader);
 
             try {
-                // 1. FETCH FROM BOTH COLLECTIONS
+                // Fetch from BOTH collections
                 const q1 = query(collection(db, "cars"));
                 const q2 = query(collection(db, "cars_production"));
                 
@@ -371,33 +371,31 @@
                     
                     const d = doc.data();
                     
-                    // --- DATA NORMALIZER (CRITICAL FIX) ---
-                    // This creates a valid car object NO MATTER WHAT is missing in DB
+                    // --- DATA NORMALIZER ---
+                    // This forces broken/missing/old data into a valid format
                     
-                    // 1. Raw Values with Fallbacks
+                    // 1. Get raw values with fallbacks
                     let rawType = d.category || d.type || 'Sedan';
                     let rawFuel = d.fuelType || d.fuel || 'Diesel';
                     let rawTrans = d.transmission || 'Manual';
                     let rawImg = d.imageUrl || d.img || 'https://placehold.co/600x400?text=No+Image';
 
-                    // 2. Normalization for Filters
-                    // Essence Fix: If DB says 'petrol', we map it to 'essence' for the filter
-                    let filterFuel = rawFuel.toLowerCase().trim();
-                    if (filterFuel === 'petrol') filterFuel = 'essence';
+                    // 2. FORCE "Petrol" -> "Essence" conversion
+                    if (rawFuel.toLowerCase() === 'petrol') rawFuel = 'Essence';
 
                     allCars.push({ 
                         id: doc.id,
                         price: Number(d.price) || 0,
                         img: rawImg,
                         
-                        // Display Values (Keep Original Casing)
+                        // Display Values
                         displayType: rawType,
-                        displayFuel: rawFuel === 'Petrol' ? 'Essence' : rawFuel, // Display Essence
+                        displayFuel: rawFuel, 
                         displayTrans: rawTrans,
                         
                         // Filter Values (Lowercase, Standardized)
-                        filterType: rawType.toLowerCase().trim().replace(/\s/g, '-'), // e.g. "Luxury SUV" -> "luxury-suv"
-                        filterFuel: filterFuel,
+                        filterType: rawType.toLowerCase().trim().replace(/\s/g, '-'),
+                        filterFuel: rawFuel.toLowerCase().trim(),
                         filterTrans: rawTrans.toLowerCase().trim(),
                         
                         color: d.color || 'Standard',
@@ -413,13 +411,13 @@
                 if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
                 
                 if (allCars.length === 0) {
-                     resultsContainer.innerHTML += `<div class="col-span-full text-center text-red-500 py-10">Connected to Database, but found 0 cars. Please check Admin Panel.</div>`;
+                     resultsContainer.innerHTML += `<div class="col-span-full text-center text-red-500 py-10">Connected, but found 0 cars. Please add cars in Admin.</div>`;
                 } else {
                     renderAllCars();
                 }
 
             } catch (error) {
-                console.error("Error:", error);
+                console.error("Error fetching data:", error);
                 if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
             }
         }
@@ -440,17 +438,15 @@
             const selectedFuels = Array.from(fuelFilters).filter(c => c.checked).map(c => c.value.toLowerCase());
 
             const filteredCars = allCars.filter(car => {
-                // Price Check
                 let comparePrice = car.price; 
                 if (currentCurrency !== 'DH') {
                     comparePrice = Number(calculatePrice(car.price).price);
                 }
 
-                // Filter Matching (Using Normalized Values)
-                const priceMatch = comparePrice <= sliderValue;
                 const transMatch = selectedTrans.length === 0 || selectedTrans.includes(car.filterTrans);
                 const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(car.filterType);
                 const fuelMatch = selectedFuels.length === 0 || selectedFuels.includes(car.filterFuel);
+                const priceMatch = comparePrice <= sliderValue;
 
                 return priceMatch && transMatch && typeMatch && fuelMatch;
             });
@@ -472,7 +468,7 @@
                 const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
                 
                 const carType = car.displayType.charAt(0).toUpperCase() + car.displayType.slice(1); 
-                const carFuel = car.displayFuel;
+                const carFuel = car.displayFuel; 
 
                 let totalPriceHTML = '';
                 if (rentalPickupDate && rentalReturnDate) {
@@ -510,7 +506,7 @@
                             <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 mb-4 mt-3">
                                 <div class="flex items-center"><i data-lucide="${car.filterTrans === 'automatic' ? 'zap' : 'gauge'}" class="w-4 h-4 text-accent-blue mr-2"></i> <span data-i18n="${car.filterTrans}">${transmissionText}</span></div>
                                 <div class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${carFuel}</span></div>
-                                <div class="flex items-center"><i data-lucide="users" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.seats} Seats</span></div>
+                                <div class="flex items-center"><i data-lucide="users" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.seats} <span data-i18n="car-seats-label-spaced">Seats</span></span></div>
                                 <div class="flex items-center"><i data-lucide="palette" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.color}</span></div>
                                 <div class="flex items-center"><i data-lucide="snowflake" class="w-4 h-4 text-accent-blue mr-2"></i> <span>A/C</span></div>
                             </div>
