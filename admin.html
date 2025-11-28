@@ -120,7 +120,16 @@
                             <label class="block text-sm font-bold text-gray-700 mb-2">Category</label>
                             <div class="relative">
                                 <select id="carCategory" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none">
-                                    <option value="Sedan">Sedan</option><option value="SUV">SUV</option><option value="Luxury SUV">Luxury SUV</option><option value="Luxury">Luxury</option><option value="Sports">Sports</option><option value="Convertible">Convertible</option><option value="Van">Van</option><option value="Truck">Truck</option>
+                                    <option value="Sedan">Sedan</option>
+                                    <option value="Hatchback">Hatchback</option>
+                                    <option value="Coupe">Coupe</option>
+                                    <option value="SUV">SUV</option>
+                                    <option value="Luxury SUV">Luxury SUV</option>
+                                    <option value="Luxury">Luxury</option>
+                                    <option value="Sports">Sports</option>
+                                    <option value="Convertible">Convertible</option>
+                                    <option value="Van">Van</option>
+                                    <option value="Truck">Truck</option>
                                 </select>
                                 <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
                             </div>
@@ -210,7 +219,6 @@
     </script>
 
     <script type="module">
-        // --- FIXED: ADDED signOut for the Exit button ---
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -229,37 +237,27 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         
-        // --- FIXED: COLLECTION PATH ALIGNED WITH PUBLIC SITE ---
         const collectionPath = 'cars'; 
 
         let currentUser = null;
         let carsData = [];
         
-        // --- NEW: ONE-TIME MIGRATION FUNCTION ---
         async function migrateOldData() {
             const oldCollectionPath = 'cars_production'; // The old collection name
-            
-            // Fetch all documents from the old collection
             const oldSnapshot = await getDocs(collection(db, oldCollectionPath));
 
             if (!oldSnapshot.empty) {
                 console.log(`Found ${oldSnapshot.size} cars in the old collection. Starting migration...`);
-                
                 const migrationPromises = [];
                 oldSnapshot.forEach((oldDoc) => {
                     const data = oldDoc.data();
-                    
-                    // 1. Write the old data to the new 'cars' collection
                     const writePromise = addDoc(collection(db, collectionPath), data);
                     migrationPromises.push(writePromise);
-                    
-                    // 2. Delete the old document from 'cars_production'
                     const deletePromise = deleteDoc(doc(db, oldCollectionPath, oldDoc.id));
                     migrationPromises.push(deletePromise);
                 });
-                
                 await Promise.all(migrationPromises);
-                console.log("Migration complete. The old car is now under the 'cars' collection.");
+                console.log("Migration complete.");
             }
         }
 
@@ -268,10 +266,7 @@
             if (user) {
                 currentUser = user;
                 loginScreen.classList.add('hidden'); 
-                
-                // Run migration check upon login
                 migrateOldData(); 
-
                 loadCars();
             } else {
                 currentUser = null;
@@ -296,7 +291,7 @@
 
         window.handleLogout = async function() {
             if(confirm("Are you sure you want to exit the admin panel?")) {
-                await signOut(auth); // Now functional
+                await signOut(auth);
                 window.location.reload();
             }
         }
@@ -306,25 +301,22 @@
             const car = carsData.find(c => c.id === id);
             if (!car) return;
 
-            // 1. Switch to form tab (without resetting)
             switchTab('add-car', false);
 
-            // 2. Populate fields (using original field names like 'fuelType', 'imageUrl', 'description')
             document.getElementById('editCarId').value = car.id;
             document.getElementById('carName').value = car.name;
             document.getElementById('carCategory').value = car.category;
             document.getElementById('carPrice').value = car.price;
             document.getElementById('carSeats').value = car.seats;
             document.getElementById('carTransmission').value = car.transmission;
-            document.getElementById('carFuel').value = car.fuelType; // Original key
+            document.getElementById('carFuel').value = car.fuelType; 
             document.getElementById('carStatus').value = car.status;
-            document.getElementById('carImage').value = car.imageUrl || ''; // Original key
-            document.getElementById('carDescription').value = car.description || ''; // Original key
+            document.getElementById('carImage').value = car.imageUrl || ''; 
+            document.getElementById('carDescription').value = car.description || ''; 
 
-            // 3. Update UI to "Edit Mode"
             document.getElementById('formPageTitle').innerText = 'Edit Vehicle';
             document.getElementById('submitBtn').innerText = 'Update Vehicle';
-            window.scrollTo(0, 0); // Scroll to top
+            window.scrollTo(0, 0); 
         };
 
         window.deleteCar = async function(id) {
@@ -387,7 +379,6 @@
             });
         }
 
-        // UNIFIED ADD / UPDATE HANDLER
         document.getElementById('addCarForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             if(!currentUser) return;
@@ -400,14 +391,13 @@
             const editId = document.getElementById('editCarId').value;
             
             try {
-                // Using ORIGINAL keys: category, fuelType, imageUrl, description
                 const carData = {
                     name: document.getElementById('carName').value,
                     category: document.getElementById('carCategory').value,
                     price: Number(document.getElementById('carPrice').value),
                     seats: Number(document.getElementById('carSeats').value),
                     transmission: document.getElementById('carTransmission').value,
-                    fuelType: document.getElementById('carFuel').value, // Original key
+                    fuelType: document.getElementById('carFuel').value, 
                     status: document.getElementById('carStatus').value,
                     imageUrl: document.getElementById('carImage').value,
                     description: document.getElementById('carDescription').value,
@@ -415,16 +405,14 @@
                 };
 
                 if (editId) {
-                    // UPDATE EXISTING
                     await updateDoc(doc(db, collectionPath, editId), carData);
                 } else {
-                    // CREATE NEW
                     carData.createdAt = serverTimestamp();
                     await addDoc(collection(db, collectionPath), carData);
                 }
 
-                resetForm(); // Clear form
-                window.switchTab('fleet', false); // Go to fleet list
+                resetForm(); 
+                window.switchTab('fleet', false); 
                 
             } catch (err) {
                 alert('Error saving: ' + err.message);
