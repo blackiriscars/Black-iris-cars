@@ -4,9 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BLACK IRIS cars - Rent in Morocco</title>
+    <meta name="description" content="Rent a car in Morocco with Black Iris Cars. We offer premium cars for rental in Temara, Rabat, Casablanca, and all major cities and airports.">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="data.js"></script>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Y2MG9ZZ46"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-2Y2MG9ZZ46');
+    </script>
+    
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="web-app-manifest-192x192.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="manifest" href="site.webmanifest">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "BLACK IRIS cars",
+      "url": "https://www.blackiriscars.com",
+      "logo": "https://i.postimg.cc/B6LWwXNL/923d79fe-5117-4849-9761-57e1fe5a8d96.jpg",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+212-602-020402",
+        "contactType": "Customer Service"
+      }
+    }
+    </script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
@@ -73,8 +104,16 @@
                 </a>
                 <div class="flex items-center space-x-3 sm:space-x-4">
                     <div class="hidden md:flex items-center space-x-3 border-r border-gray-200 pr-3 sm:pr-4">
-                        <select id="currency-selector" class="compact-select"><option value="DH">DH</option><option value="EUR">EUR</option><option value="USD">USD</option></select>
-                        <select id="language-selector" class="compact-select"><option value="en">EN</option><option value="fr">FR</option><option value="ar">AR</option></select>
+                        <select id="currency-selector" class="compact-select">
+                            <option value="DH">DH</option>
+                            <option value="EUR">EUR</option>
+                            <option value="USD">USD</option>
+                        </select>
+                        <select id="language-selector" class="compact-select">
+                            <option value="en">EN</option>
+                            <option value="fr">FR</option>
+                            <option value="ar">AR</option>
+                        </select>
                     </div>
                     <nav class="hidden md:flex md:ltr:space-x-8">
                         <a href="#featured" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-fleet">Our Fleet</a>
@@ -82,15 +121,25 @@
                         <a href="#testimonials" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-reviews">Reviews</a>
                         <a href="#contact" class="text-gray-600 hover:text-accent-blue transition" data-i18n="nav-contact">Contact</a>
                     </nav>
-                    <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-accent-blue p-2 rounded-lg transition"><i data-lucide="menu" class="w-6 h-6"></i></button>
+                    <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-accent-blue p-2 rounded-lg transition">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
                 </div>
             </div>
         </div>
         <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 opacity-0 -translate-y-2 transform transition-all duration-300 ease-out fixed top-16 left-0 right-0 z-40" style="pointer-events: none;">
             <div class="px-4 pt-4 pb-3 space-y-4">
                 <div class="flex items-center space-x-4">
-                    <select id="currency-selector-mobile" class="compact-select w-full"><option value="DH">DH</option><option value="EUR">EUR</option><option value="USD">USD</option></select>
-                    <select id="language-selector-mobile" class="compact-select w-full"><option value="en">English</option><option value="fr">Français</option><option value="ar">العربية</option></select>
+                    <select id="currency-selector-mobile" class="compact-select w-full">
+                        <option value="DH">DH</option>
+                        <option value="EUR">EUR</option>
+                        <option value="USD">USD</option>
+                    </select>
+                    <select id="language-selector-mobile" class="compact-select w-full">
+                        <option value="en">English</option>
+                        <option value="fr">Français</option>
+                        <option value="ar">العربية</option>
+                    </select>
                 </div>
                 <div class="space-y-1">
                     <a href="#featured" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent-blue" data-i18n="nav-fleet">Our Fleet</a>
@@ -147,10 +196,37 @@
                         <button type="submit" class="w-full accent-blue text-white font-semibold py-3 rounded-lg hover:accent-blue-dark transition shadow-md" data-i18n="btn-search">Search Cars</button>
                     </div>
                 </form>
+                <div id="result-message" class="hidden mt-6 p-4 rounded-xl text-gray-700 transition duration-500 ease-in-out"></div>
             </div>
         </div>
     </section>
 
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-extrabold text-primary-dark" data-i18n="h2-how-works">How It Works</h2>
+                <p class="text-gray-600 mt-2" data-i18n="p-how-works">Rent your car in 3 simple steps.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="relative">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-accent-blue"><i data-lucide="search" class="w-8 h-8"></i></div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2" data-i18n="step-1-title">1. Choose Your Car</h3>
+                    <p class="text-gray-500" data-i18n="step-1-desc">Browse our fleet and select the perfect vehicle for your trip.</p>
+                </div>
+                <div class="relative">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-accent-blue"><i data-lucide="calendar-check" class="w-8 h-8"></i></div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2" data-i18n="step-2-title">2. Send Inquiry</h3>
+                    <p class="text-gray-500" data-i18n="step-2-desc">Click "Book Now" to send us a request via WhatsApp or email.</p>
+                </div>
+                <div class="relative">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-accent-blue"><i data-lucide="check-circle" class="w-8 h-8"></i></div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2" data-i18n="step-3-title">3. We Confirm</h3>
+                    <p class="text-gray-500" data-i18n="step-3-desc">We confirm availability instantly and arrange the handover.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
     <section id="featured" class="py-16 md:py-24 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-extrabold text-primary-dark text-center mb-12" data-i18n="h2-fleet">Our Fleet</h2>
@@ -193,6 +269,104 @@
         </div>
     </section>
 
+    <section id="faq" class="py-16 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-extrabold text-primary-dark text-center mb-12" data-i18n="h2-faq">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <details class="group bg-gray-50 p-6 rounded-lg border border-gray-100">
+                    <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-lg text-gray-900">
+                        <span data-i18n="faq-q1">What documents do I need to rent a car?</span>
+                        <span class="transition group-open:rotate-180"><i data-lucide="chevron-down" class="w-5 h-5"></i></span>
+                    </summary>
+                    <p class="text-gray-600 mt-3 animate-fadeIn" data-i18n="faq-a1">You need a valid driver's license (held for at least 2 years), a passport or ID card.</p>
+                </details>
+                <details class="group bg-gray-50 p-6 rounded-lg border border-gray-100">
+                    <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-lg text-gray-900">
+                        <span data-i18n="faq-q2">Is insurance included in the price?</span>
+                        <span class="transition group-open:rotate-180"><i data-lucide="chevron-down" class="w-5 h-5"></i></span>
+                    </summary>
+                    <p class="text-gray-600 mt-3 animate-fadeIn" data-i18n="faq-a2">Yes, We offer comprehensive coverage (All Risks) options for complete peace of mind.</p>
+                </details>
+                <details class="group bg-gray-50 p-6 rounded-lg border border-gray-100">
+                    <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-lg text-gray-900">
+                        <span data-i18n="faq-q3">Do you require a security deposit?</span>
+                        <span class="transition group-open:rotate-180"><i data-lucide="chevron-down" class="w-5 h-5"></i></span>
+                    </summary>
+                    <p class="text-gray-600 mt-3 animate-fadeIn" data-i18n="faq-a3">Yes, a security deposit is required. The amount depends on the car category (usually between 5,000 DH and 20,000 DH). It is fully refundable upon safe return of the vehicle.</p>
+                </details>
+                <details class="group bg-gray-50 p-6 rounded-lg border border-gray-100">
+                    <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-lg text-gray-900">
+                        <span data-i18n="faq-q4">Can you deliver the car to my hotel?</span>
+                        <span class="transition group-open:rotate-180"><i data-lucide="chevron-down" class="w-5 h-5"></i></span>
+                    </summary>
+                    <p class="text-gray-600 mt-3 animate-fadeIn" data-i18n="faq-a4">Absolutely. We offer free delivery to airports and hotels within the city centers of Rabat, Temara and Casablanca.</p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials" class="py-16 md:py-24 bg-fafafa">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-extrabold text-primary-dark text-center mb-12" data-i18n="h2-testimonials">What Our Clients Say</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-gray-500">
+                    <i data-lucide="quote" class="w-8 h-8 text-gray-300 mb-3"></i>
+                    <p class="text-gray-700 italic mb-4">"Rented from Casablanca airport. The process was smooth, and the car performed flawlessly. Excellent service!"</p>
+                    <p class="font-semibold text-primary-dark">— Youssef H., Rabat</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-gray-500">
+                    <i data-lucide="quote" class="w-8 h-8 text-gray-300 mb-3"></i>
+                    <p class="text-gray-700 italic mb-4">"Friendly staff in Meknes, and the price was transparent—no hidden costs. Highly recommend."</p>
+                    <p class="font-semibold text-primary-dark">— Hino G., Meknes</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-gray-500">
+                    <i data-lucide="quote" class="w-8 h-8 text-gray-300 mb-3"></i>
+                    <p class="text-gray-700 italic mb-4">"Needed a last-minute SUV in Tangier. The booking was confirmed instantly. The vehicle was clean and modern."</p>
+                    <p class="font-semibold text-primary-dark">— Amine B., UK</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact" class="primary-dark text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8 mb-8">
+                <div>
+                    <h3 class="text-2xl font-extrabold mb-4 text-gray-300">BLACK IRIS cars</h3>
+                    <p class="text-gray-400 text-sm">Your reliable partner for car rentals across Morocco.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" data-i18n="h4-nav">Quick Navigation</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#featured" class="hover:text-accent-blue transition" data-i18n="nav-fleet">Our Fleet</a></li>
+                        <li><a href="#why-us" class="hover:text-accent-blue transition" data-i18n="nav-why">Our Promise</a></li>
+                        <li><a href="#testimonials" class="hover:text-accent-blue transition" data-i18n="nav-reviews">Reviews</a></li>
+                        <li><a href="#faq" class="hover:text-accent-blue transition" data-i18n="nav-faq">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" data-i18n="h4-contact">Contact & Booking</h4>
+                    <a href="tel:+212602020402" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
+                        <i data-lucide="phone" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 0602020402
+                    </a>
+                    <p class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start"><i data-lucide="mail" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> <a href="mailto:blackiriscars@gmail.com" class="hover:text-accent-blue">blackiriscars@gmail.com</a></p>
+                    
+                    <a href="PASTE_YOUR_GOOGLE_MAPS_LINK_HERE" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
+                        <i data-lucide="map-pin" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 
+                        <span data-i18n="address-text">10 rue ouarzazat hassan rabat</span>
+                    </a>
+
+                    <a href="https://wa.me/212602020402" target="_blank" class="text-sm text-white px-3 py-1 mt-2 inline-flex items-center rounded-lg bg-green-600 hover:bg-green-700 transition">
+                        <i data-lucide="message-circle" class="w-4 h-4 ltr:mr-2"></i> <span data-i18n="whatsapp-text">WhatsApp</span> 0602020402
+                    </a>
+                </div>
+            </div>
+            <div class="text-center text-sm text-gray-500 pt-4">
+                &copy; <span data-i18n="copy-right">2024 BLACK IRIS cars. All rights reserved.</span>
+            </div>
+        </div>
+    </footer>
+
     <div id="car-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
         <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-lg m-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-detail-content">
             <div class="flex justify-between items-start mb-4">
@@ -230,7 +404,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // ... (Keep Config) ...
+        // YOUR KEYS
         const firebaseConfig = {
           apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
           authDomain: "black-iris-fleet-9c64e.firebaseapp.com",
@@ -245,23 +419,99 @@
         const db = getFirestore(app);
 
         document.addEventListener('DOMContentLoaded', () => {
-            // ... (Keep existing variable decl) ...
+            // State
             let currentLang = 'en';
             let currentCurrency = 'DH';
             let exchangeRates = { EUR: 0.092, USD: 0.10 };
-            
-            // ... (Keep Selectors) ...
+            let rentalLocation = '', rentalPickupDate = '', rentalReturnDate = '';
+
+            // Elements
             const langSelectors = document.querySelectorAll('#language-selector, #language-selector-mobile');
             const currencySelectors = document.querySelectorAll('#currency-selector, #currency-selector-mobile');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const rentalForm = document.getElementById('rental-form');
+            const resultMessage = document.getElementById('result-message');
+            const viewAllBtn = document.getElementById('view-all-cars-btn');
             
-            // ... (Helpers) ...
+            // Modal Elements
+            const detailModal = document.getElementById('car-detail-modal');
+            const modalDetailContent = document.getElementById('modal-detail-content');
+            const closeDetailModalBtn = document.getElementById('close-detail-modal-btn');
+            const modalBookButton = document.getElementById('modal-book-button');
+            const contactOptions = document.getElementById('contact-options');
+            const whatsappLink = document.getElementById('whatsapp-link');
+            const emailLink = document.getElementById('email-link');
+
+            // FAQ Accordion
+            const details = document.querySelectorAll("details");
+            details.forEach((targetDetail) => {
+                targetDetail.addEventListener("click", () => {
+                    details.forEach((detail) => {
+                        if (detail !== targetDetail) detail.removeAttribute("open");
+                    });
+                });
+            });
+
+            // Helper Functions
+            async function fetchRates() {
+                try {
+                    const response = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/mad.json');
+                    const data = await response.json();
+                    if (data && data.mad) {
+                        exchangeRates.EUR = data.mad.eur;
+                        exchangeRates.USD = data.mad.usd;
+                        loadCars(); 
+                    }
+                } catch (error) { console.log('Using static rates'); }
+            }
+
+            function getTranslation(key) {
+                if (typeof translations === 'undefined' || !translations[currentLang]) return key;
+                const translation = translations[currentLang][key];
+                return (typeof translation === 'function') ? translation : (translation || key);
+            }
+
             function calculatePrice(basePrice) {
                 if (currentCurrency === 'EUR') return { price: (basePrice * exchangeRates.EUR).toFixed(0), symbol: '€' };
                 if (currentCurrency === 'USD') return { price: (basePrice * exchangeRates.USD).toFixed(0), symbol: '$' };
                 return { price: basePrice, symbol: '' };
             }
 
-            // --- UPDATED LOAD CARS FUNCTION WITH DATA FIX ---
+            function updateAllSelectors(selector, value) {
+                document.querySelectorAll(selector).forEach(sel => sel.value = value);
+            }
+
+            function setLanguage(lang) {
+                currentLang = lang;
+                updateAllSelectors('#language-selector, #language-selector-mobile', lang);
+                const dictionary = translations[lang];
+                document.querySelectorAll('[data-i18n]').forEach(element => {
+                    const key = element.getAttribute('data-i18n');
+                    if (dictionary[key] && typeof dictionary[key] === 'string') element.textContent = dictionary[key];
+                });
+                document.body.setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');
+                document.querySelectorAll('select option').forEach(option => {
+                    const key = option.getAttribute('data-i18n');
+                    if (key && dictionary[key] && typeof dictionary[key] === 'string') option.textContent = dictionary[key];
+                });
+                loadCars();
+                lucide.createIcons();
+            }
+
+            function setCurrency(currency) {
+                currentCurrency = currency;
+                updateAllSelectors('#currency-selector, #currency-selector-mobile', currency);
+                loadCars();
+            }
+
+            function getLocalStorageData() {
+                rentalLocation = localStorage.getItem('rentalLocation') || '';
+                rentalPickupDate = localStorage.getItem('rentalPickupDate') || '';
+                rentalReturnDate = localStorage.getItem('rentalReturnDate') || '';
+            }
+
+            // --- FIREBASE LOAD (UNIVERSAL DATA FIX) ---
             async function loadCars() {
                 const container = document.getElementById('featured-car-grid');
                 if (!container) return;
@@ -276,18 +526,17 @@
                         if(count >= 6) return;
                         const data = doc.data();
                         
-                        // UNIVERSAL DATA MAPPING (Handles old 'cars_production' and new 'cars' schema)
+                        // --- UNIVERSAL DATA MAPPING ---
+                        // Checks both old and new field names to ensure display
                         const car = {
+                            id: doc.id,
                             name: data.name,
-                            // Check both 'imageUrl' AND 'img'
-                            img: data.imageUrl || data.img || 'https://placehold.co/600x400?text=No+Image', 
-                            // Check both 'category' AND 'type'
-                            type: data.category || data.type || 'Car', 
-                            // Check both 'fuelType' AND 'fuel'
+                            img: data.imageUrl || data.img || 'https://placehold.co/600x400?text=No+Image',
+                            type: data.category || data.type || 'Car',
                             fuel: data.fuelType || data.fuel || 'Diesel',
                             price: Number(data.price),
-                            transmission: (data.transmission || 'Manual').toLowerCase(),
                             seats: data.seats || 5,
+                            transmission: (data.transmission || 'Manual').toLowerCase(),
                             color: data.color || 'Standard',
                             desc: data.description || data.desc || ''
                         };
@@ -339,17 +588,117 @@
                     console.error("Error loading cars:", error);
                 }
             }
+
+            // --- Modal Logic ---
+            function openModal(carName, carPriceWithSymbol, carImg, carTrans, carSeats, carColor, carDesc) {
+                const dict = translations[currentLang];
+                let whatsappMessage, emailSubject, emailBody;
+
+                // Fill Modal
+                document.getElementById('modal-car-name').textContent = carName;
+                document.getElementById('modal-car-image').src = carImg;
+                document.getElementById('modal-transmission').textContent = carTrans;
+                document.getElementById('modal-seats-value').textContent = carSeats;
+                document.getElementById('modal-color').textContent = carColor;
+                document.getElementById('modal-car-desc').textContent = carDesc;
+                document.getElementById('modal-car-price').textContent = carPriceWithSymbol.replace(/ DH| €| \$/g, '');
+                document.getElementById('modal-car-currency').textContent = currentCurrency === 'DH' ? 'DH' : (currentCurrency === 'EUR' ? '€' : '$');
+                
+                // Smart Message Logic
+                if (rentalLocation && rentalPickupDate && rentalReturnDate) {
+                    let pickupDisplay = new Date(rentalPickupDate).toLocaleDateString(currentLang, { dateStyle: 'medium' });
+                    let returnDisplay = new Date(rentalReturnDate).toLocaleDateString(currentLang, { dateStyle: 'medium' });
+
+                    whatsappMessage = dict['book-whatsapp-msg-full'](carName, carPriceWithSymbol, rentalLocation, pickupDisplay, returnDisplay);
+                    emailSubject = dict['book-email-subj-full'](carName, rentalLocation);
+                    emailBody = dict['book-email-body-full'](carName, carPriceWithSymbol, rentalLocation, pickupDisplay, returnDisplay);
+                
+                } else {
+                    whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
+                    emailSubject = dict['book-email-subj-concise'](carName);
+                    emailBody = dict['book-email-body-concise'](carName, carPriceWithSymbol);
+                }
             
-            // ... (Rest of your script for Menu, Modals, etc. remains the same) ...
-            // ... Just ensure you paste the Modal Logic and Listeners ...
+                whatsappLink.href = `https://wa.me/212602020402?text=${encodeURIComponent(whatsappMessage)}`;
+                emailLink.href = `mailto:blackiriscars@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+                
+                // Reset to "Book Now"
+                contactOptions.classList.add('hidden');
+                modalBookButton.classList.remove('hidden'); 
+                
+                // Handle Click to Show Options
+                modalBookButton.onclick = () => {
+                    contactOptions.classList.remove('hidden');
+                    modalBookButton.classList.add('hidden');
+                };
+
+                detailModal.classList.remove('hidden');
+                setTimeout(() => { modalDetailContent.classList.remove('scale-95', 'opacity-0'); }, 10);
+                document.body.classList.add('overflow-hidden');
+            }
+
+            function closeModal() {
+                modalDetailContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => { detailModal.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }, 300); 
+            }
+
+            // Explicitly attach click to Close button
+            closeDetailModalBtn.addEventListener('click', closeModal);
             
-            // Re-use logic from previous file for consistency
+            // Mobile Menu
+            function openMobileMenu() { mobileMenu.classList.remove('opacity-0', '-translate-y-2'); mobileMenu.style.pointerEvents = 'auto'; }
+            function closeMobileMenu() { mobileMenu.classList.add('opacity-0', '-translate-y-2'); mobileMenu.style.pointerEvents = 'none'; }
+            mobileMenuButton.addEventListener('click', (e) => { e.stopPropagation(); mobileMenu.classList.contains('opacity-0') ? openMobileMenu() : closeMobileMenu(); });
+            window.addEventListener('scroll', closeMobileMenu);
+            document.addEventListener('click', (event) => { if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) closeMobileMenu(); });
+
+            // Selectors Event Listeners
+            langSelectors.forEach(selector => {
+                selector.addEventListener('change', (event) => {
+                    setLanguage(event.target.value);
+                    localStorage.setItem('languagePreference', event.target.value);
+                });
+            });
+            currencySelectors.forEach(selector => {
+                selector.addEventListener('change', (event) => {
+                    setCurrency(event.target.value);
+                    localStorage.setItem('currencyPreference', event.target.value);
+                });
+            });
+
+            // Form
+            if(rentalForm) {
+                rentalForm.addEventListener('submit', function(event) {
+                    event.preventDefault(); 
+                    const location = document.getElementById('location').value;
+                    const pickupDate = document.getElementById('pickup-date').value;
+                    const returnDate = document.getElementById('return-date').value;
+                    const selectedLocationText = document.getElementById('location').options[document.getElementById('location').selectedIndex].text;
+                    localStorage.setItem('rentalLocation', selectedLocationText); 
+                    localStorage.setItem('rentalPickupDate', pickupDate);
+                    localStorage.setItem('rentalReturnDate', returnDate);
+                    window.location.href = 'available_cars.html';
+                });
+            }
             
-            // ... (Paste Listeners and Modal Logic here) ...
-            
-            // Initialize
+            if(viewAllBtn) {
+                viewAllBtn.addEventListener('click', (e) => {
+                    localStorage.removeItem('rentalLocation');
+                    localStorage.removeItem('rentalPickupDate');
+                    localStorage.removeItem('rentalReturnDate');
+                });
+            }
+
+            // Init
             lucide.createIcons(); 
-            // ...
+            getLocalStorageData(); 
+            const savedLang = localStorage.getItem('languagePreference') || 'en';
+            const savedCurrency = localStorage.getItem('currencyPreference') || 'DH';
+            updateAllSelectors('#language-selector, #language-selector-mobile', savedLang);
+            updateAllSelectors('#currency-selector, #currency-selector-mobile', savedCurrency);
+            currentLang = savedLang;
+            currentCurrency = savedCurrency;
+            setLanguage(savedLang);
             fetchRates();
         });
     </script>
