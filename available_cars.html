@@ -6,10 +6,12 @@
     <title>Available Cars | Black Iris Cars</title>
     <meta name="description" content="View our full fleet of available rental cars. From economy hatchbacks to luxury SUVs, find the perfect car for your trip in Morocco.">
 
+    <!-- EXTERNAL SCRIPTS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="data.js"></script>
 
+    <!-- GOOGLE ANALYTICS -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Y2MG9ZZ46"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -18,6 +20,7 @@
       gtag('config', 'G-2Y2MG9ZZ46');
     </script>
     
+    <!-- FAVICONS -->
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192"  href="web-app-manifest-192x192.png">
     <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
@@ -77,6 +80,7 @@
 </head>
 <body class="antialiased" dir="ltr">
 
+    <!-- HEADER -->
     <header class="bg-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
@@ -115,6 +119,7 @@
         </div>
     </header>
 
+    <!-- MAIN CONTENT -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <h1 class="text-3xl sm:text-4xl font-extrabold text-primary-dark mb-4" data-i18n="h1-available">Available Rental Cars</h1>
         
@@ -122,6 +127,7 @@
         
         <div class="md:grid md:grid-cols-4 lg:grid-cols-5 md:gap-8">
             
+            <!-- Filter Sidebar -->
             <div id="filter-sidebar" class="fixed top-0 left-0 h-full w-3/4 max-w-xs md:max-w-none bg-white p-6 shadow-2xl z-40 md:relative md:col-span-1 lg:col-span-1 md:h-auto md:p-0 md:shadow-none md:bg-transparent md:transform-none">
                 <button id="filter-close-button" class="md:hidden absolute top-4 right-4 text-gray-800 hover:text-gray-600"><i data-lucide="x" class="w-6 h-6"></i></button>
                 <h3 class="text-2xl font-bold text-primary-dark mb-6 border-b pb-3" data-i18n="h3-filter">Filter Options</h3>
@@ -151,6 +157,7 @@
                 </form>
             </div>
 
+            <!-- Results Container -->
             <div id="results-container">
                 <div class="col-span-full flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100 mb-4">
                     <p class="text-sm text-gray-600" id="car-count">Loading cars...</p> 
@@ -159,6 +166,7 @@
         </div>
     </main>
 
+    <!-- Detail Modal -->
     <div id="car-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
         <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-lg m-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-detail-content">
             <div class="flex justify-between items-start mb-4">
@@ -231,6 +239,7 @@
         </div>
     </footer>
 
+    <!-- SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -323,6 +332,7 @@
             rentalReturnDate = localStorage.getItem('rentalReturnDate') || '';
         }
 
+        // --- DUAL LOAD CARS: FETCH FROM BOTH COLLECTIONS ---
         async function loadCars() {
             if (!resultsContainer) return;
             
@@ -337,29 +347,42 @@
             resultsContainer.appendChild(loader);
 
             try {
-                // Fetch from the 'cars' collection (primary)
-                const q = query(collection(db, "cars"), orderBy("createdAt", "desc"));
-                const querySnapshot = await getDocs(q);
+                // Fetch from BOTH collections
+                const q1 = query(collection(db, "cars"));
+                const q2 = query(collection(db, "cars_production"));
+                
+                const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
                 
                 allCars = [];
-                querySnapshot.forEach((doc) => {
+                const addedIds = new Set(); // Avoid duplicates if data exists in both
+
+                const processDoc = (doc) => {
+                    if (addedIds.has(doc.id)) return;
+                    addedIds.add(doc.id);
+                    
                     const d = doc.data();
                     
-                    // --- UNIVERSAL MAPPING WITH SAFETY CHECKS ---
-                    // This prevents crashes if fields are missing in old data
+                    // UNIVERSAL MAPPING with SAFETY DEFAULTS
                     allCars.push({ 
                         id: doc.id,
                         price: Number(d.price) || 0,
+                        // Check imageUrl (Admin) OR img (Old Admin)
                         img: d.imageUrl || d.img || 'https://placehold.co/600x400?text=No+Image',
-                        type: (d.category || d.type || 'Sedan').toLowerCase(), // Safe lowercasing
+                        // Check category (Admin) OR type (Old Admin) -> FORCE STRING
+                        type: (d.category || d.type || 'Sedan').toString().toLowerCase(), 
+                        // Check fuelType (Admin) OR fuel (Old Admin)
                         fuel: d.fuelType || d.fuel || 'Diesel',
                         desc: d.description || d.desc || '',
-                        transmission: (d.transmission || 'Manual').toLowerCase(), // Safe lowercasing
+                        // Check transmission -> FORCE STRING
+                        transmission: (d.transmission || 'Manual').toString().toLowerCase(), 
                         color: d.color || 'Standard',
                         seats: d.seats || 5,
                         name: d.name || 'Unknown Car'
                     });
-                });
+                };
+
+                snap1.forEach(processDoc);
+                snap2.forEach(processDoc);
                 
                 if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
                 renderAllCars();
@@ -384,12 +407,13 @@
             const selectedTypes = Array.from(typeFilters).filter(c => c.checked).map(c => c.value.toLowerCase());
 
             const filteredCars = allCars.filter(car => {
+                // Calculate comparison price based on current currency
                 let comparePrice = car.price; // DH base
                 if (currentCurrency !== 'DH') {
                     comparePrice = Number(calculatePrice(car.price).price);
                 }
 
-                // Defensive Filtering: Ensure properties exist before checking
+                // Defensive Filtering
                 const carTrans = (car.transmission || '').toLowerCase();
                 const carType = (car.type || '').toLowerCase();
 
@@ -414,7 +438,6 @@
                 const { price, symbol } = calculatePrice(car.price);
                 const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
                 
-                // Capitalize for display
                 const carType = car.type.charAt(0).toUpperCase() + car.type.slice(1); 
                 const carFuel = car.fuel; 
                 const carColor = car.color;
