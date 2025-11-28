@@ -61,7 +61,7 @@
         .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3498db; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* New Grid Layout for Car Cards */
+        /* Grid Layout */
         #results-container {
             display: grid;
             grid-template-columns: repeat(1, minmax(0, 1fr));
@@ -155,7 +155,7 @@
                 <div class="col-span-full flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100 mb-4">
                     <p class="text-sm text-gray-600" id="car-count">Loading cars...</p> 
                 </div>
-                </div>
+            </div>
         </div>
     </main>
 
@@ -323,8 +323,6 @@
             rentalReturnDate = localStorage.getItem('rentalReturnDate') || '';
         }
 
-        // --- DUAL LOAD CARS: FETCH FROM BOTH COLLECTIONS ---
-        // This ensures ANY data stored in ANY way will show up.
         async function loadCars() {
             if (!resultsContainer) return;
             
@@ -339,41 +337,29 @@
             resultsContainer.appendChild(loader);
 
             try {
-                // Fetch from BOTH collections to guarantee data visibility
-                const q1 = query(collection(db, "cars"));
-                const q2 = query(collection(db, "cars_production"));
-                
-                const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+                // Fetch from the 'cars' collection (primary)
+                const q = query(collection(db, "cars"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
                 
                 allCars = [];
-                const addedIds = new Set(); // Avoid duplicates if data exists in both
-
-                const processDoc = (doc) => {
-                    if (addedIds.has(doc.id)) return;
-                    addedIds.add(doc.id);
-                    
+                querySnapshot.forEach((doc) => {
                     const d = doc.data();
                     
-                    // UNIVERSAL MAPPING with SAFETY DEFAULTS
+                    // --- UNIVERSAL MAPPING WITH SAFETY CHECKS ---
+                    // This prevents crashes if fields are missing in old data
                     allCars.push({ 
                         id: doc.id,
                         price: Number(d.price) || 0,
-                        // Check imageUrl (Admin) OR img (Old Admin)
                         img: d.imageUrl || d.img || 'https://placehold.co/600x400?text=No+Image',
-                        // Check category (Admin) OR type (Old Admin)
-                        type: (d.category || d.type || 'Sedan').toLowerCase(), 
-                        // Check fuelType (Admin) OR fuel (Old Admin)
+                        type: (d.category || d.type || 'Sedan').toLowerCase(), // Safe lowercasing
                         fuel: d.fuelType || d.fuel || 'Diesel',
                         desc: d.description || d.desc || '',
-                        transmission: (d.transmission || 'Manual').toLowerCase(), 
+                        transmission: (d.transmission || 'Manual').toLowerCase(), // Safe lowercasing
                         color: d.color || 'Standard',
                         seats: d.seats || 5,
-                        name: d.name
+                        name: d.name || 'Unknown Car'
                     });
-                };
-
-                snap1.forEach(processDoc);
-                snap2.forEach(processDoc);
+                });
                 
                 if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
                 renderAllCars();
@@ -381,7 +367,6 @@
             } catch (error) {
                 console.error("Error:", error);
                 if(document.getElementById('temp-loader')) document.getElementById('temp-loader').remove();
-                // Removed alert to avoid annoying users, console log is enough
             }
         }
         
@@ -399,13 +384,12 @@
             const selectedTypes = Array.from(typeFilters).filter(c => c.checked).map(c => c.value.toLowerCase());
 
             const filteredCars = allCars.filter(car => {
-                // Calculate comparison price based on current currency
                 let comparePrice = car.price; // DH base
                 if (currentCurrency !== 'DH') {
                     comparePrice = Number(calculatePrice(car.price).price);
                 }
 
-                // Defensive Filtering
+                // Defensive Filtering: Ensure properties exist before checking
                 const carTrans = (car.transmission || '').toLowerCase();
                 const carType = (car.type || '').toLowerCase();
 
@@ -430,6 +414,7 @@
                 const { price, symbol } = calculatePrice(car.price);
                 const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
                 
+                // Capitalize for display
                 const carType = car.type.charAt(0).toUpperCase() + car.type.slice(1); 
                 const carFuel = car.fuel; 
                 const carColor = car.color;
@@ -469,9 +454,9 @@
                             
                             <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 mb-4 mt-3">
                                 <div class="flex items-center"><i data-lucide="${car.transmission === 'automatic' ? 'zap' : 'gauge'}" class="w-4 h-4 text-accent-blue mr-2"></i> <span data-i18n="${car.transmission}">${transmissionText}</span></div>
-                                <div class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.fuel}</span></div>
+                                <div class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${carFuel}</span></div>
                                 <div class="flex items-center"><i data-lucide="users" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.seats} <span data-i18n="car-seats-label-spaced">Seats</span></span></div>
-                                <div class="flex items-center"><i data-lucide="palette" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.color}</span></div>
+                                <div class="flex items-center"><i data-lucide="palette" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${carColor}</span></div>
                                 <div class="flex items-center"><i data-lucide="snowflake" class="w-4 h-4 text-accent-blue mr-2"></i> <span>A/C</span></div>
                             </div>
                             ${totalPriceHTML}
