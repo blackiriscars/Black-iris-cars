@@ -422,7 +422,7 @@
                     carCard.className = "car-card bg-white rounded-xl shadow-md overflow-hidden flex flex-col md:flex-row border border-gray-200 hover:shadow-xl transition duration-300";
                     
                     carCard.innerHTML = `
-                        <div class="md:w-1/3 relative bg-gray-100">
+                        <div class="md:w-1/3 relative bg-gray-100 min-h-60"> 
                             <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover absolute inset-0">
                             <div class="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded uppercase">
                                 ${carType.replace('-', ' ')}
@@ -438,7 +438,6 @@
                                         <span class="text-xs text-gray-400" data-i18n="car-day">/ day</span>
                                     </div>
                                 </div>
-                                <p class="text-gray-500 text-sm mt-1 line-clamp-2">${car.desc}</p>
                                 
                                 <div class="flex flex-wrap gap-2 mt-4">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-800">
