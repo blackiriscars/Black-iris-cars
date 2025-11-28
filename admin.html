@@ -117,7 +117,7 @@
                     <form id="addCarForm" class="p-5 md:p-8 space-y-6">
                         <input type="hidden" id="editCarId">
                         
-                        <!-- ADDED: Sort Order Input -->
+                        <!-- Sort Order Input -->
                         <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
                              <label class="block text-sm font-bold text-gray-700 mb-2">Sort Priority (Lower number = Shows First)</label>
                              <input type="number" id="carOrder" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="e.g. 1">
@@ -132,6 +132,7 @@
                                     <option value="Hatchback">Hatchback</option>
                                     <option value="Coupe">Coupe</option>
                                     <option value="SUV">SUV</option>
+                                    <option value="Crossover">Crossover</option> <!-- Added Here -->
                                     <option value="Luxury SUV">Luxury SUV</option>
                                     <option value="Luxury">Luxury</option>
                                     <option value="Sports">Sports</option>
@@ -308,7 +309,6 @@
             switchTab('add-car', false);
 
             document.getElementById('editCarId').value = car.id;
-            // ADDED: Load Sort Order
             document.getElementById('carOrder').value = car.sortOrder || 999;
             document.getElementById('carName').value = car.name;
             document.getElementById('carCategory').value = car.category;
@@ -406,7 +406,7 @@
             try {
                 const carData = {
                     name: document.getElementById('carName').value,
-                    // ADDED: Save Sort Order
+                    // Save Sort Order
                     sortOrder: Number(document.getElementById('carOrder').value) || 999,
                     category: document.getElementById('carCategory').value,
                     price: Number(document.getElementById('carPrice').value),
