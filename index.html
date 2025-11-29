@@ -183,6 +183,7 @@
                             <option value="Essaouira">Essaouira</option>
                             <option value="Kenitra">Kenitra</option>
                             <option value="Temara">Temara</option>
+                            <option value="Tetouan">Tetouan</option>
                         </select>
                     </div>
                     <div>
@@ -231,11 +232,14 @@
     <section id="featured" class="py-16 md:py-24 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-extrabold text-primary-dark text-center mb-12" data-i18n="h2-fleet">Our Fleet</h2>
-            <div id="featured-car-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="col-span-1 md:col-span-2 lg:col-span-3 flex justify-center py-12">
+            
+            <!-- CHANGED: 2 Columns on Mobile, 10 Cars Limit -->
+            <div id="featured-car-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
+                <div class="col-span-full flex justify-center py-12">
                     <div class="loader"></div>
                 </div>
             </div>
+            
             <div class="text-center mt-12">
                 <a href="available_cars.html" id="view-all-cars-btn" class="accent-blue text-white font-semibold py-3 px-8 rounded-lg hover:accent-blue-dark transition shadow-md" data-i18n="btn-view-all">View All Cars</a>
             </div>
@@ -339,10 +343,10 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4" data-i18n="h4-nav">Quick Navigation</h4>
                     <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="index.html#featured" class="hover:text-accent-blue transition" data-i18n="nav-fleet">Our Fleet</a></li>
-                        <li><a href="index.html#why-us" class="hover:text-accent-blue transition" data-i18n="nav-why">Our Promise</a></li>
-                        <li><a href="index.html#testimonials" class="hover:text-accent-blue transition" data-i18n="nav-reviews">Reviews</a></li>
-                        <li><a href="index.html#faq" class="hover:text-accent-blue transition" data-i18n="nav-faq">FAQ</a></li>
+                        <li><a href="#featured" class="hover:text-accent-blue transition" data-i18n="nav-fleet">Our Fleet</a></li>
+                        <li><a href="#why-us" class="hover:text-accent-blue transition" data-i18n="nav-why">Our Promise</a></li>
+                        <li><a href="#testimonials" class="hover:text-accent-blue transition" data-i18n="nav-reviews">Reviews</a></li>
+                        <li><a href="#faq" class="hover:text-accent-blue transition" data-i18n="nav-faq">FAQ</a></li>
                     </ul>
                 </div>
                 <div>
@@ -402,7 +406,6 @@
         </div>
     </div>
 
-    <!-- LOGIC SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -446,13 +449,16 @@
             const whatsappLink = document.getElementById('whatsapp-link');
             const emailLink = document.getElementById('email-link');
 
-            // Set Min Date for Inputs
+            // --- DATE SECURITY FIX ---
+            // Set Min Date for Inputs to Today
             const pickupInput = document.getElementById('pickup-date');
             const returnInput = document.getElementById('return-date');
             if(pickupInput && returnInput) {
                 const today = new Date().toISOString().split('T')[0];
                 pickupInput.setAttribute('min', today);
                 returnInput.setAttribute('min', today);
+                
+                // Ensure return date is never before pickup date
                 pickupInput.addEventListener('change', function() {
                     returnInput.setAttribute('min', this.value);
                     if(returnInput.value && returnInput.value < this.value) {
@@ -535,7 +541,8 @@
                 if (!container) return;
                 
                 try {
-                    const q = query(collection(db, "cars"), orderBy("sortOrder", "asc"), limit(6));
+                    // CHANGED: Limit to 10
+                    const q = query(collection(db, "cars"), orderBy("sortOrder", "asc"), limit(10));
                     const querySnapshot = await getDocs(q);
                     container.innerHTML = '';
 
@@ -561,39 +568,37 @@
                         const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
 
                         const carCard = document.createElement('div');
-                        // RESTORED SIZE
+                        // SMALLER CARD STYLE FOR HOMEPAGE
                         carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group";
                         
                         carCard.innerHTML = `
-                            <div class="relative h-56 overflow-hidden">
+                            <div class="relative h-32 overflow-hidden">
                                 <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
                                 <div class="absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md border border-white/20">
                                     ${car.type.replace('-', ' ')}
                                 </div>
                             </div>
-                            <div class="p-6 flex flex-col justify-between flex-grow">
+                            <div class="p-3 flex flex-col justify-between flex-grow">
                                 <div>
-                                    <div class="flex justify-between items-start mb-2">
-                                        <h3 class="text-xl font-bold text-gray-900 leading-tight">${car.name}</h3>
+                                    <div class="flex justify-between items-start mb-1">
+                                        <h3 class="text-sm font-bold text-gray-900 leading-tight">${car.name}</h3>
                                     </div>
                                     
-                                    <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 mb-4 mt-3">
-                                        <div class="flex items-center"><i data-lucide="${car.transmission === 'automatic' ? 'zap' : 'gauge'}" class="w-4 h-4 text-accent-blue mr-2"></i> <span data-i18n="${car.transmission}">${transmissionText}</span></div>
-                                        <div class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.fuel}</span></div>
-                                        <div class="flex items-center"><i data-lucide="users" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.seats} Seats</span></div>
-                                        <div class="flex items-center"><i data-lucide="snowflake" class="w-4 h-4 text-accent-blue mr-2"></i> <span>A/C</span></div>
+                                    <div class="grid grid-cols-2 gap-y-1 gap-x-2 text-xs text-gray-600 mb-2 mt-1">
+                                        <div class="flex items-center"><i data-lucide="${car.transmission === 'automatic' ? 'zap' : 'gauge'}" class="w-3 h-3 text-accent-blue mr-1"></i> <span data-i18n="${car.transmission}">${transmissionText}</span></div>
+                                        <div class="flex items-center"><i data-lucide="fuel" class="w-3 h-3 text-accent-blue mr-1"></i> <span>${car.fuel}</span></div>
                                     </div>
                                 </div>
-                                <div class="flex justify-between items-center border-t border-gray-100 pt-4 mt-auto">
+                                <div class="flex justify-between items-center border-t border-gray-100 pt-2 mt-auto">
                                     <div class="flex flex-col">
                                         <span class="text-xs text-gray-400 font-medium uppercase">Daily Rate</span>
-                                        <span class="text-2xl font-extrabold text-primary-dark">${carPriceString}</span>
+                                        <span class="text-lg font-extrabold text-primary-dark">${carPriceString}</span>
                                     </div>
-                                    <span class="accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition shadow-md">Book Now</span>
+                                    <span class="accent-blue text-white font-semibold py-1 px-3 rounded-lg hover:accent-blue-dark transition shadow-md text-xs">Book Now</span>
                                 </div>
                             </div>
                         `;
-                        // POP-UP CLICK EVENT RESTORED
+                        // POP-UP CLICK EVENT
                         carCard.addEventListener('click', () => openModal(car.name, carPriceString, car.img, transmissionText, car.seats, car.color, car.desc));
                         container.appendChild(carCard);
                         count++;
@@ -605,7 +610,7 @@
                 }
             }
 
-            // --- Modal Logic RESTORED ---
+            // --- Modal Logic ---
             window.openModal = function(carName, carPriceWithSymbol, carImg, carTrans, carSeats, carColor, carDesc) {
                 const dict = translations[currentLang];
                 let whatsappMessage, emailSubject, emailBody;
@@ -715,3 +720,5 @@
     </script>
 </body>
 </html>
+
+
