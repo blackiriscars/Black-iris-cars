@@ -289,7 +289,6 @@
         let currentUser = null;
         let carsData = [];
         let sortable = null;
-        let isFiltered = false; // To disable sorting when filtered
         
         onAuthStateChanged(auth, (user) => {
             const loginScreen = document.getElementById('login-screen');
@@ -329,7 +328,6 @@
         // --- FILTERING LOGIC ---
         window.showAllFleet = function() {
             switchTab('fleet');
-            isFiltered = false;
             document.getElementById('fleetTitle').innerText = 'Fleet Inventory (All)';
             document.getElementById('searchInput').value = ''; 
             renderCars(carsData);
@@ -337,7 +335,6 @@
 
         window.showFilteredFleet = function(status) {
             switchTab('fleet');
-            isFiltered = true;
             document.getElementById('fleetTitle').innerText = `Fleet Inventory (${status})`;
             document.getElementById('searchInput').value = ''; 
             const filtered = carsData.filter(c => c.status === status);
@@ -386,15 +383,14 @@
                 snapshot.forEach(doc => carsData.push({ id: doc.id, ...doc.data() }));
                 carsData.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
                 updateStats();
-                // If we are currently in "All" view, refresh. If filtered, we might want to refresh differently, 
-                // but for simplicity, let's refresh based on current view.
-                if(!isFiltered) {
-                    renderCars(carsData);
-                } else {
-                    // Re-apply filter if data changed while filtered (optional/advanced, skipping for simplicity)
-                    // Just showing all for safety on load
-                    renderCars(carsData);
-                }
+                
+                // Keep current view state (roughly)
+                // For simplicity, re-render all to show updates. 
+                // To support live updates in filtered view, we would check the current title or a global state.
+                // Here we simply reload All (safest) or rely on user to re-filter.
+                // Let's reload All to ensure fresh data shows up.
+                renderCars(carsData);
+                document.getElementById('fleetTitle').innerText = 'Fleet Inventory';
             });
         }
 
@@ -415,9 +411,6 @@
             list.forEach((car) => {
                 const statusColor = {'Available': 'bg-green-100 text-green-700','Rented': 'bg-orange-100 text-orange-700','Maintenance': 'bg-red-100 text-red-700'}[car.status] || 'bg-gray-100';
                 
-                // Only show drag handle if NOT filtered
-                const dragHandleHTML = isFiltered ? '' : `<div class="drag-handle text-gray-400 hover:text-indigo-600 cursor-grab p-2 -mr-2"><i class="fas fa-grip-vertical text-lg"></i></div>`;
-
                 const div = document.createElement('div');
                 div.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col relative car-item-el";
                 div.setAttribute('data-id', car.id);
@@ -430,7 +423,7 @@
                     <div class="p-4 flex-1 flex flex-col">
                         <div class="flex justify-between items-start">
                              <h3 class="font-bold text-lg text-gray-900 pointer-events-none select-none">${car.name}</h3>
-                             ${dragHandleHTML}
+                             <div class="drag-handle text-gray-400 hover:text-indigo-600 cursor-grab p-2 -mr-2"><i class="fas fa-grip-vertical text-lg"></i></div>
                         </div>
                         <p class="text-sm text-gray-500 mb-2 pointer-events-none select-none">${car.category}</p>
                         <div class="mt-auto flex items-center justify-between">
@@ -447,17 +440,14 @@
             // Re-init SortableJS
             if (sortable) sortable.destroy();
             
-            // Only enable sorting if NOT filtered
-            if (!isFiltered) {
-                sortable = new Sortable(grid, {
-                    animation: 150,
-                    handle: '.drag-handle', 
-                    ghostClass: 'sortable-ghost',
-                    onEnd: async function (evt) {
-                        await updateOrderInFirebase();
-                    }
-                });
-            }
+            sortable = new Sortable(grid, {
+                animation: 150,
+                handle: '.drag-handle', 
+                ghostClass: 'sortable-ghost',
+                onEnd: async function (evt) {
+                    await updateOrderInFirebase();
+                }
+            });
         }
 
         async function updateOrderInFirebase() {
@@ -483,14 +473,11 @@
         if(searchInput) {
             searchInput.addEventListener('input', (e) => {
                 const term = e.target.value.toLowerCase();
-                // Search against GLOBAL carsData (allows manual search override)
                 const filtered = carsData.filter(c => 
                     c.name.toLowerCase().includes(term) || 
                     c.status.toLowerCase().includes(term) ||
                     c.category.toLowerCase().includes(term)
                 );
-                // When searching manually, we treat it like a filter (disable sort)
-                isFiltered = true; 
                 renderCars(filtered);
             });
         }
