@@ -452,7 +452,9 @@
                 const carCard = document.createElement('div');
                 carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group";
                 
-                // --- CHANGED HTML STRUCTURE HERE (Reverted image height to h-56) ---
+                // --- CARD HTML STRUCTURE ---
+                // Image back to h-56 (normal size)
+                // Category above image with spacing (mt-3 on image)
                 carCard.innerHTML = `
                     <div class="px-6 pt-4 pb-0">
                         <span class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide bg-gray-100 text-gray-600">
