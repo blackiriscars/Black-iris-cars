@@ -568,15 +568,17 @@
                         const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
 
                         const carCard = document.createElement('div');
-                        // TALLER CARD IMAGE (h-48)
+                        // TALLER CARD, IMAGE BACK TO SMALLER SIZE (h-32)
                         carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group";
                         
                         carCard.innerHTML = `
-                            <div class="relative h-48 overflow-hidden">
-                                <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
-                                <div class="absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md border border-white/20">
+                            <div class="px-3 pt-3 pb-1">
+                                <span class="text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide bg-gray-100 text-gray-600">
                                     ${car.type.replace('-', ' ')}
-                                </div>
+                                </span>
+                            </div>
+                            <div class="relative h-32 overflow-hidden">
+                                <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
                             </div>
                             <div class="p-3 flex flex-col justify-between flex-grow">
                                 <div>
