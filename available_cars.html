@@ -202,7 +202,7 @@
                 </div>
             </div>
             <div class="text-center text-sm text-gray-500 pt-4">
-                &copy; <span data-i18n="copy-right">2024 BLACK IRIS cars. All rights reserved.</span>
+                © <span data-i18n="copy-right">2024 BLACK IRIS cars. All rights reserved.</span>
             </div>
         </div>
     </footer>
@@ -452,16 +452,14 @@
                 const carCard = document.createElement('div');
                 carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group";
                 
-                // --- CHANGED HTML STRUCTURE HERE ---
-                // 1. Category above image (in px-6 pt-4 pb-0 container)
-                // 2. Image Height reduced to h-44 (approx 20% smaller than h-56)
+                // --- CHANGED HTML STRUCTURE HERE (Reverted image height to h-56) ---
                 carCard.innerHTML = `
                     <div class="px-6 pt-4 pb-0">
                         <span class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide bg-gray-100 text-gray-600">
                             ${car.type}
                         </span>
                     </div>
-                    <div class="relative h-44 overflow-hidden mt-3">
+                    <div class="relative h-56 overflow-hidden mt-3">
                         <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
                     </div>
                     <div class="p-6 flex flex-col justify-between flex-grow">
