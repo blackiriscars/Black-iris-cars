@@ -6,12 +6,10 @@
     <title>Available Cars | Black Iris Cars</title>
     <meta name="description" content="View our full fleet of available rental cars in Morocco.">
 
-    <!-- 1. SCRIPTS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="data.js"></script>
 
-    <!-- 2. ANALYTICS -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Y2MG9ZZ46"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -20,7 +18,6 @@
       gtag('config', 'G-2Y2MG9ZZ46');
     </script>
     
-    <!-- 3. FAVICONS -->
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192"  href="web-app-manifest-192x192.png">
     <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
@@ -71,7 +68,6 @@
 </head>
 <body class="antialiased" dir="ltr">
 
-    <!-- HEADER -->
     <header class="bg-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
@@ -94,7 +90,6 @@
                 </div>
             </div>
         </div>
-        <!-- Mobile Menu -->
         <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 opacity-0 -translate-y-2 transform transition-all duration-300 ease-out fixed top-16 left-0 right-0 z-40" style="pointer-events: none;">
             <div class="px-4 pt-4 pb-3 space-y-4">
                 <div class="flex items-center space-x-4">
@@ -111,16 +106,13 @@
         </div>
     </header>
 
-    <!-- MAIN CONTENT -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <h1 class="text-3xl sm:text-4xl font-extrabold text-primary-dark mb-4" data-i18n="h1-available">Available Rental Cars</h1>
         
-        <!-- Filter Backdrop -->
         <div id="filter-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
         
         <div class="md:grid md:grid-cols-4 lg:grid-cols-5 md:gap-8">
             
-            <!-- Filter Sidebar -->
             <div id="filter-sidebar" class="fixed top-0 left-0 h-full w-3/4 max-w-xs md:max-w-none bg-white p-6 shadow-2xl z-40 md:relative md:col-span-1 lg:col-span-1 md:h-auto md:p-0 md:shadow-none md:bg-transparent md:transform-none">
                 <button id="filter-close-button" class="md:hidden absolute top-4 right-4 text-gray-800 hover:text-gray-600"><i data-lucide="x" class="w-6 h-6"></i></button>
                 <h3 class="text-2xl font-bold text-primary-dark mb-6 border-b pb-3" data-i18n="h3-filter">Filter Options</h3>
@@ -160,16 +152,61 @@
                 </form>
             </div>
 
-            <!-- Results Container -->
-            <div id="results-container">
-                <div class="col-span-full flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100 mb-4">
-                    <p class="text-sm text-gray-600" id="car-count">Loading cars...</p> 
+            <div class="md:col-span-3 lg:col-span-4">
+                <div id="results-container">
+                    <div class="col-span-full flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100 mb-4">
+                        <p class="text-sm text-gray-600" id="car-count">Loading cars...</p> 
+                    </div>
+                </div>
+
+                <div id="pagination-container" class="mt-8 text-center hidden">
+                    <button id="show-more-btn" class="accent-blue text-white font-semibold py-3 px-8 rounded-lg hover:accent-blue-dark transition shadow-md">
+                        Show More
+                    </button>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Detail Modal -->
+    <footer id="contact" class="primary-dark text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8 mb-8">
+                <div>
+                    <h3 class="text-2xl font-extrabold mb-4 text-gray-300">BLACK IRIS cars</h3>
+                    <p class="text-gray-400 text-sm">Your reliable partner for car rentals across Morocco.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" data-i18n="h4-nav">Quick Navigation</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="index.html#featured" class="hover:text-accent-blue transition" data-i18n="nav-fleet">Our Fleet</a></li>
+                        <li><a href="index.html#why-us" class="hover:text-accent-blue transition" data-i18n="nav-why">Our Promise</a></li>
+                        <li><a href="index.html#testimonials" class="hover:text-accent-blue transition" data-i18n="nav-reviews">Reviews</a></li>
+                        <li><a href="index.html#faq" class="hover:text-accent-blue transition" data-i18n="nav-faq">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4" data-i18n="h4-contact">Contact & Booking</h4>
+                    <a href="tel:+212602020402" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
+                        <i data-lucide="phone" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 0602020402
+                    </a>
+                    <p class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start"><i data-lucide="mail" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> <a href="mailto:blackiriscars@gmail.com" class="hover:text-accent-blue">blackiriscars@gmail.com</a></p>
+                    
+                    <a href="https://maps.app.goo.gl/YourMapLinkHere" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
+                        <i data-lucide="map-pin" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 
+                        <span data-i18n="address-text">10 rue ouarzazat hassan rabat</span>
+                    </a>
+
+                    <a href="https://wa.me/212602020402" target="_blank" class="text-sm text-white px-3 py-1 mt-2 inline-flex items-center rounded-lg bg-green-600 hover:bg-green-700 transition">
+                        <i data-lucide="message-circle" class="w-4 h-4 ltr:mr-2"></i> <span data-i18n="whatsapp-text">WhatsApp</span> 0602020402
+                    </a>
+                </div>
+            </div>
+            <div class="text-center text-sm text-gray-500 pt-4">
+                &copy; <span data-i18n="copy-right">2024 BLACK IRIS cars. All rights reserved.</span>
+            </div>
+        </div>
+    </footer>
+
     <div id="car-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
         <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-lg m-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-detail-content">
             <div class="flex justify-between items-start mb-4">
@@ -203,7 +240,6 @@
         </div>
     </div>
 
-    <!-- LOGIC SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -228,9 +264,13 @@
         let rentalLocation = '', rentalPickupDate = '', rentalReturnDate = '';
         let allCars = [];
         
+        // --- PAGINATION VARIABLES ---
+        let itemsToShow = 10;
+        const itemsPerLoad = 10;
+
         // UI Elements
         let priceRange, priceValue, filterSidebar, filterBackdrop, mobileMenu, mobileMenuBtn, carCountElement, resultsContainer;
-        let filterMenuBtn;
+        let filterMenuBtn, showMoreBtn, paginationContainer;
 
         // --- 1. TRANSLATIONS & UTILS ---
         function getTranslation(key) {
@@ -339,6 +379,7 @@
             const selectedTypes = Array.from(document.querySelectorAll('#type-filters input:checked')).map(c => c.value);
             const selectedFuels = Array.from(document.querySelectorAll('#fuel-filters input:checked')).map(c => c.value);
 
+            // Filter full list
             const filteredCars = allCars.filter(car => {
                 let comparePrice = car.price; 
                 if (currentCurrency !== 'DH') comparePrice = Number(calculatePrice(car.price).price);
@@ -357,10 +398,21 @@
                 msg.className = "col-span-full text-center py-10 text-gray-500";
                 msg.textContent = "No cars match filters.";
                 resultsContainer.appendChild(msg);
+                paginationContainer.classList.add('hidden');
                 return;
             }
 
-            filteredCars.forEach(car => {
+            // --- PAGINATION LOGIC ---
+            const visibleCars = filteredCars.slice(0, itemsToShow);
+
+            // Hide/Show "Show More" Button based on if we have more cars to show
+            if (filteredCars.length > itemsToShow) {
+                paginationContainer.classList.remove('hidden');
+            } else {
+                paginationContainer.classList.add('hidden');
+            }
+
+            visibleCars.forEach(car => {
                 
                 // 1. Calculate Duration
                 let diffDays = 0;
@@ -394,24 +446,27 @@
                      const forLabel = getTranslation('for-text');
                      const daysLabel = getTranslation('days-text');
                      
-                     // PLACED DIRECTLY UNDERNEATH
                      totalPriceHTML = `<div class="text-xs text-accent-blue font-bold bg-blue-50 px-2 py-1 rounded inline-block mt-2">Total: ${totalSymbol}${totalPrice} ${currentCurrency === 'DH' ? 'DH' : ''} ${forLabel} ${diffDays} ${daysLabel}</div>`;
                 }
 
                 const carCard = document.createElement('div');
                 carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group";
                 
+                // --- CHANGED HTML STRUCTURE HERE ---
+                // 1. Category above image (in px-6 pt-4 pb-0 container)
+                // 2. Image Height reduced to h-44 (approx 20% smaller than h-56)
                 carCard.innerHTML = `
-                    <div class="relative h-56 overflow-hidden">
-                        <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
-                        <div class="absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md border border-white/20">
+                    <div class="px-6 pt-4 pb-0">
+                        <span class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide bg-gray-100 text-gray-600">
                             ${car.type}
-                        </div>
+                        </span>
+                    </div>
+                    <div class="relative h-44 overflow-hidden mt-3">
+                        <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
                     </div>
                     <div class="p-6 flex flex-col justify-between flex-grow">
                         <div>
                             <div class="flex justify-between items-start mb-2"><h3 class="text-xl font-bold text-gray-900 leading-tight">${car.name}</h3></div>
-                            <!-- TOTAL PRICE HERE -->
                             ${totalPriceHTML ? totalPriceHTML : ''}
                             
                             <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 mb-4 mt-3">
@@ -479,6 +534,10 @@
             mobileMenu = document.getElementById('mobile-menu');
             mobileMenuBtn = document.getElementById('mobile-menu-button');
             filterMenuBtn = document.getElementById('filter-menu-button');
+            
+            // PAGINATION VARIABLES
+            showMoreBtn = document.getElementById('show-more-btn');
+            paginationContainer = document.getElementById('pagination-container');
 
             // --- HELPER CLOSING FUNCTIONS ---
             function closeMobileMenu() {
@@ -495,10 +554,7 @@
             // --- MENU TOGGLE LOGIC ---
             mobileMenuBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                // 1. Force sidebar to close if it's open
                 closeSidebar();
-
-                // 2. Toggle Menu
                 const isClosed = mobileMenu.classList.contains('opacity-0');
                 if (isClosed) {
                     mobileMenu.classList.remove('opacity-0', '-translate-y-2');
@@ -511,10 +567,7 @@
             // --- FILTER TOGGLE LOGIC ---
             filterMenuBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                // 1. Force mobile menu to close if it's open
                 closeMobileMenu();
-
-                // 2. Open Sidebar
                 filterSidebar.classList.add('open');
                 filterBackdrop.classList.remove('hidden');
                 document.body.classList.add('overflow-hidden');
@@ -522,8 +575,6 @@
 
             // Close Filter Button
             document.getElementById('filter-close-button').addEventListener('click', closeSidebar);
-            
-            // Close if Backdrop Clicked
             filterBackdrop.addEventListener('click', closeSidebar);
 
             // --- GLOBAL CLICK HANDLER (HEADER CLICK FIX) ---
@@ -539,17 +590,28 @@
                 }
             });
 
-            // --- GENERAL EVENTS ---
+            // --- EVENTS: FILTERS ---
+            // When filters change, reset pagination
+            const resetPaginationAndRender = () => {
+                itemsToShow = itemsPerLoad; // Reset to 10
+                renderAllCars();
+            };
+
             document.querySelectorAll('#filter-form input').forEach(inp => {
-                inp.addEventListener('change', renderAllCars);
+                inp.addEventListener('change', resetPaginationAndRender);
             });
             priceRange.addEventListener('input', updatePriceDisplay);
-            priceRange.addEventListener('change', renderAllCars);
+            priceRange.addEventListener('change', resetPaginationAndRender);
             
-            // Apply filter button also closes sidebar
             document.getElementById('apply-filters-btn').addEventListener('click', () => { 
-                renderAllCars(); 
+                resetPaginationAndRender(); 
                 closeSidebar(); 
+            });
+
+            // --- EVENT: PAGINATION (SHOW MORE) ---
+            showMoreBtn.addEventListener('click', () => {
+                itemsToShow += itemsPerLoad; // Increase by 10
+                renderAllCars();
             });
             
             document.getElementById('close-detail-modal-btn').addEventListener('click', () => {
