@@ -20,7 +20,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Prevent text selection while dragging */
         .sortable-ghost { opacity: 0.4; background: #e0e7ff; }
         .drag-handle { cursor: grab; touch-action: none; } 
     </style>
@@ -69,12 +68,11 @@
         <nav class="flex-1 overflow-y-auto py-4">
             <ul class="space-y-2">
                 <li><a href="index.html" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer text-indigo-200"><i class="fas fa-arrow-left w-5 text-center"></i><span class="font-medium">Back to Website</span></a></li>
-                
                 <li class="my-2 border-t border-indigo-800"></li>
                 
                 <li><button type="button" onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item active w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-chart-line w-5 text-center"></i><span class="font-medium">Dashboard</span></button></li>
                 <li class="px-6 pt-4 pb-1 text-xs font-bold text-indigo-400 uppercase">Inventory</li>
-                <li><button type="button" onclick="switchTab('fleet')" id="nav-fleet" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-car w-5 text-center"></i><span class="font-medium">Fleet Inventory</span></button></li>
+                <li><button type="button" onclick="showAllFleet()" id="nav-fleet" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-car w-5 text-center"></i><span class="font-medium">Fleet Inventory</span></button></li>
                 <li><button type="button" onclick="switchTab('add-car', true)" id="nav-add-car" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-plus-circle w-5 text-center"></i><span class="font-medium">Add New Car</span></button></li>
                 <li class="px-6 pt-4 pb-1 text-xs font-bold text-indigo-400 uppercase">Operations</li>
                 <li><button type="button" onclick="switchTab('bookings')" id="nav-bookings" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-calendar-alt w-5 text-center"></i><span class="font-medium">Bookings (Memo)</span></button></li>
@@ -97,34 +95,41 @@
             <div id="view-dashboard" class="page-view animate-fade-in block space-y-6">
                 <h2 class="md:hidden text-2xl font-bold text-gray-800 mb-4">Dashboard Overview</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div onclick="switchTab('fleet'); resetFilter();" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition"><div><p class="text-xs font-bold text-gray-400 uppercase">Total Fleet</p><h3 class="text-3xl font-bold text-gray-800 mt-1" id="stat-total">0</h3></div><div class="h-10 w-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center"><i class="fas fa-car"></i></div></div>
-                    <div onclick="filterFleetByStatus('Available')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-green-50 transition border-green-100"><div><p class="text-xs font-bold text-gray-400 uppercase">Available</p><h3 class="text-3xl font-bold text-green-600 mt-1" id="stat-available">0</h3></div><div class="h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><i class="fas fa-check"></i></div></div>
-                    <div onclick="filterFleetByStatus('Rented')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-orange-50 transition border-orange-100"><div><p class="text-xs font-bold text-gray-400 uppercase">Rented</p><h3 class="text-3xl font-bold text-orange-600 mt-1" id="stat-rented">0</h3></div><div class="h-10 w-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center"><i class="fas fa-key"></i></div></div>
-                    <div onclick="filterFleetByStatus('Maintenance')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-red-50 transition border-red-100"><div><p class="text-xs font-bold text-gray-400 uppercase">Maintenance</p><h3 class="text-3xl font-bold text-red-600 mt-1" id="stat-maintenance">0</h3></div><div class="h-10 w-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center"><i class="fas fa-tools"></i></div></div>
+                    <div onclick="showAllFleet()" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition"><div><p class="text-xs font-bold text-gray-400 uppercase">Total Fleet</p><h3 class="text-3xl font-bold text-gray-800 mt-1" id="stat-total">0</h3></div><div class="h-10 w-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center"><i class="fas fa-car"></i></div></div>
+                    <div onclick="showFilteredFleet('Available')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-green-50 transition border-green-100"><div><p class="text-xs font-bold text-gray-400 uppercase">Available</p><h3 class="text-3xl font-bold text-green-600 mt-1" id="stat-available">0</h3></div><div class="h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><i class="fas fa-check"></i></div></div>
+                    <div onclick="showFilteredFleet('Rented')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-orange-50 transition border-orange-100"><div><p class="text-xs font-bold text-gray-400 uppercase">Rented</p><h3 class="text-3xl font-bold text-orange-600 mt-1" id="stat-rented">0</h3></div><div class="h-10 w-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center"><i class="fas fa-key"></i></div></div>
+                    <div onclick="showFilteredFleet('Maintenance')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-red-50 transition border-red-100"><div><p class="text-xs font-bold text-gray-400 uppercase">Maintenance</p><h3 class="text-3xl font-bold text-red-600 mt-1" id="stat-maintenance">0</h3></div><div class="h-10 w-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center"><i class="fas fa-tools"></i></div></div>
                 </div>
                 
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 mb-4"><i class="fas fa-chart-pie text-2xl"></i></div>
                     <h3 class="text-lg font-bold text-gray-900">Quick Actions</h3>
                     <div class="flex flex-col sm:flex-row justify-center gap-3 mt-4">
-                        <button type="button" onclick="switchTab('fleet')" class="w-full sm:w-auto px-6 py-3 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg shadow-sm active:bg-gray-50 hover:bg-gray-50 transition-colors cursor-pointer relative z-10">View Inventory</button>
+                        <button type="button" onclick="showAllFleet()" class="w-full sm:w-auto px-6 py-3 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg shadow-sm active:bg-gray-50 hover:bg-gray-50 transition-colors cursor-pointer relative z-10">View Inventory</button>
                         <button type="button" onclick="switchTab('add-car', true)" class="w-full sm:w-auto px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg shadow-md active:bg-indigo-700 hover:bg-indigo-700 transition-colors cursor-pointer relative z-10">Add Vehicle</button>
                     </div>
                 </div>
             </div>
 
             <div id="view-fleet" class="page-view hidden space-y-4">
+                <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </button>
+
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <h2 class="text-2xl font-bold text-gray-800">Fleet Inventory</h2>
+                    <h2 class="text-2xl font-bold text-gray-800" id="fleetTitle">Fleet Inventory</h2>
                     <div class="relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="searchInput" placeholder="Search cars..." class="w-full md:w-64 pl-10 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none"></div>
                 </div>
 
                 <div id="loading" class="py-12 text-center"><i class="fas fa-spinner fa-spin text-3xl text-indigo-600 mb-2"></i><p class="text-gray-500">Loading fleet...</p></div>
-                
                 <div id="carsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-20"></div>
             </div>
 
             <div id="view-add-car" class="page-view hidden space-y-4">
+                <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </button>
+
                 <h2 id="formPageTitle" class="text-2xl font-bold text-gray-800">Add New Vehicle</h2>
                 <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
                     <form id="addCarForm" class="p-5 md:p-8 space-y-6">
@@ -179,6 +184,10 @@
             </div>
 
             <div id="view-bookings" class="page-view hidden space-y-4">
+                <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </button>
+
                 <h2 class="text-2xl font-bold text-gray-800">Booking Memo (Private Notes)</h2>
                 <div class="bg-indigo-50 text-indigo-700 p-4 rounded-lg text-sm mb-4">
                     <i class="fas fa-info-circle mr-2"></i> These notes are for your eyes only. They do not affect car availability on the website.
@@ -219,8 +228,6 @@
                 overlay.classList.add('hidden');
             }
         }
-
-        // Close menu when clicking outside (on the overlay)
         document.getElementById('mobileOverlay').addEventListener('click', toggleMenu);
 
         function switchTab(tabName, shouldReset = false) {
@@ -255,14 +262,6 @@
             document.getElementById('submitBtn').innerText = 'Save Vehicle';
             document.getElementById('carSeats').value = 5; 
         }
-
-        function resetFilter() {
-            const input = document.getElementById('searchInput');
-            if(input) {
-                input.value = '';
-                input.dispatchEvent(new Event('input'));
-            }
-        }
     </script>
 
     <script type="module">
@@ -290,6 +289,7 @@
         let currentUser = null;
         let carsData = [];
         let sortable = null;
+        let isFiltered = false; // To disable sorting when filtered
         
         onAuthStateChanged(auth, (user) => {
             const loginScreen = document.getElementById('login-screen');
@@ -326,12 +326,22 @@
             }
         }
 
-        // --- DASHBOARD FILTER LOGIC ---
-        window.filterFleetByStatus = function(status) {
-            switchTab('fleet'); 
+        // --- FILTERING LOGIC ---
+        window.showAllFleet = function() {
+            switchTab('fleet');
+            isFiltered = false;
+            document.getElementById('fleetTitle').innerText = 'Fleet Inventory (All)';
+            document.getElementById('searchInput').value = ''; 
+            renderCars(carsData);
+        }
+
+        window.showFilteredFleet = function(status) {
+            switchTab('fleet');
+            isFiltered = true;
+            document.getElementById('fleetTitle').innerText = `Fleet Inventory (${status})`;
+            document.getElementById('searchInput').value = ''; 
             const filtered = carsData.filter(c => c.status === status);
             renderCars(filtered);
-            document.getElementById('searchInput').value = status;
         }
 
         // --- EDIT LOGIC ---
@@ -374,10 +384,17 @@
                 if(loading) loading.classList.add('hidden');
                 carsData = [];
                 snapshot.forEach(doc => carsData.push({ id: doc.id, ...doc.data() }));
-                // Sort by priority
                 carsData.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
                 updateStats();
-                renderCars(carsData);
+                // If we are currently in "All" view, refresh. If filtered, we might want to refresh differently, 
+                // but for simplicity, let's refresh based on current view.
+                if(!isFiltered) {
+                    renderCars(carsData);
+                } else {
+                    // Re-apply filter if data changed while filtered (optional/advanced, skipping for simplicity)
+                    // Just showing all for safety on load
+                    renderCars(carsData);
+                }
             });
         }
 
@@ -398,6 +415,9 @@
             list.forEach((car) => {
                 const statusColor = {'Available': 'bg-green-100 text-green-700','Rented': 'bg-orange-100 text-orange-700','Maintenance': 'bg-red-100 text-red-700'}[car.status] || 'bg-gray-100';
                 
+                // Only show drag handle if NOT filtered
+                const dragHandleHTML = isFiltered ? '' : `<div class="drag-handle text-gray-400 hover:text-indigo-600 cursor-grab p-2 -mr-2"><i class="fas fa-grip-vertical text-lg"></i></div>`;
+
                 const div = document.createElement('div');
                 div.className = "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col relative car-item-el";
                 div.setAttribute('data-id', car.id);
@@ -410,7 +430,7 @@
                     <div class="p-4 flex-1 flex flex-col">
                         <div class="flex justify-between items-start">
                              <h3 class="font-bold text-lg text-gray-900 pointer-events-none select-none">${car.name}</h3>
-                             <div class="drag-handle text-gray-400 hover:text-indigo-600 cursor-grab p-2 -mr-2"><i class="fas fa-grip-vertical text-lg"></i></div>
+                             ${dragHandleHTML}
                         </div>
                         <p class="text-sm text-gray-500 mb-2 pointer-events-none select-none">${car.category}</p>
                         <div class="mt-auto flex items-center justify-between">
@@ -424,16 +444,20 @@
                 grid.appendChild(div);
             });
 
-            // Initialize SortableJS
+            // Re-init SortableJS
             if (sortable) sortable.destroy();
-            sortable = new Sortable(grid, {
-                animation: 150,
-                handle: '.drag-handle', // Only drag when touching the icon
-                ghostClass: 'sortable-ghost',
-                onEnd: async function (evt) {
-                    await updateOrderInFirebase();
-                }
-            });
+            
+            // Only enable sorting if NOT filtered
+            if (!isFiltered) {
+                sortable = new Sortable(grid, {
+                    animation: 150,
+                    handle: '.drag-handle', 
+                    ghostClass: 'sortable-ghost',
+                    onEnd: async function (evt) {
+                        await updateOrderInFirebase();
+                    }
+                });
+            }
         }
 
         async function updateOrderInFirebase() {
@@ -459,16 +483,19 @@
         if(searchInput) {
             searchInput.addEventListener('input', (e) => {
                 const term = e.target.value.toLowerCase();
+                // Search against GLOBAL carsData (allows manual search override)
                 const filtered = carsData.filter(c => 
                     c.name.toLowerCase().includes(term) || 
                     c.status.toLowerCase().includes(term) ||
                     c.category.toLowerCase().includes(term)
                 );
+                // When searching manually, we treat it like a filter (disable sort)
+                isFiltered = true; 
                 renderCars(filtered);
             });
         }
 
-        // --- FORM SUBMIT (Add/Edit) ---
+        // --- FORM SUBMIT ---
         document.getElementById('addCarForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             if(!currentUser) return;
