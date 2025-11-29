@@ -233,7 +233,6 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-extrabold text-primary-dark text-center mb-12" data-i18n="h2-fleet">Our Fleet</h2>
             
-            <!-- CHANGED: 2 Columns on Mobile, 3 on Desktop -->
             <div id="featured-car-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 lg:gap-8">
                 <div class="col-span-full flex justify-center py-12">
                     <div class="loader"></div>
@@ -372,7 +371,6 @@
         </div>
     </footer>
 
-    <!-- ADDED BACK THE MODAL HTML -->
     <div id="car-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
         <div class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-lg m-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-detail-content">
             <div class="flex justify-between items-start mb-4">
@@ -600,7 +598,6 @@
                                 <div class="flex justify-between items-center border-t border-gray-100 pt-2 mt-auto">
                                     <div class="flex flex-col">
                                         <span class="text-xs text-gray-400 font-medium uppercase">Daily Rate</span>
-                                        <!-- CHANGED: text-lg to text-base (10% smaller) -->
                                         <span class="text-base font-extrabold text-primary-dark">${carPriceString}</span>
                                     </div>
                                     <span class="accent-blue text-white font-semibold py-1 px-3 rounded-lg hover:accent-blue-dark transition shadow-md text-xs">Book Now</span>
@@ -614,6 +611,18 @@
                     });
                     
                     lucide.createIcons();
+
+                    // --- SCROLL FIX START ---
+                    if (window.location.hash) {
+                        setTimeout(() => {
+                            const element = document.querySelector(window.location.hash);
+                            if (element) {
+                                element.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        }, 500); // Wait for content to load, then scroll
+                    }
+                    // --- SCROLL FIX END ---
+
                 } catch (error) {
                     console.error("Error loading cars:", error);
                 }
@@ -729,5 +738,3 @@
     </script>
 </body>
 </html>
-
-
