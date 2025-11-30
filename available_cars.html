@@ -1,3 +1,4 @@
+l
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -239,7 +240,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
@@ -254,461 +255,452 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // Global variables
+        let currentLang = 'en';
+        let currentCurrency = 'DH';
+        let exchangeRates = { EUR: 0.092, USD: 0.10 };
+        let rentalLocation = '', rentalPickupDate = '', rentalReturnDate = '';
+        let allCars = [];
+        let currentSort = 'price-asc'; // Default sort
+        
+        // --- PAGINATION VARIABLES ---
+        let itemsToShow = 10;
+        const itemsPerLoad = 10;
+
+        // UI Elements
+        let priceRange, priceValue, filterSidebar, filterBackdrop, mobileMenu, mobileMenuBtn, carCountElement, resultsContainer;
+        let filterMenuBtn, showMoreBtn, paginationContainer;
+
+        // --- 1. TRANSLATIONS & UTILS ---
+        function getTranslation(key) {
+            if (typeof translations === 'undefined' || !translations[currentLang]) return key;
+            const translation = translations[currentLang][key];
+            return (typeof translation === 'function') ? translation : (translation || key);
+        }
+
+        function calculatePrice(basePrice) {
+            if (currentCurrency === 'EUR') return { price: (basePrice * exchangeRates.EUR).toFixed(0), symbol: '€' };
+            if (currentCurrency === 'USD') return { price: (basePrice * exchangeRates.USD).toFixed(0), symbol: '$' };
+            return { price: basePrice, symbol: '' };
+        }
+        
+        function updatePriceDisplay() {
+            if (!priceRange || !priceValue) return;
+            const currentSliderValue = parseInt(priceRange.value);
+            const symbol = currentCurrency === 'DH' ? ' DH' : (currentCurrency === 'EUR' ? ' €' : ' $');
+            priceValue.textContent = `${currentSliderValue}${symbol}`;
+        }
+
+        function updateAllSelectors(selector, value) {
+            document.querySelectorAll(selector).forEach(sel => sel.value = value);
+        }
+
+        // --- 2. CORE SETTINGS ---
+        function setLanguage(lang) {
+            currentLang = lang;
+            updateAllSelectors('#language-selector, #language-selector-mobile', lang);
+            const dictionary = translations[lang];
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (dictionary[key] && typeof dictionary[key] === 'string') element.textContent = dictionary[key];
+            });
+            document.body.setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');
+            
+            // Re-render to update sort dropdown text options if they exist in DOM
+            const sortSelect = document.getElementById('sort-selector');
+            if(sortSelect) {
+                 sortSelect.options[0].textContent = getTranslation('sort-price-asc');
+                 sortSelect.options[1].textContent = getTranslation('sort-price-desc');
+            }
+            renderAllCars();
+            lucide.createIcons();
+        }
+
+        function setCurrency(currency) {
+            currentCurrency = currency;
+            updateAllSelectors('#currency-selector, #currency-selector-mobile', currency);
+            let newMax = 2000;
+            if (currency === 'EUR' || currency === 'USD') newMax = 200; 
+            
+            const percent = priceRange.value / priceRange.max;
+            priceRange.max = newMax;
+            priceRange.value = Math.floor(newMax * percent) || newMax; 
+
+            updatePriceDisplay();
+            renderAllCars();
+        }
+
+        async function fetchRates() {
+            try {
+                const response = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/mad.json');
+                const data = await response.json();
+                if (data && data.mad) {
+                    exchangeRates.EUR = data.mad.eur;
+                    exchangeRates.USD = data.mad.usd;
+                }
+            } catch (error) { console.log('Using static rates'); }
+            loadCars();
+        }
+
+        // --- 3. DATA LOADING ---
+        async function loadCars() {
+            if (!resultsContainer) return;
+            resultsContainer.innerHTML = '<div class="col-span-full text-center py-20"><div class="loader mx-auto mb-4"></div></div>';
+            
+            try {
+                const q = query(collection(db, "cars"), orderBy("sortOrder", "asc")); 
+                const querySnapshot = await getDocs(q);
+                
+                allCars = [];
+                querySnapshot.forEach((doc) => {
+                    const d = doc.data();
+                    allCars.push({ 
+                        id: doc.id,
+                        name: d.name || 'Unknown Car',
+                        price: Number(d.price) || 0,
+                        img: d.imageUrl || 'https://placehold.co/600x400?text=No+Image',
+                        type: d.category || 'Sedan', 
+                        fuel: d.fuelType || 'Diesel',
+                        transmission: d.transmission || 'Manual',
+                        desc: d.description || '',
+                        color: d.color || 'Standard',
+                        seats: d.seats || 5
+                    });
+                });
+                renderAllCars();
+            } catch (error) {
+                console.error("Error:", error);
+                resultsContainer.innerHTML = `<div class="col-span-full text-center text-red-500 py-10">Error loading cars. Check internet connection.</div>`;
+            }
+        }
+        
+        function renderAllCars() {
+            resultsContainer.innerHTML = '';
+            
+            // --- HEADER WITH SORTING ---
+            const header = document.createElement('div');
+            header.className = 'col-span-full flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100 mb-4';
+            
+            const countText = document.createElement('p');
+            countText.className = "text-sm text-gray-600";
+            countText.id = "car-count";
+            
+            const sortSelect = document.createElement('select');
+            sortSelect.id = "sort-selector";
+            // FIXED: Clean Tailwind Styling for Dropdown
+            sortSelect.className = "text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500";
+            sortSelect.innerHTML = `
+                <option value="price-asc">${getTranslation('sort-price-asc')}</option>
+                <option value="price-desc">${getTranslation('sort-price-desc')}</option>
+            `;
+            sortSelect.value = currentSort;
+            
+            // Sort Event Listener
+            sortSelect.addEventListener('change', (e) => {
+                currentSort = e.target.value;
+                renderAllCars(); // Re-render with new sort
+            });
+
+            header.appendChild(countText);
+            header.appendChild(sortSelect);
+            resultsContainer.appendChild(header);
+
+            // --- FILTERING ---
+            const sliderValue = parseInt(priceRange.value); 
+            const selectedTrans = Array.from(document.querySelectorAll('#transmission-filters input:checked')).map(c => c.value);
+            const selectedTypes = Array.from(document.querySelectorAll('#type-filters input:checked')).map(c => c.value);
+            const selectedFuels = Array.from(document.querySelectorAll('#fuel-filters input:checked')).map(c => c.value);
+
+            let filteredCars = allCars.filter(car => {
+                let comparePrice = car.price; 
+                if (currentCurrency !== 'DH') comparePrice = Number(calculatePrice(car.price).price);
+                if (comparePrice > sliderValue) return false;
+                if (selectedTrans.length > 0 && !selectedTrans.includes(car.transmission)) return false;
+                if (selectedTypes.length > 0 && !selectedTypes.includes(car.type)) return false;
+                if (selectedFuels.length > 0 && !selectedFuels.includes(car.fuel)) return false;
+                return true;
+            });
+            
+            // --- SORTING ---
+            if (currentSort === 'price-asc') {
+                filteredCars.sort((a, b) => a.price - b.price);
+            } else if (currentSort === 'price-desc') {
+                filteredCars.sort((a, b) => b.price - a.price);
+            }
+
+            // Update count text
+            const countLabel = getTranslation('sort-count-text');
+            countText.textContent = `${filteredCars.length} ${countLabel}`;
+
+            if (filteredCars.length === 0) {
+                const msg = document.createElement('div');
+                msg.className = "col-span-full text-center py-10 text-gray-500";
+                msg.textContent = "No cars match filters.";
+                resultsContainer.appendChild(msg);
+                paginationContainer.classList.add('hidden');
+                return;
+            }
+
+            // --- PAGINATION LOGIC ---
+            const visibleCars = filteredCars.slice(0, itemsToShow);
+
+            if (filteredCars.length > itemsToShow) {
+                paginationContainer.classList.remove('hidden');
+            } else {
+                paginationContainer.classList.add('hidden');
+            }
+
+            visibleCars.forEach(car => {
+                
+                // 1. Calculate Duration
+                let diffDays = 0;
+                if (rentalPickupDate && rentalReturnDate) {
+                    const start = new Date(rentalPickupDate);
+                    const end = new Date(rentalReturnDate);
+                    const diffTime = end - start;
+                    diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if (diffDays < 1) diffDays = 1;
+                }
+
+                // 2. Discount Logic
+                let discountFactor = 1;
+                if (diffDays >= 10 && diffDays <= 24) {
+                    discountFactor = 0.90; // 10%
+                } else if (diffDays > 24) {
+                    discountFactor = 1 - (16.66666666 / 100); // 16.66%
+                }
+
+                // 3. Round UP daily price
+                const baseDailyPrice = Math.ceil(car.price * discountFactor);
+
+                // 4. Formatting
+                const { price, symbol } = calculatePrice(baseDailyPrice);
+                const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
+                
+                // 5. Total Price Display
+                let totalPriceHTML = '';
+                if (diffDays > 0) {
+                     const total = baseDailyPrice * diffDays;
+                     const { price: totalPrice, symbol: totalSymbol } = calculatePrice(total);
+                     const forLabel = getTranslation('for-text');
+                     const daysLabel = getTranslation('days-text');
+                     
+                     totalPriceHTML = `<div class="text-xs text-accent-blue font-bold bg-blue-50 px-2 py-1 rounded inline-block mt-2">Total: ${totalSymbol}${totalPrice} ${currentCurrency === 'DH' ? 'DH' : ''} ${forLabel} ${diffDays} ${daysLabel}</div>`;
+                }
+
+                const carCard = document.createElement('div');
+                carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group";
+                
+                // --- CARD HTML STRUCTURE ---
+                carCard.innerHTML = `
+                    <div class="px-6 pt-4 pb-0">
+                        <span class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide bg-gray-100 text-gray-600">
+                            ${car.type}
+                        </span>
+                    </div>
+                    <div class="relative h-56 overflow-hidden mt-3">
+                        <img src="${car.img}" loading="lazy" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
+                    </div>
+                    <div class="p-6 flex flex-col justify-between flex-grow">
+                        <div>
+                            <div class="flex justify-between items-start mb-2"><h3 class="text-xl font-bold text-gray-900 leading-tight">${car.name}</h3></div>
+                            ${totalPriceHTML ? totalPriceHTML : ''}
+                            
+                            <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 mb-4 mt-3">
+                                <div class="flex items-center"><i data-lucide="${car.transmission.toLowerCase() === 'automatic' ? 'zap' : 'gauge'}" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${getTranslation(car.transmission.toLowerCase())}</span></div>
+                                <div class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.fuel}</span></div>
+                                <div class="flex items-center"><i data-lucide="users" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.seats} Seats</span></div>
+                                <div class="flex items-center"><i data-lucide="snowflake" class="w-4 h-4 text-accent-blue mr-2"></i> <span>A/C</span></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-100 pt-4 mt-auto">
+                            <div class="flex flex-col">
+                                <span class="text-xs text-gray-400 font-medium uppercase">Daily Rate</span>
+                                <span class="text-2xl font-extrabold text-primary-dark">${carPriceString}</span>
+                            </div>
+                            <button class="accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition duration-300 shadow-md text-sm book-btn"><span data-i18n="btn-book-now">Book Now</span></button>
+                        </div>
+                    </div>
+                `;
+                carCard.addEventListener('click', () => window.openModal(car.name, carPriceString, car.img, car.transmission, car.seats, car.color, car.desc));
+                resultsContainer.appendChild(carCard);
+            });
+            lucide.createIcons();
+        }
+
+        // --- 4. MODAL ---
+        window.openModal = function(carName, carPriceWithSymbol, carImg, carTrans, carSeats, carColor, carDesc) {
+            const dict = translations[currentLang];
+            document.getElementById('modal-car-name').textContent = carName;
+            document.getElementById('modal-car-image').src = carImg;
+            document.getElementById('modal-transmission').textContent = carTrans;
+            document.getElementById('modal-seats-value').textContent = carSeats;
+            document.getElementById('modal-color').textContent = carColor;
+            document.getElementById('modal-car-desc').textContent = carDesc;
+            document.getElementById('modal-car-price').textContent = carPriceWithSymbol.replace(/ DH| €| \$/g, '');
+            document.getElementById('modal-car-currency').textContent = currentCurrency === 'DH' ? 'DH' : (currentCurrency === 'EUR' ? '€' : '$');
+            
+            let whatsappMessage;
+            if (rentalPickupDate) {
+                 whatsappMessage = dict['book-whatsapp-msg-full'](carName, carPriceWithSymbol, rentalLocation, rentalPickupDate, rentalReturnDate);
+            } else {
+                 whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
+            }
+            
+            document.getElementById('whatsapp-link').href = `https://wa.me/212602020402?text=${encodeURIComponent(whatsappMessage)}`;
+            document.getElementById('contact-options').classList.add('hidden');
+            document.getElementById('modal-book-button').classList.remove('hidden'); 
+            
+            document.getElementById('modal-book-button').onclick = () => {
+                document.getElementById('contact-options').classList.remove('hidden');
+                document.getElementById('modal-book-button').classList.add('hidden');
+            };
+
+            const modal = document.getElementById('car-detail-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => { document.getElementById('modal-detail-content').classList.remove('scale-95', 'opacity-0'); }, 10);
+            document.body.classList.add('overflow-hidden');
+        }
+
+        // --- 5. INITIALIZATION & EVENTS ---
         document.addEventListener('DOMContentLoaded', () => {
+             // Safety Check for Data.js
             if (typeof translations === 'undefined') {
                 console.warn('Data.js not loaded. Defaulting.');
                 window.translations = { en: {} };
             }
 
-            let currentLang = 'en';
-            let currentCurrency = 'DH';
-            let exchangeRates = { EUR: 0.092, USD: 0.10 };
-            let rentalLocation = '', rentalPickupDate = '', rentalReturnDate = '';
-            let allCars = [];
-            let currentSort = 'default'; // Default sort is now Standard (Database Order)
+            priceRange = document.getElementById('price-range');
+            priceValue = document.getElementById('price-value');
+            filterSidebar = document.getElementById('filter-sidebar');
+            filterBackdrop = document.getElementById('filter-backdrop'); 
+            resultsContainer = document.getElementById('results-container');
             
-            // --- PAGINATION VARIABLES ---
-            let itemsToShow = 10;
-            const itemsPerLoad = 10;
-
-            // UI Elements
-            let priceRange, priceValue, filterSidebar, filterBackdrop, mobileMenu, mobileMenuBtn, carCountElement, resultsContainer;
-            let filterMenuBtn, showMoreBtn, paginationContainer;
-
-            // --- 1. TRANSLATIONS & UTILS ---
-            function getTranslation(key) {
-                if (typeof translations === 'undefined' || !translations[currentLang]) return key;
-                const translation = translations[currentLang][key];
-                return (typeof translation === 'function') ? translation : (translation || key);
-            }
-
-            function calculatePrice(basePrice) {
-                if (currentCurrency === 'EUR') return { price: (basePrice * exchangeRates.EUR).toFixed(0), symbol: '€' };
-                if (currentCurrency === 'USD') return { price: (basePrice * exchangeRates.USD).toFixed(0), symbol: '$' };
-                return { price: basePrice, symbol: '' };
-            }
+            // MENU VARIABLES
+            mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuBtn = document.getElementById('mobile-menu-button');
+            filterMenuBtn = document.getElementById('filter-menu-button');
             
-            function updatePriceDisplay() {
-                if (!priceRange || !priceValue) return;
-                const currentSliderValue = parseInt(priceRange.value);
-                const symbol = currentCurrency === 'DH' ? ' DH' : (currentCurrency === 'EUR' ? ' €' : ' $');
-                priceValue.textContent = `${currentSliderValue}${symbol}`;
+            // PAGINATION VARIABLES
+            showMoreBtn = document.getElementById('show-more-btn');
+            paginationContainer = document.getElementById('pagination-container');
+
+            // --- HELPER CLOSING FUNCTIONS ---
+            function closeMobileMenu() {
+                mobileMenu.classList.add('opacity-0', '-translate-y-2');
+                mobileMenu.style.pointerEvents = 'none';
             }
 
-            function updateAllSelectors(selector, value) {
-                document.querySelectorAll(selector).forEach(sel => sel.value = value);
+            function closeSidebar() {
+                filterSidebar.classList.remove('open');
+                filterBackdrop.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
             }
 
-            // --- 2. CORE SETTINGS ---
-            function setLanguage(lang) {
-                currentLang = lang;
-                updateAllSelectors('#language-selector, #language-selector-mobile', lang);
-                const dictionary = translations[lang];
-                document.querySelectorAll('[data-i18n]').forEach(element => {
-                    const key = element.getAttribute('data-i18n');
-                    if (dictionary[key] && typeof dictionary[key] === 'string') element.textContent = dictionary[key];
-                });
-                document.body.setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');
-                
-                // Re-render to update sort dropdown text options
-                const sortSelect = document.getElementById('sort-selector');
-                if(sortSelect) {
-                     const standardText = dictionary['sort-default'] || 'Standard';
-                     const ascText = dictionary['sort-price-asc'] || 'Price: Low to High';
-                     const descText = dictionary['sort-price-desc'] || 'Price: High to Low';
-                     
-                     sortSelect.options[0].textContent = standardText;
-                     sortSelect.options[1].textContent = ascText;
-                     sortSelect.options[2].textContent = descText;
-                }
-                renderAllCars();
-                lucide.createIcons();
-            }
-
-            function setCurrency(currency) {
-                currentCurrency = currency;
-                updateAllSelectors('#currency-selector, #currency-selector-mobile', currency);
-                let newMax = 2000;
-                if (currency === 'EUR' || currency === 'USD') newMax = 200; 
-                
-                const percent = priceRange.value / priceRange.max;
-                priceRange.max = newMax;
-                priceRange.value = Math.floor(newMax * percent) || newMax; 
-
-                updatePriceDisplay();
-                renderAllCars();
-            }
-
-            async function fetchRates() {
-                try {
-                    const response = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/mad.json');
-                    const data = await response.json();
-                    if (data && data.mad) {
-                        exchangeRates.EUR = data.mad.eur;
-                        exchangeRates.USD = data.mad.usd;
-                    }
-                } catch (error) { console.log('Using static rates'); }
-                loadCars();
-            }
-
-            // --- 3. DATA LOADING ---
-            async function loadCars() {
-                if (!resultsContainer) return;
-                resultsContainer.innerHTML = '<div class="col-span-full text-center py-20"><div class="loader mx-auto mb-4"></div></div>';
-                
-                try {
-                    const q = query(collection(db, "cars"), orderBy("sortOrder", "asc")); 
-                    const querySnapshot = await getDocs(q);
-                    
-                    allCars = [];
-                    querySnapshot.forEach((doc) => {
-                        const d = doc.data();
-                        allCars.push({ 
-                            id: doc.id,
-                            name: d.name || 'Unknown Car',
-                            price: Number(d.price) || 0,
-                            img: d.imageUrl || 'https://placehold.co/600x400?text=No+Image',
-                            type: d.category || 'Sedan', 
-                            fuel: d.fuelType || 'Diesel',
-                            transmission: d.transmission || 'Manual',
-                            desc: d.description || '',
-                            color: d.color || 'Standard',
-                            seats: d.seats || 5
-                        });
-                    });
-                    renderAllCars();
-                } catch (error) {
-                    console.error("Error:", error);
-                    resultsContainer.innerHTML = `<div class="col-span-full text-center text-red-500 py-10">Error loading cars. Check internet connection.</div>`;
-                }
-            }
-            
-            function renderAllCars() {
-                resultsContainer.innerHTML = '';
-                
-                // --- HEADER WITH SORTING ---
-                const header = document.createElement('div');
-                header.className = 'col-span-full flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100 mb-4';
-                
-                const countText = document.createElement('p');
-                countText.className = "text-sm text-gray-600";
-                countText.id = "car-count";
-                
-                const sortSelect = document.createElement('select');
-                sortSelect.id = "sort-selector";
-                sortSelect.className = "text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500";
-                
-                const standardLabel = getTranslation('sort-default') !== 'sort-default' ? getTranslation('sort-default') : 'Standard';
-                
-                sortSelect.innerHTML = `
-                    <option value="default">${standardLabel}</option>
-                    <option value="price-asc">${getTranslation('sort-price-asc')}</option>
-                    <option value="price-desc">${getTranslation('sort-price-desc')}</option>
-                `;
-                sortSelect.value = currentSort;
-                
-                sortSelect.addEventListener('change', (e) => {
-                    currentSort = e.target.value;
-                    renderAllCars(); 
-                });
-
-                header.appendChild(countText);
-                header.appendChild(sortSelect);
-                resultsContainer.appendChild(header);
-
-                // --- FILTERING ---
-                const sliderValue = parseInt(priceRange.value); 
-                const selectedTrans = Array.from(document.querySelectorAll('#transmission-filters input:checked')).map(c => c.value);
-                const selectedTypes = Array.from(document.querySelectorAll('#type-filters input:checked')).map(c => c.value);
-                const selectedFuels = Array.from(document.querySelectorAll('#fuel-filters input:checked')).map(c => c.value);
-
-                let filteredCars = allCars.filter(car => {
-                    let comparePrice = car.price; 
-                    if (currentCurrency !== 'DH') comparePrice = Number(calculatePrice(car.price).price);
-                    if (comparePrice > sliderValue) return false;
-                    if (selectedTrans.length > 0 && !selectedTrans.includes(car.transmission)) return false;
-                    if (selectedTypes.length > 0 && !selectedTypes.includes(car.type)) return false;
-                    if (selectedFuels.length > 0 && !selectedFuels.includes(car.fuel)) return false;
-                    return true;
-                });
-                
-                // --- SORTING ---
-                if (currentSort === 'price-asc') {
-                    filteredCars.sort((a, b) => a.price - b.price);
-                } else if (currentSort === 'price-desc') {
-                    filteredCars.sort((a, b) => b.price - a.price);
-                }
-                // 'default' uses database order (which is preserved in allCars)
-
-                const countLabel = getTranslation('sort-count-text');
-                countText.textContent = `${filteredCars.length} ${countLabel}`;
-
-                if (filteredCars.length === 0) {
-                    const msg = document.createElement('div');
-                    msg.className = "col-span-full text-center py-10 text-gray-500";
-                    msg.textContent = "No cars match filters.";
-                    resultsContainer.appendChild(msg);
-                    paginationContainer.classList.add('hidden');
-                    return;
-                }
-
-                // --- PAGINATION LOGIC ---
-                const visibleCars = filteredCars.slice(0, itemsToShow);
-
-                if (filteredCars.length > itemsToShow) {
-                    paginationContainer.classList.remove('hidden');
+            // --- MENU TOGGLE LOGIC (AUTO CLOSE ON SCROLL) ---
+            mobileMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeSidebar();
+                const isClosed = mobileMenu.classList.contains('opacity-0');
+                if (isClosed) {
+                    mobileMenu.classList.remove('opacity-0', '-translate-y-2');
+                    mobileMenu.style.pointerEvents = 'auto';
                 } else {
-                    paginationContainer.classList.add('hidden');
-                }
-
-                visibleCars.forEach(car => {
-                    
-                    // 1. Duration
-                    let diffDays = 0;
-                    if (rentalPickupDate && rentalReturnDate) {
-                        const start = new Date(rentalPickupDate);
-                        const end = new Date(rentalReturnDate);
-                        const diffTime = end - start;
-                        diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        if (diffDays < 1) diffDays = 1;
-                    }
-
-                    // 2. Discount
-                    let discountFactor = 1;
-                    if (diffDays >= 10 && diffDays <= 24) {
-                        discountFactor = 0.90; 
-                    } else if (diffDays > 24) {
-                        discountFactor = 1 - (16.66666666 / 100); 
-                    }
-
-                    // 3. Price
-                    const baseDailyPrice = Math.ceil(car.price * discountFactor);
-                    const { price, symbol } = calculatePrice(baseDailyPrice);
-                    const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
-                    
-                    // 4. Total Display
-                    let totalPriceHTML = '';
-                    if (diffDays > 0) {
-                         const total = baseDailyPrice * diffDays;
-                         const { price: totalPrice, symbol: totalSymbol } = calculatePrice(total);
-                         const forLabel = getTranslation('for-text');
-                         const daysLabel = getTranslation('days-text');
-                         totalPriceHTML = `<div class="text-xs text-accent-blue font-bold bg-blue-50 px-2 py-1 rounded inline-block mt-2">Total: ${totalSymbol}${totalPrice} ${currentCurrency === 'DH' ? 'DH' : ''} ${forLabel} ${diffDays} ${daysLabel}</div>`;
-                    }
-
-                    const carCard = document.createElement('div');
-                    carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group";
-                    
-                    carCard.innerHTML = `
-                        <div class="px-6 pt-4 pb-0">
-                            <span class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide bg-gray-100 text-gray-600">
-                                ${car.type}
-                            </span>
-                        </div>
-                        <div class="relative h-56 overflow-hidden mt-3">
-                            <img src="${car.img}" loading="lazy" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
-                        </div>
-                        <div class="p-6 flex flex-col justify-between flex-grow">
-                            <div>
-                                <div class="flex justify-between items-start mb-2"><h3 class="text-xl font-bold text-gray-900 leading-tight">${car.name}</h3></div>
-                                ${totalPriceHTML ? totalPriceHTML : ''}
-                                
-                                <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600 mb-4 mt-3">
-                                    <div class="flex items-center"><i data-lucide="${car.transmission.toLowerCase() === 'automatic' ? 'zap' : 'gauge'}" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${getTranslation(car.transmission.toLowerCase())}</span></div>
-                                    <div class="flex items-center"><i data-lucide="fuel" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.fuel}</span></div>
-                                    <div class="flex items-center"><i data-lucide="users" class="w-4 h-4 text-accent-blue mr-2"></i> <span>${car.seats} Seats</span></div>
-                                    <div class="flex items-center"><i data-lucide="snowflake" class="w-4 h-4 text-accent-blue mr-2"></i> <span>A/C</span></div>
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-center border-t border-gray-100 pt-4 mt-auto">
-                                <div class="flex flex-col">
-                                    <span class="text-xs text-gray-400 font-medium uppercase">Daily Rate</span>
-                                    <span class="text-2xl font-extrabold text-primary-dark">${carPriceString}</span>
-                                </div>
-                                <button class="accent-blue text-white font-semibold py-2 px-6 rounded-lg hover:accent-blue-dark transition duration-300 shadow-md text-sm book-btn"><span data-i18n="btn-book-now">Book Now</span></button>
-                            </div>
-                        </div>
-                    `;
-                    carCard.addEventListener('click', () => window.openModal(car.name, carPriceString, car.img, car.transmission, car.seats, car.color, car.desc));
-                    resultsContainer.appendChild(carCard);
-                });
-                lucide.createIcons();
-            }
-
-            // --- 4. MODAL ---
-            window.openModal = function(carName, carPriceWithSymbol, carImg, carTrans, carSeats, carColor, carDesc) {
-                const dict = translations[currentLang];
-                document.getElementById('modal-car-name').textContent = carName;
-                document.getElementById('modal-car-image').src = carImg;
-                document.getElementById('modal-transmission').textContent = carTrans;
-                document.getElementById('modal-seats-value').textContent = carSeats;
-                document.getElementById('modal-color').textContent = carColor;
-                document.getElementById('modal-car-desc').textContent = carDesc;
-                document.getElementById('modal-car-price').textContent = carPriceWithSymbol.replace(/ DH| €| \$/g, '');
-                document.getElementById('modal-car-currency').textContent = currentCurrency === 'DH' ? 'DH' : (currentCurrency === 'EUR' ? '€' : '$');
-                
-                let whatsappMessage;
-                if (rentalPickupDate) {
-                     whatsappMessage = dict['book-whatsapp-msg-full'](carName, carPriceWithSymbol, rentalLocation, rentalPickupDate, rentalReturnDate);
-                } else {
-                     whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
-                }
-                
-                document.getElementById('whatsapp-link').href = `https://wa.me/212602020402?text=${encodeURIComponent(whatsappMessage)}`;
-                document.getElementById('contact-options').classList.add('hidden');
-                document.getElementById('modal-book-button').classList.remove('hidden'); 
-                
-                document.getElementById('modal-book-button').onclick = () => {
-                    document.getElementById('contact-options').classList.remove('hidden');
-                    document.getElementById('modal-book-button').classList.add('hidden');
-                };
-
-                const modal = document.getElementById('car-detail-modal');
-                modal.classList.remove('hidden');
-                setTimeout(() => { document.getElementById('modal-detail-content').classList.remove('scale-95', 'opacity-0'); }, 10);
-                document.body.classList.add('overflow-hidden');
-            }
-
-            // --- 5. INITIALIZATION & EVENTS ---
-            document.addEventListener('DOMContentLoaded', () => {
-                 // Safety Check for Data.js
-                if (typeof translations === 'undefined') {
-                    console.warn('Data.js not loaded. Defaulting.');
-                    window.translations = { en: {} };
-                }
-
-                priceRange = document.getElementById('price-range');
-                priceValue = document.getElementById('price-value');
-                filterSidebar = document.getElementById('filter-sidebar');
-                filterBackdrop = document.getElementById('filter-backdrop'); 
-                resultsContainer = document.getElementById('results-container');
-                
-                // MENU VARIABLES
-                mobileMenu = document.getElementById('mobile-menu');
-                mobileMenuBtn = document.getElementById('mobile-menu-button');
-                filterMenuBtn = document.getElementById('filter-menu-button');
-                
-                // PAGINATION VARIABLES
-                showMoreBtn = document.getElementById('show-more-btn');
-                paginationContainer = document.getElementById('pagination-container');
-
-                // --- HELPER CLOSING FUNCTIONS ---
-                function closeMobileMenu() {
-                    mobileMenu.classList.add('opacity-0', '-translate-y-2');
-                    mobileMenu.style.pointerEvents = 'none';
-                }
-
-                function closeSidebar() {
-                    filterSidebar.classList.remove('open');
-                    filterBackdrop.classList.add('hidden');
-                    document.body.classList.remove('overflow-hidden');
-                }
-
-                // --- MENU TOGGLE LOGIC (AUTO CLOSE ON SCROLL) ---
-                mobileMenuBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    closeSidebar();
-                    const isClosed = mobileMenu.classList.contains('opacity-0');
-                    if (isClosed) {
-                        mobileMenu.classList.remove('opacity-0', '-translate-y-2');
-                        mobileMenu.style.pointerEvents = 'auto';
-                    } else {
-                        closeMobileMenu();
-                    }
-                });
-
-                // Auto-Close on Scroll
-                window.addEventListener('scroll', () => {
-                    if (mobileMenu.style.pointerEvents === 'auto') {
-                        closeMobileMenu();
-                    }
-                });
-
-                // --- FILTER TOGGLE LOGIC ---
-                filterMenuBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
                     closeMobileMenu();
-                    filterSidebar.classList.add('open');
-                    filterBackdrop.classList.remove('hidden');
-                    document.body.classList.add('overflow-hidden');
-                });
-
-                // Close Filter Button
-                document.getElementById('filter-close-button').addEventListener('click', closeSidebar);
-                filterBackdrop.addEventListener('click', closeSidebar);
-
-                // --- GLOBAL CLICK HANDLER (HEADER CLICK FIX) ---
-                document.addEventListener('click', (e) => {
-                    const clickedInsideMenu = mobileMenu.contains(e.target) || mobileMenuBtn.contains(e.target);
-                    const clickedInsideFilter = filterSidebar.contains(e.target) || filterMenuBtn.contains(e.target);
-
-                    if (mobileMenu.style.pointerEvents === 'auto' && !clickedInsideMenu) {
-                        closeMobileMenu();
-                    }
-                    if (filterSidebar.classList.contains('open') && !clickedInsideFilter) {
-                        closeSidebar();
-                    }
-                });
-
-                // --- EVENTS: FILTERS ---
-                // When filters change, reset pagination
-                const resetPaginationAndRender = () => {
-                    itemsToShow = itemsPerLoad; // Reset to 10
-                    renderAllCars();
-                };
-
-                document.querySelectorAll('#filter-form input').forEach(inp => {
-                    inp.addEventListener('change', resetPaginationAndRender);
-                });
-                priceRange.addEventListener('input', updatePriceDisplay);
-                priceRange.addEventListener('change', resetPaginationAndRender);
-                
-                document.getElementById('apply-filters-btn').addEventListener('click', () => { 
-                    resetPaginationAndRender(); 
-                    closeSidebar(); 
-                });
-
-                // --- EVENT: PAGINATION (SHOW MORE) ---
-                showMoreBtn.addEventListener('click', () => {
-                    itemsToShow += itemsPerLoad; // Increase by 10
-                    renderAllCars();
-                });
-                
-                document.getElementById('close-detail-modal-btn').addEventListener('click', () => {
-                     document.getElementById('car-detail-modal').classList.add('hidden');
-                     document.body.classList.remove('overflow-hidden');
-                });
-
-                // Language & Currency
-                document.querySelectorAll('#language-selector, #language-selector-mobile').forEach(sel => {
-                    sel.addEventListener('change', (e) => {
-                        setLanguage(e.target.value);
-                        localStorage.setItem('languagePreference', e.target.value);
-                    });
-                });
-
-                document.querySelectorAll('#currency-selector, #currency-selector-mobile').forEach(sel => {
-                    sel.addEventListener('change', (e) => {
-                        setCurrency(e.target.value);
-                        localStorage.setItem('currencyPreference', e.target.value);
-                    });
-                });
-
-                // Load Preferences
-                const savedLang = localStorage.getItem('languagePreference') || 'en';
-                const savedCurrency = localStorage.getItem('currencyPreference') || 'DH';
-                rentalLocation = localStorage.getItem('rentalLocation');
-                rentalPickupDate = localStorage.getItem('rentalPickupDate');
-                rentalReturnDate = localStorage.getItem('rentalReturnDate');
-
-                updateAllSelectors('#language-selector, #language-selector-mobile', savedLang);
-                updateAllSelectors('#currency-selector, #currency-selector-mobile', savedCurrency);
-                currentLang = savedLang;
-                currentCurrency = savedCurrency;
-
-                setLanguage(savedLang);
-                fetchRates();
+                }
             });
+
+            // Auto-Close on Scroll
+            window.addEventListener('scroll', () => {
+                if (mobileMenu.style.pointerEvents === 'auto') {
+                    closeMobileMenu();
+                }
+            });
+
+            // --- FILTER TOGGLE LOGIC ---
+            filterMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeMobileMenu();
+                filterSidebar.classList.add('open');
+                filterBackdrop.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            });
+
+            // Close Filter Button
+            document.getElementById('filter-close-button').addEventListener('click', closeSidebar);
+            filterBackdrop.addEventListener('click', closeSidebar);
+
+            // --- GLOBAL CLICK HANDLER (HEADER CLICK FIX) ---
+            document.addEventListener('click', (e) => {
+                const clickedInsideMenu = mobileMenu.contains(e.target) || mobileMenuBtn.contains(e.target);
+                const clickedInsideFilter = filterSidebar.contains(e.target) || filterMenuBtn.contains(e.target);
+
+                if (mobileMenu.style.pointerEvents === 'auto' && !clickedInsideMenu) {
+                    closeMobileMenu();
+                }
+                if (filterSidebar.classList.contains('open') && !clickedInsideFilter) {
+                    closeSidebar();
+                }
+            });
+
+            // --- EVENTS: FILTERS ---
+            // When filters change, reset pagination
+            const resetPaginationAndRender = () => {
+                itemsToShow = itemsPerLoad; // Reset to 10
+                renderAllCars();
+            };
+
+            document.querySelectorAll('#filter-form input').forEach(inp => {
+                inp.addEventListener('change', resetPaginationAndRender);
+            });
+            priceRange.addEventListener('input', updatePriceDisplay);
+            priceRange.addEventListener('change', resetPaginationAndRender);
+            
+            document.getElementById('apply-filters-btn').addEventListener('click', () => { 
+                resetPaginationAndRender(); 
+                closeSidebar(); 
+            });
+
+            // --- EVENT: PAGINATION (SHOW MORE) ---
+            showMoreBtn.addEventListener('click', () => {
+                itemsToShow += itemsPerLoad; // Increase by 10
+                renderAllCars();
+            });
+            
+            document.getElementById('close-detail-modal-btn').addEventListener('click', () => {
+                 document.getElementById('car-detail-modal').classList.add('hidden');
+                 document.body.classList.remove('overflow-hidden');
+            });
+
+            // Language & Currency
+            document.querySelectorAll('#language-selector, #language-selector-mobile').forEach(sel => {
+                sel.addEventListener('change', (e) => {
+                    setLanguage(e.target.value);
+                    localStorage.setItem('languagePreference', e.target.value);
+                });
+            });
+
+            document.querySelectorAll('#currency-selector, #currency-selector-mobile').forEach(sel => {
+                sel.addEventListener('change', (e) => {
+                    setCurrency(e.target.value);
+                    localStorage.setItem('currencyPreference', e.target.value);
+                });
+            });
+
+            // Load Preferences
+            const savedLang = localStorage.getItem('languagePreference') || 'en';
+            const savedCurrency = localStorage.getItem('currencyPreference') || 'DH';
+            rentalLocation = localStorage.getItem('rentalLocation');
+            rentalPickupDate = localStorage.getItem('rentalPickupDate');
+            rentalReturnDate = localStorage.getItem('rentalReturnDate');
+
+            updateAllSelectors('#language-selector, #language-selector-mobile', savedLang);
+            updateAllSelectors('#currency-selector, #currency-selector-mobile', savedCurrency);
+            currentLang = savedLang;
+            currentCurrency = savedCurrency;
+
+            setLanguage(savedLang);
+            fetchRates();
         });
     </script>
 </body>
