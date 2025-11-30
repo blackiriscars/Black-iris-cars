@@ -22,6 +22,10 @@ const translations = {
         'h1-available': 'Available Rental Cars', 'h3-filter': 'Filter Options', 'label-price': 'Price Range (DH/day)',
         'sort-count-text': 'cars available', 'currency': 'Currency', 'eur': 'EUR', 'usd': 'USD',
         'total-text': 'Total', 'for-text': 'for', 'days-text': 'days',
+        
+        // Sorting
+        'sort-price-asc': 'Price: Low to High',
+        'sort-price-desc': 'Price: High to Low',
 
         // Sections
         'h2-how-works': 'How It Works', 'p-how-works': 'Rent your car in 3 simple steps.',
@@ -63,6 +67,10 @@ const translations = {
         'sort-count-text': 'voitures disponibles', 'currency': 'Devise', 'eur': 'EUR', 'usd': 'USD',
         'total-text': 'Total', 'for-text': 'pour', 'days-text': 'jours',
 
+        // Sorting
+        'sort-price-asc': 'Prix: Croissant',
+        'sort-price-desc': 'Prix: Décroissant',
+
         // === NEW SECTIONS ===
         'h2-how-works': 'Comment ça marche', 'p-how-works': 'Louez votre voiture en 3 étapes simples.',
         'step-1-title': '1. Choisissez votre voiture', 'step-1-desc': 'Parcourez notre flotte et sélectionnez le véhicule parfait pour votre voyage.',
@@ -102,6 +110,10 @@ const translations = {
         'sort-count-text': 'سيارة متاحة', 'currency': 'العملة', 'eur': 'يورو', 'usd': 'دولار',
         'total-text': 'المجموع', 'for-text': 'لمدة', 'days-text': 'أيام',
 
+        // Sorting
+        'sort-price-asc': 'السعر: من الأقل للأعلى',
+        'sort-price-desc': 'السعر: من الأعلى للأقل',
+
         // === NEW SECTIONS ===
         'h2-how-works': 'كيفية الحجز', 'p-how-works': 'استأجر سيارتك في 3 خطوات بسيطة.',
         'step-1-title': '1. اختر سيارتك', 'step-1-desc': 'تصفح أسطولنا واختر السيارة المثالية لرحلتك.',
@@ -121,5 +133,3 @@ const translations = {
         'book-email-body-concise': (carName, carPrice) => `مرحباً،\n\nأنا مهتم بـ ${carName} (${carPrice}/يوم) المعروضة على الصفحة الرئيسية. الرجاء إرسال المزيد من المعلومات حول التوفر وكيفية حجز هذه المركبة.`,
     }
 };
-
-
