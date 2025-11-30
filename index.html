@@ -48,7 +48,6 @@
             }
         }
 
-        /* Improved Readability Overlay */
         .hero-overlay {
             background: linear-gradient(to right, rgba(0,0,0,0.85), rgba(0,0,0,0.45));
         }
@@ -119,8 +118,9 @@
                 </div>
             </div>
         </div>
+        
         <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 opacity-0 -translate-y-2 transform transition-all duration-300 ease-out fixed top-16 left-0 right-0 z-40" style="pointer-events: none;">
-            <div class="px-4 pt-4 pb-3 space-y-4 h-[calc(100vh-4rem)] overflow-y-auto pb-20">
+            <div class="px-4 pt-4 pb-3 space-y-4 shadow-xl">
                 <div class="flex items-center space-x-4">
                     <select id="currency-selector-mobile" class="compact-select w-full">
                         <option value="DH">DH</option>
@@ -633,16 +633,14 @@
 
             closeDetailModalBtn.addEventListener('click', closeModal);
             
-            // Mobile Menu Logic with Scroll Lock
+            // --- Mobile Menu Logic: Auto-Close on Scroll ---
             function openMobileMenu() { 
                 mobileMenu.classList.remove('opacity-0', '-translate-y-2'); 
                 mobileMenu.style.pointerEvents = 'auto'; 
-                document.body.style.overflow = 'hidden'; 
             }
             function closeMobileMenu() { 
                 mobileMenu.classList.add('opacity-0', '-translate-y-2'); 
                 mobileMenu.style.pointerEvents = 'none'; 
-                document.body.style.overflow = ''; 
             }
             
             mobileMenuButton.addEventListener('click', (e) => { 
@@ -653,6 +651,13 @@
             document.addEventListener('click', (event) => { 
                 if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
                      if (mobileMenu.style.pointerEvents === 'auto') closeMobileMenu();
+                }
+            });
+
+            // SCROLL LISTENER to auto-close menu
+            window.addEventListener('scroll', () => {
+                if (mobileMenu.style.pointerEvents === 'auto') {
+                    closeMobileMenu();
                 }
             });
 
