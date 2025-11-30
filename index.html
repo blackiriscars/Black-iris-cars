@@ -31,7 +31,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
         body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; transition: all 0.3s ease; }
         
-        /* --- PRELOADER CSS (Standard CSS, runs instantly) --- */
+        /* --- PRELOADER CSS --- */
         #preloader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #ffffff; z-index: 9999;
@@ -49,7 +49,7 @@
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(65, 105, 225, 0); }
         }
 
-        /* Essential Styles needed before Tailwind loads */
+        /* Essential Styles */
         .primary-dark { background-color: #1a1a1a; } 
         .text-primary-dark { color: #1a1a1a; } 
         .accent-blue { background-color: #4169e1; } 
@@ -362,6 +362,7 @@
             </div>
         </div>
     </section>
+
     <footer id="contact" class="primary-dark text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-8 mb-8">
@@ -635,6 +636,21 @@
                     });
                     
                     lucide.createIcons();
+
+                    // --- SCROLL FIX START ---
+                    // This checks if there is a hash (like #faq) in the URL. 
+                    // It waits for the DOM to update with the new cars (which changes height), 
+                    // then scrolls to the correct section.
+                    if (window.location.hash) {
+                        const targetId = window.location.hash.substring(1);
+                        const element = document.getElementById(targetId);
+                        if (element) {
+                            setTimeout(() => {
+                                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }, 100); 
+                        }
+                    }
+                    // --- SCROLL FIX END ---
 
                 } catch (error) {
                     console.error("Error loading cars:", error);
