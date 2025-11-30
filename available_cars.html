@@ -18,11 +18,7 @@
       gtag('config', 'G-2Y2MG9ZZ46');
     </script>
     
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="web-app-manifest-192x192.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="manifest" href="site.webmanifest">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
@@ -191,7 +187,7 @@
                     </a>
                     <p class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start"><i data-lucide="mail" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> <a href="mailto:blackiriscars@gmail.com" class="hover:text-accent-blue">blackiriscars@gmail.com</a></p>
                     
-                    <a href="https://maps.app.goo.gl/YourMapLinkHere" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
+                    <a href="https://www.google.com/maps/search/?api=1&query=10+rue+ouarzazat+hassan+rabat" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
                         <i data-lucide="map-pin" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 
                         <span data-i18n="address-text">10 rue ouarzazat hassan rabat</span>
                     </a>
@@ -315,8 +311,12 @@
             updateAllSelectors('#currency-selector, #currency-selector-mobile', currency);
             let newMax = 2000;
             if (currency === 'EUR' || currency === 'USD') newMax = 200; 
+            
+            // Adjust slider max and current value carefully
+            const percent = priceRange.value / priceRange.max;
             priceRange.max = newMax;
-            priceRange.value = newMax; 
+            priceRange.value = Math.floor(newMax * percent) || newMax; 
+
             updatePriceDisplay();
             renderAllCars();
         }
@@ -361,7 +361,7 @@
                 renderAllCars();
             } catch (error) {
                 console.error("Error:", error);
-                resultsContainer.innerHTML = `<div class="col-span-full text-center text-red-500 py-10">Error loading cars.</div>`;
+                resultsContainer.innerHTML = `<div class="col-span-full text-center text-red-500 py-10">Error loading cars. Check internet connection.</div>`;
             }
         }
         
@@ -421,6 +421,8 @@
                     const end = new Date(rentalReturnDate);
                     const diffTime = end - start;
                     diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    // FIX: Ensure minimum 1 day charge even if same day return
+                    if (diffDays < 1) diffDays = 1;
                 }
 
                 // 2. Discount Logic
@@ -453,8 +455,6 @@
                 carCard.className = "car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group";
                 
                 // --- CARD HTML STRUCTURE ---
-                // Image back to h-56 (normal size)
-                // Category above image with spacing (mt-3 on image)
                 carCard.innerHTML = `
                     <div class="px-6 pt-4 pb-0">
                         <span class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide bg-gray-100 text-gray-600">
@@ -504,8 +504,11 @@
             document.getElementById('modal-car-currency').textContent = currentCurrency === 'DH' ? 'DH' : (currentCurrency === 'EUR' ? '€' : '$');
             
             let whatsappMessage;
-            if (rentalPickupDate) whatsappMessage = dict['book-whatsapp-msg-full'](carName, carPriceWithSymbol, rentalLocation, rentalPickupDate, rentalReturnDate);
-            else whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
+            if (rentalPickupDate) {
+                 whatsappMessage = dict['book-whatsapp-msg-full'](carName, carPriceWithSymbol, rentalLocation, rentalPickupDate, rentalReturnDate);
+            } else {
+                 whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
+            }
             
             document.getElementById('whatsapp-link').href = `https://wa.me/212602020402?text=${encodeURIComponent(whatsappMessage)}`;
             document.getElementById('contact-options').classList.add('hidden');
@@ -524,6 +527,12 @@
 
         // --- 5. INITIALIZATION & EVENTS ---
         document.addEventListener('DOMContentLoaded', () => {
+             // Safety Check for Data.js
+            if (typeof translations === 'undefined') {
+                console.warn('Data.js not loaded. Defaulting.');
+                window.translations = { en: {} };
+            }
+
             priceRange = document.getElementById('price-range');
             priceValue = document.getElementById('price-value');
             filterSidebar = document.getElementById('filter-sidebar');
