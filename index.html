@@ -6,6 +6,12 @@
     <title>BLACK IRIS cars - Rent in Morocco</title>
     <meta name="description" content="Rent a car in Morocco with Black Iris Cars. We offer premium cars for rental in Temara, Rabat, Casablanca, and all major cities and airports.">
     
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.blackiriscars.com/">
+    <meta property="og:title" content="BLACK IRIS cars - Rent in Morocco">
+    <meta property="og:description" content="Premium car rental in Rabat, Casablanca, and major airports. No hidden fees.">
+    <meta property="og:image" content="https://i.postimg.cc/ZKJ3nbqB/Download-free-moroccan-wallpaper-HD.jpg">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="data.js"></script>
@@ -18,26 +24,7 @@
       gtag('config', 'G-2Y2MG9ZZ46');
     </script>
     
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="web-app-manifest-192x192.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="manifest" href="site.webmanifest">
-    
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "BLACK IRIS cars",
-      "url": "https://www.blackiriscars.com",
-      "logo": "https://i.postimg.cc/B6LWwXNL/923d79fe-5117-4849-9761-57e1fe5a8d96.jpg",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": "+212-602-020402",
-        "contactType": "Customer Service"
-      }
-    }
-    </script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
@@ -59,6 +46,11 @@
                 display: flex;
                 align-items: center;
             }
+        }
+
+        /* Improved Readability Overlay */
+        .hero-overlay {
+            background: linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.4));
         }
 
         input[type="date"], #rental-form select {
@@ -153,7 +145,7 @@
     </header>
 
     <section id="hero-section" class="py-20 md:py-0 relative text-white">
-        <div class="absolute inset-0 primary-dark opacity-60"></div>
+        <div class="absolute inset-0 hero-overlay"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="text-center">
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4" data-i18n="h1-hero">Explore Morocco. Drive Quality.</h1>
@@ -355,7 +347,7 @@
                     </a>
                     <p class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start"><i data-lucide="mail" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> <a href="mailto:blackiriscars@gmail.com" class="hover:text-accent-blue">blackiriscars@gmail.com</a></p>
                     
-                    <a href="PASTE_YOUR_GOOGLE_MAPS_LINK_HERE" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
+                    <a href="https://www.google.com/maps/search/?api=1&query=10+rue+ouarzazat+hassan+rabat" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
                         <i data-lucide="map-pin" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 
                         <span data-i18n="address-text">10 rue ouarzazat hassan rabat</span>
                     </a>
@@ -408,7 +400,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // YOUR KEYS
         const firebaseConfig = {
           apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
           authDomain: "black-iris-fleet-9c64e.firebaseapp.com",
@@ -423,7 +414,12 @@
         const db = getFirestore(app);
 
         document.addEventListener('DOMContentLoaded', () => {
-            // State
+            // Safety Check for Data.js
+            if (typeof translations === 'undefined') {
+                console.warn('Data.js not loaded. Defaulting.');
+                window.translations = { en: {} };
+            }
+
             let currentLang = 'en';
             let currentCurrency = 'DH';
             let exchangeRates = { EUR: 0.092, USD: 0.10 };
@@ -447,16 +443,15 @@
             const whatsappLink = document.getElementById('whatsapp-link');
             const emailLink = document.getElementById('email-link');
 
-            // --- DATE SECURITY FIX ---
-            // Set Min Date for Inputs to Today
+            // --- DATE SECURITY ---
             const pickupInput = document.getElementById('pickup-date');
             const returnInput = document.getElementById('return-date');
+            
             if(pickupInput && returnInput) {
                 const today = new Date().toISOString().split('T')[0];
                 pickupInput.setAttribute('min', today);
                 returnInput.setAttribute('min', today);
                 
-                // Ensure return date is never before pickup date
                 pickupInput.addEventListener('change', function() {
                     returnInput.setAttribute('min', this.value);
                     if(returnInput.value && returnInput.value < this.value) {
@@ -527,24 +522,15 @@
                 loadCars();
             }
 
-            function getLocalStorageData() {
-                rentalLocation = localStorage.getItem('rentalLocation') || '';
-                rentalPickupDate = localStorage.getItem('rentalPickupDate') || '';
-                rentalReturnDate = localStorage.getItem('rentalReturnDate') || '';
-            }
-
             // --- FIREBASE LOAD ---
             async function loadCars() {
                 const container = document.getElementById('featured-car-grid');
                 if (!container) return;
                 
                 try {
-                    // CHANGED: Limit to 9 exactly for Desktop View
                     const q = query(collection(db, "cars"), orderBy("sortOrder", "asc"), limit(9));
                     const querySnapshot = await getDocs(q);
                     container.innerHTML = '';
-
-                    // Counter for index (to hide 9th item on mobile)
                     let index = 0;
 
                     querySnapshot.forEach((doc) => {
@@ -567,13 +553,10 @@
                         const { price, symbol } = calculatePrice(car.price);
                         const carPriceString = `${symbol}${price}${currentCurrency === 'DH' ? ' DH' : ''}`;
 
-                        // LOGIC: If index is 8 (the 9th item), hide on mobile, show on Large screens (lg:flex)
+                        // Hide 9th item on mobile
                         const visibilityClass = index === 8 ? 'hidden lg:flex' : 'flex';
 
                         const carCard = document.createElement('div');
-                        
-                        // --- CHANGED: Added RESPONSIVE HEIGHT CLASS ---
-                        // h-48 on small screens (<420px), h-32 on larger screens (>420px)
                         carCard.className = `car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group ${visibilityClass}`;
                         
                         carCard.innerHTML = `
@@ -605,24 +588,12 @@
                                 </div>
                             </div>
                         `;
-                        // POP-UP CLICK EVENT
                         carCard.addEventListener('click', () => openModal(car.name, carPriceString, car.img, transmissionText, car.seats, car.color, car.desc));
                         container.appendChild(carCard);
                         index++;
                     });
                     
                     lucide.createIcons();
-
-                    // --- SCROLL FIX START ---
-                    if (window.location.hash) {
-                        setTimeout(() => {
-                            const element = document.querySelector(window.location.hash);
-                            if (element) {
-                                element.scrollIntoView({ behavior: 'smooth' });
-                            }
-                        }, 500); // Wait for content to load, then scroll
-                    }
-                    // --- SCROLL FIX END ---
 
                 } catch (error) {
                     console.error("Error loading cars:", error);
@@ -643,19 +614,10 @@
                 document.getElementById('modal-car-price').textContent = carPriceWithSymbol.replace(/ DH| €| \$/g, '');
                 document.getElementById('modal-car-currency').textContent = currentCurrency === 'DH' ? 'DH' : (currentCurrency === 'EUR' ? '€' : '$');
                 
-                if (rentalLocation && rentalPickupDate && rentalReturnDate) {
-                    let pickupDisplay = new Date(rentalPickupDate).toLocaleDateString(currentLang, { dateStyle: 'medium' });
-                    let returnDisplay = new Date(rentalReturnDate).toLocaleDateString(currentLang, { dateStyle: 'medium' });
-
-                    whatsappMessage = dict['book-whatsapp-msg-full'](carName, carPriceWithSymbol, rentalLocation, pickupDisplay, returnDisplay);
-                    emailSubject = dict['book-email-subj-full'](carName, rentalLocation);
-                    emailBody = dict['book-email-body-full'](carName, carPriceWithSymbol, rentalLocation, pickupDisplay, returnDisplay);
-                
-                } else {
-                    whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
-                    emailSubject = dict['book-email-subj-concise'](carName);
-                    emailBody = dict['book-email-body-concise'](carName, carPriceWithSymbol);
-                }
+                // For Home page modal, we don't have dates pre-selected usually
+                whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
+                emailSubject = dict['book-email-subj-concise'](carName);
+                emailBody = dict['book-email-body-concise'](carName, carPriceWithSymbol);
             
                 whatsappLink.href = `https://wa.me/212602020402?text=${encodeURIComponent(whatsappMessage)}`;
                 emailLink.href = `mailto:blackiriscars@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
@@ -680,7 +642,7 @@
 
             closeDetailModalBtn.addEventListener('click', closeModal);
             
-            // Mobile Menu Logic
+            // Mobile Menu
             function openMobileMenu() { mobileMenu.classList.remove('opacity-0', '-translate-y-2'); mobileMenu.style.pointerEvents = 'auto'; }
             function closeMobileMenu() { mobileMenu.classList.add('opacity-0', '-translate-y-2'); mobileMenu.style.pointerEvents = 'none'; }
             mobileMenuButton.addEventListener('click', (e) => { e.stopPropagation(); mobileMenu.classList.contains('opacity-0') ? openMobileMenu() : closeMobileMenu(); });
@@ -709,6 +671,7 @@
                     const pickupDate = document.getElementById('pickup-date').value;
                     const returnDate = document.getElementById('return-date').value;
                     const selectedLocationText = document.getElementById('location').options[document.getElementById('location').selectedIndex].text;
+                    
                     localStorage.setItem('rentalLocation', selectedLocationText); 
                     localStorage.setItem('rentalPickupDate', pickupDate);
                     localStorage.setItem('rentalReturnDate', returnDate);
@@ -716,6 +679,7 @@
                 });
             }
             
+            // View All Button - Clears filters so they see everything
             if(viewAllBtn) {
                 viewAllBtn.addEventListener('click', (e) => {
                     localStorage.removeItem('rentalLocation');
@@ -726,7 +690,6 @@
 
             // Init
             lucide.createIcons(); 
-            getLocalStorageData(); 
             const savedLang = localStorage.getItem('languagePreference') || 'en';
             const savedCurrency = localStorage.getItem('currencyPreference') || 'DH';
             updateAllSelectors('#language-selector, #language-selector-mobile', savedLang);
