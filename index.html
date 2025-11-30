@@ -14,7 +14,6 @@
     
     <link rel="prefetch" href="available_cars.html">
 
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="data.js"></script>
 
@@ -49,12 +48,11 @@
             70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(65, 105, 225, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(65, 105, 225, 0); }
         }
-        /* ---------------------------------------------------- */
 
+        /* Essential Styles needed before Tailwind loads */
         .primary-dark { background-color: #1a1a1a; } 
         .text-primary-dark { color: #1a1a1a; } 
         .accent-blue { background-color: #4169e1; } 
-        .hover\:accent-blue-dark:hover { background-color: #2b4daa; } 
         .text-accent-blue { color: #4169e1; }
 
         #hero-section { background-color: #1a1a1a; }
@@ -414,6 +412,8 @@
         </div>
     </div>
 
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -431,17 +431,16 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Remove Preloader
+        // Preloader Logic using Window Load (Waits for heavy scripts)
+        window.addEventListener('load', () => {
             const preloader = document.getElementById('preloader');
             if(preloader) {
-                // Short timeout to ensure visual transition
-                setTimeout(() => {
-                    preloader.classList.add('preloader-hidden');
-                    setTimeout(() => preloader.style.display = 'none', 500);
-                }, 300);
+                preloader.classList.add('preloader-hidden');
+                setTimeout(() => preloader.style.display = 'none', 500);
             }
+        });
 
+        document.addEventListener('DOMContentLoaded', () => {
             if (typeof translations === 'undefined') {
                 console.warn('Data.js not loaded. Defaulting.');
                 window.translations = { en: {} };
