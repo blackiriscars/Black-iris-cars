@@ -1,4 +1,3 @@
-l
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -261,7 +260,9 @@ l
         let exchangeRates = { EUR: 0.092, USD: 0.10 };
         let rentalLocation = '', rentalPickupDate = '', rentalReturnDate = '';
         let allCars = [];
-        let currentSort = 'price-asc'; // Default sort
+        
+        // --- UPDATED: Default sort is now recommended ---
+        let currentSort = 'recommended'; 
         
         // --- PAGINATION VARIABLES ---
         let itemsToShow = 10;
@@ -306,11 +307,13 @@ l
             });
             document.body.setAttribute('dir', (lang === 'ar') ? 'rtl' : 'ltr');
             
-            // Re-render to update sort dropdown text options if they exist in DOM
+            // Re-render to update sort dropdown text options
             const sortSelect = document.getElementById('sort-selector');
             if(sortSelect) {
-                 sortSelect.options[0].textContent = getTranslation('sort-price-asc');
-                 sortSelect.options[1].textContent = getTranslation('sort-price-desc');
+                 // We use fallback text here to match your specific requirement if translation keys aren't in data.js
+                 sortSelect.options[0].textContent = getTranslation('sort-recommended') === 'sort-recommended' ? 'Recommended' : getTranslation('sort-recommended');
+                 sortSelect.options[1].textContent = getTranslation('sort-price-asc') === 'sort-price-asc' ? 'Price Ascending' : getTranslation('sort-price-asc');
+                 sortSelect.options[2].textContent = getTranslation('sort-price-desc') === 'sort-price-desc' ? 'Price Descending' : getTranslation('sort-price-desc');
             }
             renderAllCars();
             lucide.createIcons();
@@ -348,6 +351,7 @@ l
             resultsContainer.innerHTML = '<div class="col-span-full text-center py-20"><div class="loader mx-auto mb-4"></div></div>';
             
             try {
+                // We fetch by sortOrder to ensure the 'Recommended' list is correct from the start
                 const q = query(collection(db, "cars"), orderBy("sortOrder", "asc")); 
                 const querySnapshot = await getDocs(q);
                 
@@ -364,7 +368,8 @@ l
                         transmission: d.transmission || 'Manual',
                         desc: d.description || '',
                         color: d.color || 'Standard',
-                        seats: d.seats || 5
+                        seats: d.seats || 5,
+                        sortOrder: d.sortOrder || 999 // fallback
                     });
                 });
                 renderAllCars();
@@ -387,11 +392,17 @@ l
             
             const sortSelect = document.createElement('select');
             sortSelect.id = "sort-selector";
-            // FIXED: Clean Tailwind Styling for Dropdown
             sortSelect.className = "text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500";
+            
+            // --- UPDATED: 3 Options as requested ---
+            const txtRecommended = getTranslation('sort-recommended') === 'sort-recommended' ? 'Recommended' : getTranslation('sort-recommended');
+            const txtAsc = getTranslation('sort-price-asc') === 'sort-price-asc' ? 'Price Ascending' : getTranslation('sort-price-asc');
+            const txtDesc = getTranslation('sort-price-desc') === 'sort-price-desc' ? 'Price Descending' : getTranslation('sort-price-desc');
+
             sortSelect.innerHTML = `
-                <option value="price-asc">${getTranslation('sort-price-asc')}</option>
-                <option value="price-desc">${getTranslation('sort-price-desc')}</option>
+                <option value="recommended">${txtRecommended}</option>
+                <option value="price-asc">${txtAsc}</option>
+                <option value="price-desc">${txtDesc}</option>
             `;
             sortSelect.value = currentSort;
             
@@ -421,15 +432,18 @@ l
                 return true;
             });
             
-            // --- SORTING ---
+            // --- UPDATED SORTING LOGIC ---
             if (currentSort === 'price-asc') {
                 filteredCars.sort((a, b) => a.price - b.price);
             } else if (currentSort === 'price-desc') {
                 filteredCars.sort((a, b) => b.price - a.price);
             }
+            // If currentSort is 'recommended', we do nothing. 
+            // Because 'allCars' is already loaded via orderBy("sortOrder"), 
+            // and .filter() preserves that order.
 
             // Update count text
-            const countLabel = getTranslation('sort-count-text');
+            const countLabel = getTranslation('sort-count-text') === 'sort-count-text' ? 'Cars Found' : getTranslation('sort-count-text');
             countText.textContent = `${filteredCars.length} ${countLabel}`;
 
             if (filteredCars.length === 0) {
