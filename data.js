@@ -24,6 +24,7 @@ const translations = {
         'total-text': 'Total', 'for-text': 'for', 'days-text': 'days',
         
         // Sorting
+        'sort-recommended': 'Recommended',
         'sort-price-asc': 'Price: Low to High',
         'sort-price-desc': 'Price: High to Low',
 
@@ -68,6 +69,7 @@ const translations = {
         'total-text': 'Total', 'for-text': 'pour', 'days-text': 'jours',
 
         // Sorting
+        'sort-recommended': 'Recommandé',
         'sort-price-asc': 'Prix: Croissant',
         'sort-price-desc': 'Prix: Décroissant',
 
@@ -111,6 +113,7 @@ const translations = {
         'total-text': 'المجموع', 'for-text': 'لمدة', 'days-text': 'أيام',
 
         // Sorting
+        'sort-recommended': 'الموصى بها',
         'sort-price-asc': 'السعر: من الأقل للأعلى',
         'sort-price-desc': 'السعر: من الأعلى للأقل',
 
