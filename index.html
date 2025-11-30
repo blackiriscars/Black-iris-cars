@@ -50,7 +50,7 @@
 
         /* Improved Readability Overlay */
         .hero-overlay {
-            background: linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.4));
+            background: linear-gradient(to right, rgba(0,0,0,0.85), rgba(0,0,0,0.45));
         }
 
         input[type="date"], #rental-form select {
@@ -91,8 +91,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <a href="index.html" class="flex items-center">
-                    <img src="https://i.postimg.cc/B6LWwXNL/923d79fe-5117-4849-9761-57e1fe5a8d96.jpg" alt="Logo" class="w-10 h-10 mr-2 rounded-full border border-gray-100">
-                    <span class="text-2xl font-extrabold text-primary-dark">BLACK IRIS cars</span>
+                    <img src="https://i.postimg.cc/B6LWwXNL/923d79fe-5117-4849-9761-57e1fe5a8d96.jpg" alt="Logo" class="w-8 h-8 min-[420px]:w-10 min-[420px]:h-10 mr-2 rounded-full border border-gray-100">
+                    <span class="text-lg min-[420px]:text-2xl font-extrabold text-primary-dark">BLACK IRIS cars</span>
                 </a>
                 <div class="flex items-center space-x-3 sm:space-x-4">
                     <div class="hidden md:flex items-center space-x-3 border-r border-gray-200 pr-3 sm:pr-4">
@@ -120,7 +120,7 @@
             </div>
         </div>
         <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 opacity-0 -translate-y-2 transform transition-all duration-300 ease-out fixed top-16 left-0 right-0 z-40" style="pointer-events: none;">
-            <div class="px-4 pt-4 pb-3 space-y-4">
+            <div class="px-4 pt-4 pb-3 space-y-4 h-[calc(100vh-4rem)] overflow-y-auto pb-20">
                 <div class="flex items-center space-x-4">
                     <select id="currency-selector-mobile" class="compact-select w-full">
                         <option value="DH">DH</option>
@@ -347,10 +347,10 @@
                     </a>
                     <p class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start"><i data-lucide="mail" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> <a href="mailto:blackiriscars@gmail.com" class="hover:text-accent-blue">blackiriscars@gmail.com</a></p>
                     
-                    <a href="https://www.google.com/maps/search/?api=1&query=10+rue+ouarzazat+hassan+rabat" target="_blank" class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start hover:text-accent-blue transition">
+                    <div class="text-sm text-gray-400 mb-2 flex items-center ltr:justify-start">
                         <i data-lucide="map-pin" class="w-4 h-4 ltr:mr-2 text-accent-blue ltr:mr-2"></i> 
                         <span data-i18n="address-text">10 rue ouarzazat hassan rabat</span>
-                    </a>
+                    </div>
 
                     <a href="https://wa.me/212602020402" target="_blank" class="text-sm text-white px-3 py-1 mt-2 inline-flex items-center rounded-lg bg-green-600 hover:bg-green-700 transition">
                         <i data-lucide="message-circle" class="w-4 h-4 ltr:mr-2"></i> <span data-i18n="whatsapp-text">WhatsApp</span> 0602020402
@@ -358,7 +358,7 @@
                 </div>
             </div>
             <div class="text-center text-sm text-gray-500 pt-4">
-                &copy; <span data-i18n="copy-right">2024 BLACK IRIS cars. All rights reserved.</span>
+                © <span data-i18n="copy-right">2024 BLACK IRIS cars. All rights reserved.</span>
             </div>
         </div>
     </footer>
@@ -370,7 +370,7 @@
                 <button id="close-detail-modal-btn" class="text-gray-500 hover:text-primary-dark"><i data-lucide="x" class="w-6 h-6"></i></button>
             </div>
             <div class="space-y-4">
-                <img id="modal-car-image" src="" alt="Car" class="w-full h-48 object-cover rounded-lg mb-4 border border-gray-200">
+                <img id="modal-car-image" loading="lazy" src="" alt="Car" class="w-full h-48 object-cover rounded-lg mb-4 border border-gray-200">
                 <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
                     <div class="flex items-center ltr:justify-start"><i data-lucide="car" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <span id="modal-transmission" class="font-semibold"></span></div>
                     <div class="flex items-center ltr:justify-start"><i data-lucide="users" class="w-4 h-4 ltr:mr-2 text-accent-blue"></i> <span id="modal-seats-value" class="font-semibold"></span> <span data-i18n="car-seats-label-spaced"> Seats</span></div>
@@ -414,7 +414,6 @@
         const db = getFirestore(app);
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Safety Check for Data.js
             if (typeof translations === 'undefined') {
                 console.warn('Data.js not loaded. Defaulting.');
                 window.translations = { en: {} };
@@ -423,15 +422,13 @@
             let currentLang = 'en';
             let currentCurrency = 'DH';
             let exchangeRates = { EUR: 0.092, USD: 0.10 };
-            let rentalLocation = '', rentalPickupDate = '', rentalReturnDate = '';
-
+            
             // Elements
             const langSelectors = document.querySelectorAll('#language-selector, #language-selector-mobile');
             const currencySelectors = document.querySelectorAll('#currency-selector, #currency-selector-mobile');
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const mobileMenu = document.getElementById('mobile-menu');
             const rentalForm = document.getElementById('rental-form');
-            const resultMessage = document.getElementById('result-message');
             const viewAllBtn = document.getElementById('view-all-cars-btn');
             
             // Modal Elements
@@ -446,17 +443,13 @@
             // --- DATE SECURITY ---
             const pickupInput = document.getElementById('pickup-date');
             const returnInput = document.getElementById('return-date');
-            
             if(pickupInput && returnInput) {
                 const today = new Date().toISOString().split('T')[0];
                 pickupInput.setAttribute('min', today);
                 returnInput.setAttribute('min', today);
-                
                 pickupInput.addEventListener('change', function() {
                     returnInput.setAttribute('min', this.value);
-                    if(returnInput.value && returnInput.value < this.value) {
-                        returnInput.value = this.value;
-                    }
+                    if(returnInput.value && returnInput.value < this.value) returnInput.value = this.value;
                 });
             }
 
@@ -566,14 +559,13 @@
                                 </span>
                             </div>
                             <div class="relative h-48 min-[420px]:h-32 overflow-hidden"> 
-                                <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
+                                <img src="${car.img}" loading="lazy" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
                             </div>
                             <div class="p-3 flex flex-col justify-between flex-grow">
                                 <div>
                                     <div class="flex justify-between items-start mb-1">
                                         <h3 class="text-sm font-bold text-gray-900 leading-tight">${car.name}</h3>
                                     </div>
-                                    
                                     <div class="grid grid-cols-2 gap-y-1 gap-x-2 text-xs text-gray-600 mb-2 mt-1">
                                         <div class="flex items-center"><i data-lucide="${car.transmission === 'automatic' ? 'zap' : 'gauge'}" class="w-3 h-3 text-accent-blue mr-1"></i> <span data-i18n="${car.transmission}">${transmissionText}</span></div>
                                         <div class="flex items-center"><i data-lucide="fuel" class="w-3 h-3 text-accent-blue mr-1"></i> <span>${car.fuel}</span></div>
@@ -614,7 +606,6 @@
                 document.getElementById('modal-car-price').textContent = carPriceWithSymbol.replace(/ DH| €| \$/g, '');
                 document.getElementById('modal-car-currency').textContent = currentCurrency === 'DH' ? 'DH' : (currentCurrency === 'EUR' ? '€' : '$');
                 
-                // For Home page modal, we don't have dates pre-selected usually
                 whatsappMessage = dict['book-whatsapp-msg-concise'](carName, carPriceWithSymbol);
                 emailSubject = dict['book-email-subj-concise'](carName);
                 emailBody = dict['book-email-body-concise'](carName, carPriceWithSymbol);
@@ -642,12 +633,28 @@
 
             closeDetailModalBtn.addEventListener('click', closeModal);
             
-            // Mobile Menu
-            function openMobileMenu() { mobileMenu.classList.remove('opacity-0', '-translate-y-2'); mobileMenu.style.pointerEvents = 'auto'; }
-            function closeMobileMenu() { mobileMenu.classList.add('opacity-0', '-translate-y-2'); mobileMenu.style.pointerEvents = 'none'; }
-            mobileMenuButton.addEventListener('click', (e) => { e.stopPropagation(); mobileMenu.classList.contains('opacity-0') ? openMobileMenu() : closeMobileMenu(); });
-            window.addEventListener('scroll', closeMobileMenu);
-            document.addEventListener('click', (event) => { if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) closeMobileMenu(); });
+            // Mobile Menu Logic with Scroll Lock
+            function openMobileMenu() { 
+                mobileMenu.classList.remove('opacity-0', '-translate-y-2'); 
+                mobileMenu.style.pointerEvents = 'auto'; 
+                document.body.style.overflow = 'hidden'; 
+            }
+            function closeMobileMenu() { 
+                mobileMenu.classList.add('opacity-0', '-translate-y-2'); 
+                mobileMenu.style.pointerEvents = 'none'; 
+                document.body.style.overflow = ''; 
+            }
+            
+            mobileMenuButton.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                mobileMenu.classList.contains('opacity-0') ? openMobileMenu() : closeMobileMenu(); 
+            });
+            
+            document.addEventListener('click', (event) => { 
+                if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+                     if (mobileMenu.style.pointerEvents === 'auto') closeMobileMenu();
+                }
+            });
 
             // Selectors
             langSelectors.forEach(selector => {
@@ -679,7 +686,6 @@
                 });
             }
             
-            // View All Button - Clears filters so they see everything
             if(viewAllBtn) {
                 viewAllBtn.addEventListener('click', (e) => {
                     localStorage.removeItem('rentalLocation');
