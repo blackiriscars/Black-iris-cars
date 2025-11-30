@@ -233,7 +233,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-extrabold text-primary-dark text-center mb-12" data-i18n="h2-fleet">Our Fleet</h2>
             
-            <div id="featured-car-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 lg:gap-8">
+            <div id="featured-car-grid" class="grid grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-3 gap-3 md:gap-6 lg:gap-8">
                 <div class="col-span-full flex justify-center py-12">
                     <div class="loader"></div>
                 </div>
@@ -571,8 +571,7 @@
                         const visibilityClass = index === 8 ? 'hidden lg:flex' : 'flex';
 
                         const carCard = document.createElement('div');
-                        // TALLER CARD, IMAGE BACK TO SMALLER SIZE (h-32)
-                        // Added visibilityClass here
+                        // INCREASED HEIGHT HERE: h-48 instead of h-32
                         carCard.className = `car-card bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 cursor-pointer flex-col transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group ${visibilityClass}`;
                         
                         carCard.innerHTML = `
@@ -581,7 +580,7 @@
                                     ${car.type.replace('-', ' ')}
                                 </span>
                             </div>
-                            <div class="relative h-32 overflow-hidden">
+                            <div class="relative h-48 overflow-hidden"> 
                                 <img src="${car.img}" alt="${car.name}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
                             </div>
                             <div class="p-3 flex flex-col justify-between flex-grow">
