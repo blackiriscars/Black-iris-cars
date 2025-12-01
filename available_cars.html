@@ -52,12 +52,18 @@
         
         #results-container {
             display: grid;
-            grid-template-columns: repeat(1, minmax(0, 1fr));
+            grid-template-columns: repeat(1, minmax(0, 1fr)); /* Mobile: 1 Column */
             gap: 1.5rem; 
         }
-        @media (min-width: 768px) { #results-container { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-        /* CHANGED: Pushed 3-column layout to very large screens only (1400px+) so standard desktop sees wide 2-cols */
-        @media (min-width: 1400px) { #results-container { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        
+        /* Desktop: Strictly 2 Columns to ensure width */
+        @media (min-width: 768px) { 
+            #results-container { 
+                grid-template-columns: repeat(2, minmax(0, 1fr)); 
+            } 
+        }
+        
+        /* Note: Removed the 3-column rule for 1024px+ to ensure cards stay wide on desktop */
         
         .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3498db; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -242,7 +248,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDo3yc_pj5vavuWDzOfm5QX1KURnqcF0vs",
