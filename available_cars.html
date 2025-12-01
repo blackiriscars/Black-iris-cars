@@ -56,7 +56,8 @@
             gap: 1.5rem; 
         }
         @media (min-width: 768px) { #results-container { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-        @media (min-width: 1024px) { #results-container { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        /* CHANGED: Pushed 3-column layout to very large screens only (1400px+) so standard desktop sees wide 2-cols */
+        @media (min-width: 1400px) { #results-container { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
         
         .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #3498db; width: 30px; height: 30px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
