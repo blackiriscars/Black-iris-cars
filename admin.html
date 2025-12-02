@@ -769,7 +769,7 @@
             list.forEach(item => el.appendChild(createBookingCard(item, type)));
         }
 
-        // UPDATED: Cleaner Card Design
+        // UPDATED: Added Deposit Back & Cleaned Up
         function createBookingCard(item, type) {
             const isActive = type === 'active';
             const isUpcoming = type === 'upcoming';
@@ -857,9 +857,10 @@
                 </div>
 
                 <div class="p-3 bg-gray-50 flex justify-between items-center text-xs">
-                    <div class="text-gray-500 font-medium">
-                        ${item.agent ? `<span class="mr-3"><i class="fas fa-user-tie text-gray-400"></i> ${item.agent}</span>` : ''}
-                        ${item.location ? `<span><i class="fas fa-map-marker-alt text-gray-400"></i> ${item.location}</span>` : ''}
+                    <div class="text-gray-500 font-medium flex flex-wrap gap-3">
+                        ${item.agent ? `<span><i class="fas fa-user-tie text-gray-400 mr-1"></i>${item.agent}</span>` : ''}
+                        ${item.location ? `<span><i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>${item.location}</span>` : ''}
+                        ${item.depositAmount ? `<span><i class="fas fa-money-bill-wave text-gray-400 mr-1"></i>Dep: ${item.depositAmount} DH (${item.depositMethod})</span>` : ''}
                     </div>
                     <div class="text-right">
                         ${item.price ? `
