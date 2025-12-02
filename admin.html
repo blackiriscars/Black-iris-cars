@@ -203,7 +203,7 @@
 
                 <h2 class="text-2xl font-bold text-gray-800">Booking Memos</h2>
                 
-                <!-- NOTIFICATION CENTER -->
+                <!-- NOTIFICATION CENTER (Moved Inside) -->
                 <div id="notification-center" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 shadow-sm">
                     <h3 class="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2"><i class="fas fa-bell text-amber-600"></i> Today's Alerts</h3>
                     <ul id="notification-list" class="space-y-1 text-sm text-amber-700 font-medium"></ul>
@@ -213,43 +213,43 @@
                     <i class="fas fa-info-circle mr-2"></i> Internal memos only.
                 </div>
                 
-                <!-- SEARCH BAR -->
+                <!-- ALIGNMENT FIX: Identical boxes via explicit sizing classes -->
+                <form id="bookingMemoForm" class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-200 mb-6 overflow-hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end min-w-0">
+                        <div class="md:col-span-1 min-w-0">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Car Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="memoCar" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Dacia Logan" required>
+                        </div>
+                        <div class="md:col-span-1 min-w-0">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Client Name (Optional)</label>
+                            <input type="text" id="memoClient" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="Client Name">
+                        </div>
+                        <div class="md:col-span-1 min-w-0">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Location (Optional)</label>
+                            <input type="text" id="memoLocation" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Airport">
+                        </div>
+                        
+                        <div class="md:col-span-1 min-w-0">
+                            <label class="block text-xs font-bold text-blue-600 mb-1 uppercase tracking-wide">Departure <span class="text-red-500">*</span></label>
+                            <input type="datetime-local" id="memoStart" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
+                        </div>
+                        <div class="md:col-span-1 min-w-0">
+                            <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return <span class="text-red-500">*</span></label>
+                            <input type="datetime-local" id="memoEnd" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
+                        </div>
+                        <div class="md:col-span-1 min-w-0">
+                            <button type="submit" class="w-full h-12 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2 text-sm"><i class="fas fa-plus"></i> Add Memo</button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- SEARCH BAR (New Location) -->
                 <div class="mb-4">
                     <div class="relative">
                         <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                         <input type="text" id="bookingSearch" placeholder="Search by Car or Client..." class="w-full pl-11 pr-4 h-12 bg-white border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
                     </div>
                 </div>
-
-                <!-- ALIGNMENT FIX: Strictly Equal Grid & Identical Styles -->
-                <form id="bookingMemoForm" class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-200 mb-6 overflow-hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                        <div class="md:col-span-1">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Car Name <span class="text-red-500">*</span></label>
-                            <input type="text" id="memoCar" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Dacia Logan" required>
-                        </div>
-                        <div class="md:col-span-1">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Client Name (Optional)</label>
-                            <input type="text" id="memoClient" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="Client Name">
-                        </div>
-                        <div class="md:col-span-1">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Location (Optional)</label>
-                            <input type="text" id="memoLocation" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Airport">
-                        </div>
-                        
-                        <div class="md:col-span-1">
-                            <label class="block text-xs font-bold text-blue-600 mb-1 uppercase tracking-wide">Departure <span class="text-red-500">*</span></label>
-                            <input type="datetime-local" id="memoStart" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
-                        </div>
-                        <div class="md:col-span-1">
-                            <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return <span class="text-red-500">*</span></label>
-                            <input type="datetime-local" id="memoEnd" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
-                        </div>
-                        <div class="md:col-span-1">
-                            <button type="submit" class="w-full h-12 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2 text-sm"><i class="fas fa-plus"></i> Add Memo</button>
-                        </div>
-                    </div>
-                </form>
 
                 <!-- TABS -->
                 <div class="flex space-x-2 mb-4 border-b border-gray-200 overflow-x-auto no-scrollbar">
