@@ -229,6 +229,12 @@
                             <input type="text" id="memoLocation" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Airport">
                         </div>
                         
+                        <!-- NEW PRICE INPUT -->
+                        <div class="md:col-span-1 min-w-0">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Daily Price (DH)</label>
+                            <input type="number" id="memoPrice" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
+                        </div>
+
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-blue-600 mb-1 uppercase tracking-wide">Departure <span class="text-red-500">*</span></label>
                             <input type="datetime-local" id="memoStart" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
@@ -237,13 +243,14 @@
                             <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return <span class="text-red-500">*</span></label>
                             <input type="datetime-local" id="memoEnd" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
                         </div>
-                        <div class="md:col-span-1 min-w-0">
-                            <button type="submit" class="w-full h-12 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2 text-sm"><i class="fas fa-plus"></i> Add Memo</button>
+                        
+                        <div class="md:col-span-3 min-w-0 mt-2">
+                            <button type="submit" class="w-full h-12 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2 text-sm"><i class="fas fa-plus"></i> Add Booking Memo</button>
                         </div>
                     </div>
                 </form>
 
-                <!-- SEARCH BAR (New Location) -->
+                <!-- SEARCH BAR -->
                 <div class="mb-4">
                     <div class="relative">
                         <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -695,6 +702,26 @@
                         ${item.location ? `<span><i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>${item.location}</span>` : ''}
                     </div>`;
                 }
+
+                // --- NEW FINANCIALS SECTION ---
+                let financials = '';
+                if (item.price) {
+                    const dailyPrice = Number(item.price);
+                    // Calc duration
+                    const startD = new Date(item.start);
+                    const endD = new Date(item.end);
+                    const diffTime = Math.abs(endD - startD);
+                    let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                    if(diffDays < 1) diffDays = 1;
+                    
+                    const totalCost = dailyPrice * diffDays;
+                    
+                    financials = `<div class="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                        <span>${dailyPrice} DH / day</span>
+                        <span>${diffDays} Days</span>
+                        <span class="font-bold text-gray-900 text-sm">Total: ${totalCost} DH</span>
+                    </div>`;
+                }
                 
                 const div = document.createElement('div');
                 div.className = `bg-white p-4 rounded-r-xl rounded-l-md shadow-sm ${borderColor} flex flex-col sm:flex-row justify-between sm:items-center gap-3 hover:shadow-md transition-shadow relative overflow-hidden`;
@@ -719,6 +746,7 @@
                                 <span class="text-base">${formatDateTime(item.end)}</span>
                             </div>
                         </div>
+                        ${financials}
                     </div>
                     
                     <div class="flex items-center justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100 mt-2 sm:mt-0">
@@ -741,6 +769,7 @@
             const carName = document.getElementById('memoCar').value;
             const clientName = document.getElementById('memoClient').value;
             const location = document.getElementById('memoLocation').value;
+            const price = document.getElementById('memoPrice').value;
             let start = document.getElementById('memoStart').value;
             let end = document.getElementById('memoEnd').value;
 
@@ -750,7 +779,7 @@
 
             try {
                 await addDoc(collection(db, bookingCollection), {
-                    carName, clientName, location, start, end, 
+                    carName, clientName, location, price, start, end, 
                     createdAt: serverTimestamp(),
                     returned: false 
                 });
