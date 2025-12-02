@@ -22,6 +22,12 @@
 
         .sortable-ghost { opacity: 0.4; background: #e0e7ff; }
         .drag-handle { cursor: grab; touch-action: none; } 
+        
+        /* Custom scrollbar for lists */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans h-[100dvh] w-full overflow-hidden flex flex-col md:flex-row">
@@ -90,7 +96,7 @@
             <h2 id="desktopTitle" class="text-xl font-bold text-gray-800">Dashboard Overview</h2>
         </header>
 
-        <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 pt-20 md:p-8 md:pt-8 w-full">
+        <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 pt-20 md:p-8 md:pt-8 w-full custom-scroll">
             
             <div id="view-dashboard" class="page-view animate-fade-in block space-y-6">
                 <h2 class="md:hidden text-2xl font-bold text-gray-800 mb-4">Dashboard Overview</h2>
@@ -189,28 +195,33 @@
                 </button>
 
                 <h2 class="text-2xl font-bold text-gray-800">Booking Memos</h2>
+                
+                <!-- NOTIFICATION CENTER -->
+                <div id="notification-center" class="hidden bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                    <h3 class="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2"><i class="fas fa-bell"></i> Today's Alerts</h3>
+                    <ul id="notification-list" class="space-y-1 text-sm text-amber-700"></ul>
+                </div>
+
                 <div class="bg-indigo-50 text-indigo-700 p-4 rounded-lg text-sm mb-4">
-                    <i class="fas fa-info-circle mr-2"></i> Internal memos only. Does not affect website availability.
+                    <i class="fas fa-info-circle mr-2"></i> Internal memos only.
                 </div>
                 
-                <!-- Improved Grid Form for Inputs -->
+                <!-- Improved Vertical Grid Form for Inputs (Same Measurements) -->
                 <form id="bookingMemoForm" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-8 gap-4 items-end">
-                        <div class="md:col-span-3">
+                    <div class="flex flex-col gap-4">
+                        <div>
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Car Name</label>
                             <input type="text" id="memoCar" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="e.g. Dacia Logan" required>
                         </div>
-                        <div class="md:col-span-2">
+                        <div>
                             <label class="block text-xs font-bold text-blue-600 mb-1 uppercase tracking-wide">Departure (Out)</label>
-                            <input type="date" id="memoStart" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-blue-700 font-medium" required>
+                            <input type="datetime-local" id="memoStart" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-blue-700 font-medium" required>
                         </div>
-                        <div class="md:col-span-2">
+                        <div>
                             <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return (In)</label>
-                            <input type="date" id="memoEnd" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-red-700 font-medium" required>
+                            <input type="datetime-local" id="memoEnd" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-red-700 font-medium" required>
                         </div>
-                        <div class="md:col-span-1">
-                            <button type="submit" class="w-full h-12 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center"><i class="fas fa-plus text-lg"></i></button>
-                        </div>
+                        <button type="submit" class="w-full h-12 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Add Booking</button>
                     </div>
                 </form>
 
@@ -543,40 +554,64 @@
             });
         }
 
-        function formatDate(dateStr) {
-            if(!dateStr) return '';
-            const [y, m, d] = dateStr.split('-');
-            return `${d}/${m}/${y}`;
+        function formatDateTime(isoString) {
+            if(!isoString) return '';
+            const date = new Date(isoString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
         }
 
         function renderBookings() {
-            const todayStr = new Date().toISOString().split('T')[0]; // Live comparison date
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
             
             const active = [];
             const upcoming = [];
             const past = [];
+            const alerts = [];
 
             allBookings.forEach(b => {
+                const startDate = new Date(b.start);
+                const endDate = new Date(b.end);
+                const startStr = b.start.split('T')[0];
+                const endStr = b.end.split('T')[0];
+
                 if (b.returned) {
-                    past.push(b); // Manual history
-                } else if (b.end < todayStr) {
-                    past.push(b); // Expired naturally (Auto History)
-                } else if (b.start > todayStr) {
-                    upcoming.push(b); // Future
+                    past.push(b); 
+                } else if (endDate < now) {
+                    past.push(b); 
+                } else if (startDate > now) {
+                    upcoming.push(b);
+                    if(startStr === todayStr) alerts.push(`${b.carName} is going out today at ${formatDateTime(b.start).split(' ')[1]}`);
                 } else {
-                    active.push(b); // Currently active
+                    active.push(b);
+                    if(endStr === todayStr) alerts.push(`${b.carName} is due back today at ${formatDateTime(b.end).split(' ')[1]}`);
                 }
             });
 
-            // Sort
-            active.sort((a,b) => a.end.localeCompare(b.end)); 
-            upcoming.sort((a,b) => a.start.localeCompare(b.start)); 
-            past.sort((a,b) => b.end.localeCompare(a.end)); 
+            // Sort logic as requested
+            active.sort((a,b) => a.end.localeCompare(b.end)); // Closest return date first
+            upcoming.sort((a,b) => a.start.localeCompare(b.start)); // Closest start date first
+            past.sort((a,b) => b.end.localeCompare(a.end)); // Most recent history first
 
             // Update Tab Counts
             document.getElementById('tab-active').innerHTML = `Active <span class="ml-2 bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-xs">${active.length}</span>`;
             document.getElementById('tab-upcoming').innerHTML = `Upcoming <span class="ml-2 bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs">${upcoming.length}</span>`;
             document.getElementById('tab-past').innerText = 'History';
+
+            // Notifications
+            const notifCenter = document.getElementById('notification-center');
+            const notifList = document.getElementById('notification-list');
+            if (alerts.length > 0) {
+                notifCenter.classList.remove('hidden');
+                notifList.innerHTML = alerts.map(msg => `<li>• ${msg}</li>`).join('');
+            } else {
+                notifCenter.classList.add('hidden');
+            }
 
             renderList('list-active', active, 'active');
             renderList('list-upcoming', upcoming, 'upcoming');
@@ -604,10 +639,10 @@
                 div.innerHTML = `
                     <div>
                         <h4 class="font-bold text-gray-800 text-lg">${item.carName}</h4>
-                        <div class="flex items-center gap-4 text-sm mt-1 bg-gray-50 px-3 py-1.5 rounded-lg inline-flex">
-                            <span class="font-medium flex items-center gap-2"><i class="fas fa-arrow-right text-blue-500"></i> <span class="text-blue-600 font-bold tracking-wide">${formatDate(item.start)}</span></span>
-                            <span class="text-gray-300">|</span>
-                            <span class="font-medium flex items-center gap-2"><i class="fas fa-arrow-left text-red-500"></i> <span class="text-red-600 font-bold tracking-wide">${formatDate(item.end)}</span></span>
+                        <div class="flex flex-wrap items-center gap-2 text-sm mt-1 bg-gray-50 px-3 py-1.5 rounded-lg inline-flex">
+                            <span class="font-medium flex items-center gap-2"><i class="fas fa-arrow-right text-blue-500"></i> <span class="text-blue-600 font-bold tracking-wide">${formatDateTime(item.start)}</span></span>
+                            <span class="text-gray-300 hidden sm:inline">|</span>
+                            <span class="font-medium flex items-center gap-2"><i class="fas fa-arrow-left text-red-500"></i> <span class="text-red-600 font-bold tracking-wide">${formatDateTime(item.end)}</span></span>
                         </div>
                     </div>
                     <div class="flex items-center justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100">
