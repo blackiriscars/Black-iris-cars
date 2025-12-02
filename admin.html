@@ -28,6 +28,12 @@
         .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
+
+        /* Force consistent height on mobile inputs */
+        input[type="datetime-local"], input[type="text"] {
+            min-height: 3rem; /* 48px */
+            max-height: 3rem;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans h-[100dvh] w-full overflow-hidden flex flex-col md:flex-row">
@@ -202,27 +208,23 @@
                     <ul id="notification-list" class="space-y-1 text-sm text-amber-700 font-medium"></ul>
                 </div>
 
-                <!-- VISUAL FIX: Used uniform padding and font settings to force identical appearance on mobile -->
-                <form id="bookingMemoForm" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                        <div class="md:col-span-1">
+                <!-- ALIGNMENT FIX: Identical boxes via explicit sizing classes -->
+                <form id="bookingMemoForm" class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-200 mb-6 overflow-hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end min-w-0">
+                        <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Car Name</label>
-                            <!-- Changed from h-12 to py-3 px-4 for consistent mobile rendering -->
-                            <input type="text" id="memoCar" class="w-full py-3 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium leading-tight" placeholder="e.g. Dacia Logan" required>
+                            <input type="text" id="memoCar" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Dacia Logan" required>
                         </div>
-                        <div class="md:col-span-1">
-                            <label class="block text-xs font-bold text-blue-600 mb-1 uppercase tracking-wide">Departure (Hour)</label>
-                            <!-- Changed from h-12 to py-3 px-4, removed distinct color -->
-                            <input type="datetime-local" id="memoStart" class="w-full py-3 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-700 text-sm font-medium leading-tight" required>
+                        <div class="md:col-span-1 min-w-0">
+                            <label class="block text-xs font-bold text-blue-600 mb-1 uppercase tracking-wide">Departure</label>
+                            <input type="datetime-local" id="memoStart" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
                         </div>
-                        <div class="md:col-span-1">
-                            <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return (Hour)</label>
-                            <!-- Changed from h-12 to py-3 px-4, removed distinct color -->
-                            <input type="datetime-local" id="memoEnd" class="w-full py-3 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-gray-700 text-sm font-medium leading-tight" required>
+                        <div class="md:col-span-1 min-w-0">
+                            <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return</label>
+                            <input type="datetime-local" id="memoEnd" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
                         </div>
-                        <div class="md:col-span-1">
-                            <!-- Matched button height to inputs using py-3 -->
-                            <button type="submit" class="w-full py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2 text-sm"><i class="fas fa-plus"></i> Add Memo</button>
+                        <div class="md:col-span-1 min-w-0">
+                            <button type="submit" class="w-full h-12 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2 text-sm"><i class="fas fa-plus"></i> Add Memo</button>
                         </div>
                     </div>
                 </form>
