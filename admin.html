@@ -29,8 +29,8 @@
         .custom-scroll::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
 
-        /* Force consistent look for date inputs */
-        input[type="datetime-local"] {
+        /* Force consistent look for inputs */
+        input[type="datetime-local"], select {
             appearance: none;
             -webkit-appearance: none;
             min-height: 3rem; 
@@ -213,10 +213,10 @@
                     <i class="fas fa-info-circle mr-2"></i> Internal memos only.
                 </div>
                 
-                <!-- UPDATED GRID LAYOUT: Obligation First, then Optionals -->
+                <!-- BOOKING FORM GRID -->
                 <form id="bookingMemoForm" class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-200 mb-6 overflow-hidden">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end min-w-0">
-                        <!-- Row 1: Mandatory Fields -->
+                        <!-- ROW 1: OBLIGATION -->
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Car Name <span class="text-red-500">*</span></label>
                             <input type="text" id="memoCar" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Dacia Logan" required>
@@ -230,22 +230,51 @@
                             <input type="datetime-local" id="memoEnd" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
                         </div>
 
-                        <!-- Row 2: Optional / Financial Fields -->
+                        <!-- ROW 2: OPTIONAL / FINANCIAL -->
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Daily Price (DH) <span class="text-red-500">*</span></label>
                             <input type="number" id="memoPrice" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
                         </div>
                         <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Client Name (Optional)</label>
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Client Name</label>
                             <input type="text" id="memoClient" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="Client Name">
                         </div>
                         <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Location (Optional)</label>
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Location</label>
                             <input type="text" id="memoLocation" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Airport">
                         </div>
+
+                        <!-- ROW 3: AGENT & DEPOSIT (NEW) -->
+                        <div class="md:col-span-1 min-w-0">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Agent</label>
+                            <div class="relative">
+                                <select id="memoAgent" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium appearance-none">
+                                    <option value="" disabled selected>Select Agent</option>
+                                    <option value="Anas">Anas</option>
+                                    <option value="Amine">Amine</option>
+                                    <option value="Mustapha">Mustapha</option>
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                            </div>
+                        </div>
+                        <div class="md:col-span-1 min-w-0">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Deposit Amount (DH)</label>
+                            <input type="number" id="memoDepositAmount" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
+                        </div>
+                        <div class="md:col-span-1 min-w-0">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Deposit Method</label>
+                            <div class="relative">
+                                <select id="memoDepositMethod" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium appearance-none">
+                                    <option value="Cash">Cash</option>
+                                    <option value="Card">Card</option>
+                                    <option value="Cheque">Cheque</option>
+                                    <option value="Transfer">Transfer</option>
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                            </div>
+                        </div>
                         
-                        <!-- Row 3: Button -->
-                        <div class="md:col-span-3 min-w-0 mt-2">
+                        <div class="md:col-span-3 min-w-0 mt-4">
                             <button type="submit" class="w-full h-12 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2 text-sm"><i class="fas fa-plus"></i> Add Booking Memo</button>
                         </div>
                     </div>
@@ -686,7 +715,7 @@
                 
                 grouped[monthKey].items.push(item);
                 
-                // Calc cost
+                // Calc cost for total
                 if(item.price && item.start && item.end) {
                     const s = new Date(item.start);
                     const e = new Date(item.end);
@@ -710,7 +739,7 @@
                 header.innerHTML = `<h3 class="font-bold text-gray-700">${monthName}</h3><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Total: ${group.total} DH</span>`;
                 el.appendChild(header);
 
-                // Render items in this group using standard render
+                // Render items in this group
                 group.items.forEach(item => {
                     el.appendChild(createBookingCard(item, 'past'));
                 });
@@ -741,17 +770,17 @@
                 badge = '<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Booked</span>';
             }
 
-            // Top-right actions
+            // Top-right actions (Fixed Position)
             let actions = '';
             if(isActive || isUpcoming) {
                 actions = `
-                <div class="absolute top-2 right-2 flex gap-2">
-                    ${isActive ? `<button onclick="window.markReturned('${item.id}')" class="bg-indigo-50 text-indigo-600 border border-indigo-200 text-[10px] font-bold px-2 py-1 rounded shadow-sm hover:bg-indigo-100 transition">Return</button>` : ''}
-                    <button onclick="window.deleteMemo('${item.id}')" class="text-gray-300 hover:text-red-500 transition"><i class="fas fa-trash text-sm"></i></button>
+                <div class="absolute top-3 right-3 flex items-center gap-2">
+                    ${isActive ? `<button onclick="window.markReturned('${item.id}')" class="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-bold px-2 py-1 rounded shadow-sm hover:bg-indigo-100 transition whitespace-nowrap">Return</button>` : ''}
+                    <button onclick="window.deleteMemo('${item.id}')" class="text-gray-300 hover:text-red-500 transition p-1"><i class="fas fa-trash text-sm"></i></button>
                 </div>`;
             } else {
                 // History Delete
-                actions = `<button onclick="window.deleteMemo('${item.id}')" class="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition"><i class="fas fa-trash text-sm"></i></button>`;
+                actions = `<button onclick="window.deleteMemo('${item.id}')" class="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition p-1"><i class="fas fa-trash text-sm"></i></button>`;
             }
             
             let clientInfo = '';
@@ -759,6 +788,15 @@
                 clientInfo = `<div class="text-xs text-gray-500 mt-1 flex gap-3">
                     ${item.clientName ? `<span><i class="fas fa-user text-gray-400 mr-1"></i>${item.clientName}</span>` : ''}
                     ${item.location ? `<span><i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>${item.location}</span>` : ''}
+                </div>`;
+            }
+
+            // Agent & Deposit Info
+            let extraInfo = '';
+            if(item.agent || item.depositAmount) {
+                extraInfo = `<div class="text-xs text-gray-500 mt-1 flex flex-wrap gap-3">
+                    ${item.agent ? `<span><i class="fas fa-user-tie text-gray-400 mr-1"></i>Agent: ${item.agent}</span>` : ''}
+                    ${item.depositAmount ? `<span><i class="fas fa-money-bill-wave text-gray-400 mr-1"></i>Dep: ${item.depositAmount} DH (${item.depositMethod})</span>` : ''}
                 </div>`;
             }
 
@@ -784,12 +822,13 @@
             div.className = `bg-white p-4 rounded-r-xl rounded-l-md shadow-sm ${borderColor} relative hover:shadow-md transition-shadow`;
             
             div.innerHTML = `
-                <div class="pr-16"> <!-- Padding right to avoid overlap with buttons -->
+                <div class="pr-20"> <!-- Increased right padding for top buttons -->
                     <div class="flex items-center gap-2 mb-1">
                         <h4 class="font-bold text-gray-800 text-lg">${item.carName}</h4>
                         ${badge}
                     </div>
                     ${clientInfo}
+                    ${extraInfo}
                     <div class="flex items-center text-sm font-medium text-gray-600 mt-2">
                         <div class="flex items-center text-blue-700">
                             <span class="w-10 text-xs text-gray-400 uppercase tracking-wide">Out</span>
@@ -822,6 +861,10 @@
             const clientName = document.getElementById('memoClient').value;
             const location = document.getElementById('memoLocation').value;
             const price = document.getElementById('memoPrice').value;
+            const agent = document.getElementById('memoAgent').value;
+            const depositAmount = document.getElementById('memoDepositAmount').value;
+            const depositMethod = document.getElementById('memoDepositMethod').value;
+            
             let start = document.getElementById('memoStart').value;
             let end = document.getElementById('memoEnd').value;
 
@@ -830,7 +873,7 @@
 
             try {
                 await addDoc(collection(db, bookingCollection), {
-                    carName, clientName, location, price, start, end, 
+                    carName, clientName, location, price, agent, depositAmount, depositMethod, start, end, 
                     createdAt: serverTimestamp(),
                     returned: false 
                 });
