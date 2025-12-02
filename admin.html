@@ -29,10 +29,11 @@
         .custom-scroll::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
 
-        /* Force consistent height on mobile inputs */
-        input[type="datetime-local"], input[type="text"] {
-            min-height: 3rem; /* 48px */
-            max-height: 3rem;
+        /* Force consistent look for date inputs */
+        input[type="datetime-local"] {
+            appearance: none;
+            -webkit-appearance: none;
+            min-height: 3rem; 
         }
     </style>
 </head>
@@ -208,29 +209,50 @@
                     <ul id="notification-list" class="space-y-1 text-sm text-amber-700 font-medium"></ul>
                 </div>
 
-                <!-- ALIGNMENT FIX: Identical boxes via explicit sizing classes -->
+                <div class="bg-indigo-50 text-indigo-700 p-4 rounded-lg text-sm mb-4">
+                    <i class="fas fa-info-circle mr-2"></i> Internal memos only.
+                </div>
+                
+                <!-- SEARCH BAR -->
+                <div class="mb-4">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="bookingSearch" placeholder="Search by Car or Client..." class="w-full pl-11 pr-4 h-12 bg-white border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                    </div>
+                </div>
+
+                <!-- ALIGNMENT FIX: Strictly Equal Grid & Identical Styles -->
                 <form id="bookingMemoForm" class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-200 mb-6 overflow-hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end min-w-0">
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Car Name</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Car Name <span class="text-red-500">*</span></label>
                             <input type="text" id="memoCar" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Dacia Logan" required>
                         </div>
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-blue-600 mb-1 uppercase tracking-wide">Departure</label>
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Client Name (Optional)</label>
+                            <input type="text" id="memoClient" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="Client Name">
+                        </div>
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Location (Optional)</label>
+                            <input type="text" id="memoLocation" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Airport">
+                        </div>
+                        
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-bold text-blue-600 mb-1 uppercase tracking-wide">Departure <span class="text-red-500">*</span></label>
                             <input type="datetime-local" id="memoStart" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
                         </div>
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return</label>
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return <span class="text-red-500">*</span></label>
                             <input type="datetime-local" id="memoEnd" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
                         </div>
-                        <div class="md:col-span-1 min-w-0">
+                        <div class="md:col-span-1">
                             <button type="submit" class="w-full h-12 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2 text-sm"><i class="fas fa-plus"></i> Add Memo</button>
                         </div>
                     </div>
                 </form>
 
-                <!-- NEW TABS WITH COUNTERS -->
-                <div class="flex space-x-2 mb-4 border-b border-gray-200 overflow-x-auto">
+                <!-- TABS -->
+                <div class="flex space-x-2 mb-4 border-b border-gray-200 overflow-x-auto no-scrollbar">
                     <button onclick="filterBookings('active')" id="tab-active" class="booking-tab whitespace-nowrap px-6 py-3 border-b-2 border-indigo-600 font-bold text-indigo-600 transition-colors">Active</button>
                     <button onclick="filterBookings('upcoming')" id="tab-upcoming" class="booking-tab whitespace-nowrap px-6 py-3 border-b-2 border-transparent text-gray-500 hover:text-indigo-600 transition-colors">Upcoming</button>
                     <button onclick="filterBookings('past')" id="tab-past" class="booking-tab whitespace-nowrap px-6 py-3 border-b-2 border-transparent text-gray-500 hover:text-indigo-600 transition-colors">History</button>
@@ -295,7 +317,6 @@
 
         // TABS LOGIC
         window.filterBookings = function(tab) {
-            // Update classes
             document.querySelectorAll('.booking-tab').forEach(b => {
                 b.classList.remove('border-indigo-600', 'text-indigo-600', 'font-bold');
                 b.classList.add('border-transparent', 'text-gray-500');
@@ -304,7 +325,6 @@
             activeBtn.classList.remove('border-transparent', 'text-gray-500');
             activeBtn.classList.add('border-indigo-600', 'text-indigo-600', 'font-bold');
 
-            // Show/Hide Lists
             document.querySelectorAll('.booking-list').forEach(l => l.classList.add('hidden'));
             document.getElementById('list-' + tab).classList.remove('hidden');
         }
@@ -558,6 +578,11 @@
             });
         }
 
+        // Search Filter Logic
+        document.getElementById('bookingSearch').addEventListener('input', (e) => {
+            renderBookings();
+        });
+
         function formatDateTime(isoString) {
             if(!isoString) return '';
             const date = new Date(isoString);
@@ -568,16 +593,15 @@
             return `${day}/${month}/${year} ${hours}:00`;
         }
 
-        // FORCE ROUND TO HOUR ON SAVE
         function roundToHour(isoString) {
             const date = new Date(isoString);
-            date.setMinutes(0, 0, 0); // Force minutes/seconds to 0
-            // Adjust for timezone offset to keep ISO string correct relative to local time selection
+            date.setMinutes(0, 0, 0); 
             const offset = date.getTimezoneOffset() * 60000;
             return new Date(date.getTime() - offset).toISOString().slice(0, 16);
         }
 
         function renderBookings() {
+            const searchTerm = document.getElementById('bookingSearch').value.toLowerCase();
             const now = new Date();
             const todayStr = now.toISOString().split('T')[0];
             
@@ -587,6 +611,12 @@
             const alerts = [];
 
             allBookings.forEach(b => {
+                // Filter by search term first
+                const match = b.carName.toLowerCase().includes(searchTerm) || 
+                              (b.clientName && b.clientName.toLowerCase().includes(searchTerm));
+                
+                if (!match) return;
+
                 const startDate = new Date(b.start);
                 const endDate = new Date(b.end);
                 const startStr = b.start.split('T')[0];
@@ -641,7 +671,7 @@
             list.forEach(item => {
                 const isActive = type === 'active';
                 const isUpcoming = type === 'upcoming';
-                let borderColor = 'border-gray-200'; // Default History
+                let borderColor = 'border-gray-200'; 
                 let badge = '';
                 
                 if (isActive) {
@@ -657,26 +687,35 @@
                     actionBtn = `<button onclick="window.markReturned('${item.id}')" class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-bold mr-2 hover:bg-indigo-100 transition border border-indigo-200"><i class="fas fa-undo-alt mr-1"></i> Return</button>`;
                 }
                 
+                // Show client info if available
+                let clientInfo = '';
+                if(item.clientName || item.location) {
+                    clientInfo = `<div class="text-xs text-gray-500 mt-1 flex gap-3">
+                        ${item.clientName ? `<span><i class="fas fa-user text-gray-400 mr-1"></i>${item.clientName}</span>` : ''}
+                        ${item.location ? `<span><i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>${item.location}</span>` : ''}
+                    </div>`;
+                }
+                
                 const div = document.createElement('div');
                 div.className = `bg-white p-4 rounded-r-xl rounded-l-md shadow-sm ${borderColor} flex flex-col sm:flex-row justify-between sm:items-center gap-3 hover:shadow-md transition-shadow relative overflow-hidden`;
                 
                 div.innerHTML = `
                     <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-2">
+                        <div class="flex items-center gap-2 mb-1">
                             <h4 class="font-bold text-gray-800 text-lg">${item.carName}</h4>
                             ${badge}
                         </div>
-                        
-                        <div class="flex items-center text-sm font-medium text-gray-600">
+                        ${clientInfo}
+                        <div class="flex items-center text-sm font-medium text-gray-600 mt-2">
                             <div class="flex items-center text-blue-700">
-                                <span class="w-16 text-xs text-gray-400 uppercase tracking-wide">Out</span>
+                                <span class="w-10 text-xs text-gray-400 uppercase tracking-wide">Out</span>
                                 <span class="text-base">${formatDateTime(item.start)}</span>
                             </div>
                         </div>
-                        <div class="w-px h-2 bg-gray-300 ml-[4.5rem] my-0.5"></div>
+                        <div class="w-px h-2 bg-gray-300 ml-[2.5rem] my-0.5"></div>
                         <div class="flex items-center text-sm font-medium text-gray-600">
                             <div class="flex items-center text-red-700">
-                                <span class="w-16 text-xs text-gray-400 uppercase tracking-wide">In</span>
+                                <span class="w-10 text-xs text-gray-400 uppercase tracking-wide">In</span>
                                 <span class="text-base">${formatDateTime(item.end)}</span>
                             </div>
                         </div>
@@ -700,6 +739,8 @@
         document.getElementById('bookingMemoForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const carName = document.getElementById('memoCar').value;
+            const clientName = document.getElementById('memoClient').value;
+            const location = document.getElementById('memoLocation').value;
             let start = document.getElementById('memoStart').value;
             let end = document.getElementById('memoEnd').value;
 
@@ -709,7 +750,7 @@
 
             try {
                 await addDoc(collection(db, bookingCollection), {
-                    carName, start, end, 
+                    carName, clientName, location, start, end, 
                     createdAt: serverTimestamp(),
                     returned: false 
                 });
