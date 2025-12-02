@@ -203,7 +203,6 @@
 
                 <h2 class="text-2xl font-bold text-gray-800">Booking Memos</h2>
                 
-                <!-- NOTIFICATION CENTER -->
                 <div id="notification-center" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 shadow-sm">
                     <h3 class="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2"><i class="fas fa-bell text-amber-600"></i> Today's Alerts</h3>
                     <ul id="notification-list" class="space-y-1 text-sm text-amber-700 font-medium"></ul>
@@ -213,10 +212,8 @@
                     <i class="fas fa-info-circle mr-2"></i> Internal memos only.
                 </div>
                 
-                <!-- BOOKING FORM GRID -->
                 <form id="bookingMemoForm" class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-200 mb-6 overflow-hidden">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end min-w-0">
-                        <!-- ROW 1: OBLIGATION -->
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Car Name <span class="text-red-500">*</span></label>
                             <input type="text" id="memoCar" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Dacia Logan" required>
@@ -230,7 +227,6 @@
                             <input type="datetime-local" id="memoEnd" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
                         </div>
 
-                        <!-- ROW 2: OPTIONAL / FINANCIAL -->
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Daily Price (DH) <span class="text-red-500">*</span></label>
                             <input type="number" id="memoPrice" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
@@ -244,7 +240,6 @@
                             <input type="text" id="memoLocation" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Airport">
                         </div>
 
-                        <!-- ROW 3: AGENT & DEPOSIT (NEW) -->
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Agent</label>
                             <div class="relative">
@@ -280,7 +275,6 @@
                     </div>
                 </form>
 
-                <!-- SEARCH BAR -->
                 <div class="mb-4">
                     <div class="relative">
                         <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -288,14 +282,12 @@
                     </div>
                 </div>
 
-                <!-- TABS -->
                 <div class="flex space-x-2 mb-4 border-b border-gray-200 overflow-x-auto no-scrollbar">
                     <button onclick="filterBookings('active')" id="tab-active" class="booking-tab whitespace-nowrap px-6 py-3 border-b-2 border-indigo-600 font-bold text-indigo-600 transition-colors">Active</button>
                     <button onclick="filterBookings('upcoming')" id="tab-upcoming" class="booking-tab whitespace-nowrap px-6 py-3 border-b-2 border-transparent text-gray-500 hover:text-indigo-600 transition-colors">Upcoming</button>
                     <button onclick="filterBookings('past')" id="tab-past" class="booking-tab whitespace-nowrap px-6 py-3 border-b-2 border-transparent text-gray-500 hover:text-indigo-600 transition-colors">History</button>
                 </div>
 
-                <!-- LIST CONTAINERS -->
                 <div id="booking-lists-container" class="pb-20">
                     <div id="list-active" class="booking-list space-y-3"></div>
                     <div id="list-upcoming" class="booking-list space-y-3 hidden"></div>
@@ -637,6 +629,7 @@
             return new Date(date.getTime() - offset).toISOString().slice(0, 16);
         }
 
+        // UPDATED: Notification Time + List Logic
         function renderBookings() {
             const searchTerm = document.getElementById('bookingSearch').value.toLowerCase();
             const now = new Date();
@@ -659,16 +652,21 @@
                 const startStr = b.start.split('T')[0];
                 const endStr = b.end.split('T')[0];
 
+                // Time formatting for alerts
+                const formatTimeOnly = (dateObj) => {
+                    return dateObj.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                };
+
                 if (b.returned) {
                     past.push(b); 
                 } else if (endDate < now) {
                     past.push(b); 
                 } else if (startDate > now) {
                     upcoming.push(b);
-                    if(startStr === todayStr) alerts.push(`${b.carName} Going Out Today at ${formatDateTime(b.start).split(' ')[1]}`);
+                    if(startStr === todayStr) alerts.push(`${b.carName} Going Out Today at ${formatTimeOnly(startDate)}`);
                 } else {
                     active.push(b);
-                    if(endStr === todayStr) alerts.push(`${b.carName} Due Back Today at ${formatDateTime(b.end).split(' ')[1]}`);
+                    if(endStr === todayStr) alerts.push(`${b.carName} Due Back Today at ${formatTimeOnly(endDate)}`);
                 }
             });
 
@@ -697,7 +695,7 @@
             renderHistory(past);
         }
 
-        // NEW: Render History Grouped by Month
+        // UPDATED: History Money Logic (Split by Month)
         function renderHistory(list) {
             const el = document.getElementById('list-past');
             el.innerHTML = '';
@@ -706,41 +704,56 @@
                 return;
             }
 
-            // Group by Month (Year-Month key)
-            const grouped = {};
+            // 1. Calculate Revenue per Month (Splitting dates)
+            const revenueMap = {}; // Key: "YYYY-MM", Value: Total Money
+            const itemsByMonth = {}; // Key: "YYYY-MM", Value: Array of items (grouped by End Date for display)
+
             list.forEach(item => {
-                const date = new Date(item.end);
-                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                if(!grouped[monthKey]) grouped[monthKey] = { items: [], total: 0 };
-                
-                grouped[monthKey].items.push(item);
-                
-                // Calc cost for total
+                // Group item by End Date for visual list
+                const endD = new Date(item.end);
+                const listKey = `${endD.getFullYear()}-${String(endD.getMonth() + 1).padStart(2, '0')}`;
+                if(!itemsByMonth[listKey]) itemsByMonth[listKey] = [];
+                itemsByMonth[listKey].push(item);
+
+                // Calculate Revenue Split
                 if(item.price && item.start && item.end) {
-                    const s = new Date(item.start);
-                    const e = new Date(item.end);
-                    const diff = Math.abs(e - s);
-                    const days = Math.max(1, Math.ceil(diff / (1000*60*60*24)));
-                    grouped[monthKey].total += (Number(item.price) * days);
+                    const price = Number(item.price);
+                    const startObj = new Date(item.start);
+                    const endObj = new Date(item.end);
+                    
+                    // Calculate total billable days same as before
+                    const diffTime = Math.abs(endObj - startObj);
+                    let totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if(totalDays < 1) totalDays = 1;
+
+                    // Distribute price across the calendar days involved
+                    let current = new Date(startObj);
+                    for(let i = 0; i < totalDays; i++) {
+                        const monthKey = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`;
+                        revenueMap[monthKey] = (revenueMap[monthKey] || 0) + price;
+                        
+                        // Move to next day
+                        current.setDate(current.getDate() + 1);
+                    }
                 }
             });
 
-            // Sort months descending
-            const keys = Object.keys(grouped).sort().reverse();
+            // 2. Render
+            const keys = Object.keys(itemsByMonth).sort().reverse(); // Show newest months first
 
             keys.forEach(key => {
-                const group = grouped[key];
                 const [year, month] = key.split('-');
                 const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+                const monthlyTotal = revenueMap[key] || 0;
 
                 // Header
                 const header = document.createElement('div');
                 header.className = "flex justify-between items-center bg-gray-100 p-3 rounded-lg mt-6 mb-2";
-                header.innerHTML = `<h3 class="font-bold text-gray-700">${monthName}</h3><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Total: ${group.total} DH</span>`;
+                header.innerHTML = `<h3 class="font-bold text-gray-700">${monthName}</h3><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Rev: ${monthlyTotal} DH</span>`;
                 el.appendChild(header);
 
-                // Render items in this group
-                group.items.forEach(item => {
+                // Items
+                itemsByMonth[key].forEach(item => {
                     el.appendChild(createBookingCard(item, 'past'));
                 });
             });
@@ -756,95 +769,105 @@
             list.forEach(item => el.appendChild(createBookingCard(item, type)));
         }
 
+        // UPDATED: Cleaner Card Design
         function createBookingCard(item, type) {
             const isActive = type === 'active';
             const isUpcoming = type === 'upcoming';
-            let borderColor = 'border-gray-200'; 
-            let badge = '';
-            
+            let borderColor = 'border-l-4 border-gray-300'; 
+            let statusColor = 'text-gray-500';
+            let statusText = 'Completed';
+
             if (isActive) {
-                borderColor = 'border-l-4 border-l-red-500 border-t border-r border-b border-gray-200';
-                badge = '<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">In Use</span>';
+                borderColor = 'border-l-4 border-indigo-500 shadow-indigo-100';
+                statusColor = 'text-indigo-600';
+                statusText = 'Active Now';
             } else if (isUpcoming) {
-                borderColor = 'border-l-4 border-l-blue-500 border-t border-r border-b border-gray-200';
-                badge = '<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Booked</span>';
+                borderColor = 'border-l-4 border-blue-400';
+                statusColor = 'text-blue-500';
+                statusText = 'Upcoming';
             }
 
-            // Top-right actions (Fixed Position)
-            let actions = '';
-            if(isActive || isUpcoming) {
-                actions = `
-                <div class="absolute top-3 right-3 flex items-center gap-2">
-                    ${isActive ? `<button onclick="window.markReturned('${item.id}')" class="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-bold px-2 py-1 rounded shadow-sm hover:bg-indigo-100 transition whitespace-nowrap">Return</button>` : ''}
-                    <button onclick="window.deleteMemo('${item.id}')" class="text-gray-300 hover:text-red-500 transition p-1"><i class="fas fa-trash text-sm"></i></button>
-                </div>`;
-            } else {
-                // History Delete
-                actions = `<button onclick="window.deleteMemo('${item.id}')" class="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition p-1"><i class="fas fa-trash text-sm"></i></button>`;
-            }
-            
-            let clientInfo = '';
-            if(item.clientName || item.location) {
-                clientInfo = `<div class="text-xs text-gray-500 mt-1 flex gap-3">
-                    ${item.clientName ? `<span><i class="fas fa-user text-gray-400 mr-1"></i>${item.clientName}</span>` : ''}
-                    ${item.location ? `<span><i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>${item.location}</span>` : ''}
-                </div>`;
-            }
-
-            // Agent & Deposit Info
-            let extraInfo = '';
-            if(item.agent || item.depositAmount) {
-                extraInfo = `<div class="text-xs text-gray-500 mt-1 flex flex-wrap gap-3">
-                    ${item.agent ? `<span><i class="fas fa-user-tie text-gray-400 mr-1"></i>Agent: ${item.agent}</span>` : ''}
-                    ${item.depositAmount ? `<span><i class="fas fa-money-bill-wave text-gray-400 mr-1"></i>Dep: ${item.depositAmount} DH (${item.depositMethod})</span>` : ''}
-                </div>`;
-            }
-
-            // Financials
-            let financials = '';
+            // Calculations
+            let totalCost = 0;
+            let diffDays = 0;
             if (item.price) {
                 const dailyPrice = Number(item.price);
                 const startD = new Date(item.start);
                 const endD = new Date(item.end);
                 const diffTime = Math.abs(endD - startD);
-                let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
                 if(diffDays < 1) diffDays = 1;
-                const totalCost = dailyPrice * diffDays;
-                
-                financials = `<div class="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-                    <span>${dailyPrice} DH / day</span>
-                    <span>${diffDays} Days</span>
-                    <span class="font-bold text-gray-900 text-sm">Total: ${totalCost} DH</span>
-                </div>`;
+                totalCost = dailyPrice * diffDays;
             }
-            
+
+            // Formatters
+            const formatDate = (dateStr) => {
+                const d = new Date(dateStr);
+                return d.toLocaleDateString('en-GB', {day: 'numeric', month: 'short'});
+            };
+            const formatTime = (dateStr) => {
+                const d = new Date(dateStr);
+                return d.toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit'});
+            };
+
             const div = document.createElement('div');
-            div.className = `bg-white p-4 rounded-r-xl rounded-l-md shadow-sm ${borderColor} relative hover:shadow-md transition-shadow`;
-            
+            div.className = `bg-white rounded-xl shadow-sm border border-gray-200 mb-4 overflow-hidden ${borderColor} transition-transform active:scale-[0.99]`;
+
+            // Card Header (Car & Actions)
+            let actions = '';
+            if(isActive || isUpcoming) {
+                actions = `
+                    <div class="flex gap-2">
+                        ${isActive ? `<button onclick="window.markReturned('${item.id}')" class="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm hover:bg-indigo-700">Return</button>` : ''}
+                        <button onclick="window.deleteMemo('${item.id}')" class="text-gray-400 hover:text-red-500 p-1"><i class="fas fa-trash"></i></button>
+                    </div>`;
+            } else {
+                actions = `<button onclick="window.deleteMemo('${item.id}')" class="text-gray-300 hover:text-red-500 p-1"><i class="fas fa-trash"></i></button>`;
+            }
+
             div.innerHTML = `
-                <div class="pr-20"> <!-- Increased right padding for top buttons -->
-                    <div class="flex items-center gap-2 mb-1">
-                        <h4 class="font-bold text-gray-800 text-lg">${item.carName}</h4>
-                        ${badge}
-                    </div>
-                    ${clientInfo}
-                    ${extraInfo}
-                    <div class="flex items-center text-sm font-medium text-gray-600 mt-2">
-                        <div class="flex items-center text-blue-700">
-                            <span class="w-10 text-xs text-gray-400 uppercase tracking-wide">Out</span>
-                            <span class="text-base">${formatDateTime(item.start)}</span>
+                <div class="p-4 pb-2 flex justify-between items-start">
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-lg leading-tight">${item.carName}</h4>
+                        <div class="flex items-center gap-2 mt-1 text-xs font-medium text-gray-500">
+                            <span class="${statusColor} uppercase tracking-wider">${statusText}</span>
+                            ${item.clientName ? `<span class="text-gray-300">|</span> <span><i class="fas fa-user text-gray-400 mr-1"></i>${item.clientName}</span>` : ''}
                         </div>
                     </div>
-                    <div class="w-px h-2 bg-gray-300 ml-[2.5rem] my-0.5"></div>
-                    <div class="flex items-center text-sm font-medium text-gray-600">
-                        <div class="flex items-center text-red-700">
-                            <span class="w-10 text-xs text-gray-400 uppercase tracking-wide">In</span>
-                            <span class="text-base">${formatDateTime(item.end)}</span>
-                        </div>
-                    </div>
-                    ${financials}
+                    ${actions}
                 </div>
-                ${actions}
+
+                <div class="px-4 py-3 bg-gray-50/50 border-t border-b border-gray-100 grid grid-cols-2 gap-4">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] uppercase font-bold text-gray-400 mb-1">Departure</span>
+                        <div class="flex items-center gap-2 text-gray-800">
+                            <i class="fas fa-circle text-[8px] text-blue-500"></i>
+                            <span class="font-bold text-sm">${formatDate(item.start)}</span>
+                            <span class="text-xs text-gray-500">${formatTime(item.start)}</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col border-l border-gray-200 pl-4">
+                        <span class="text-[10px] uppercase font-bold text-gray-400 mb-1">Return</span>
+                        <div class="flex items-center gap-2 text-gray-800">
+                            <i class="fas fa-circle text-[8px] text-red-500"></i>
+                            <span class="font-bold text-sm">${formatDate(item.end)}</span>
+                            <span class="text-xs text-gray-500">${formatTime(item.end)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-gray-50 flex justify-between items-center text-xs">
+                    <div class="text-gray-500 font-medium">
+                        ${item.agent ? `<span class="mr-3"><i class="fas fa-user-tie text-gray-400"></i> ${item.agent}</span>` : ''}
+                        ${item.location ? `<span><i class="fas fa-map-marker-alt text-gray-400"></i> ${item.location}</span>` : ''}
+                    </div>
+                    <div class="text-right">
+                        ${item.price ? `
+                            <div class="text-gray-900 font-bold text-sm">${totalCost} DH</div>
+                            <div class="text-[10px] text-gray-400">${item.price} dh/day × ${diffDays}d</div>
+                        ` : ''}
+                    </div>
+                </div>
             `;
             return div;
         }
@@ -889,5 +912,3 @@
     </script>
 </body>
 </html>
-
-
