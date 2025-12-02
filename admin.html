@@ -203,7 +203,7 @@
 
                 <h2 class="text-2xl font-bold text-gray-800">Booking Memos</h2>
                 
-                <!-- NOTIFICATION CENTER (Moved Inside) -->
+                <!-- NOTIFICATION CENTER -->
                 <div id="notification-center" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 shadow-sm">
                     <h3 class="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2"><i class="fas fa-bell text-amber-600"></i> Today's Alerts</h3>
                     <ul id="notification-list" class="space-y-1 text-sm text-amber-700 font-medium"></ul>
@@ -213,12 +213,27 @@
                     <i class="fas fa-info-circle mr-2"></i> Internal memos only.
                 </div>
                 
-                <!-- ALIGNMENT FIX: Identical boxes via explicit sizing classes -->
+                <!-- UPDATED GRID LAYOUT: Obligation First, then Optionals -->
                 <form id="bookingMemoForm" class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-200 mb-6 overflow-hidden">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end min-w-0">
+                        <!-- Row 1: Mandatory Fields -->
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Car Name <span class="text-red-500">*</span></label>
                             <input type="text" id="memoCar" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Dacia Logan" required>
+                        </div>
+                        <div class="md:col-span-1 min-w-0">
+                            <label class="block text-xs font-bold text-blue-600 mb-1 uppercase tracking-wide">Departure <span class="text-red-500">*</span></label>
+                            <input type="datetime-local" id="memoStart" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
+                        </div>
+                        <div class="md:col-span-1 min-w-0">
+                            <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return <span class="text-red-500">*</span></label>
+                            <input type="datetime-local" id="memoEnd" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
+                        </div>
+
+                        <!-- Row 2: Optional / Financial Fields -->
+                        <div class="md:col-span-1 min-w-0">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Daily Price (DH) <span class="text-red-500">*</span></label>
+                            <input type="number" id="memoPrice" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
                         </div>
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Client Name (Optional)</label>
@@ -229,21 +244,7 @@
                             <input type="text" id="memoLocation" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Airport">
                         </div>
                         
-                        <!-- NEW PRICE INPUT -->
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Daily Price (DH)</label>
-                            <input type="number" id="memoPrice" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
-                        </div>
-
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-blue-600 mb-1 uppercase tracking-wide">Departure <span class="text-red-500">*</span></label>
-                            <input type="datetime-local" id="memoStart" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
-                        </div>
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return <span class="text-red-500">*</span></label>
-                            <input type="datetime-local" id="memoEnd" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
-                        </div>
-                        
+                        <!-- Row 3: Button -->
                         <div class="md:col-span-3 min-w-0 mt-2">
                             <button type="submit" class="w-full h-12 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2 text-sm"><i class="fas fa-plus"></i> Add Booking Memo</button>
                         </div>
@@ -269,7 +270,7 @@
                 <div id="booking-lists-container" class="pb-20">
                     <div id="list-active" class="booking-list space-y-3"></div>
                     <div id="list-upcoming" class="booking-list space-y-3 hidden"></div>
-                    <div id="list-past" class="booking-list space-y-3 hidden"></div>
+                    <div id="list-past" class="booking-list space-y-6 hidden"></div>
                 </div>
             </div>
         </div>
@@ -664,7 +665,56 @@
 
             renderList('list-active', active, 'active');
             renderList('list-upcoming', upcoming, 'upcoming');
-            renderList('list-past', past, 'past');
+            renderHistory(past);
+        }
+
+        // NEW: Render History Grouped by Month
+        function renderHistory(list) {
+            const el = document.getElementById('list-past');
+            el.innerHTML = '';
+            if(list.length === 0) {
+                el.innerHTML = `<div class="text-center py-8 text-gray-400 border border-dashed border-gray-300 rounded-lg">No history found.</div>`;
+                return;
+            }
+
+            // Group by Month (Year-Month key)
+            const grouped = {};
+            list.forEach(item => {
+                const date = new Date(item.end);
+                const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                if(!grouped[monthKey]) grouped[monthKey] = { items: [], total: 0 };
+                
+                grouped[monthKey].items.push(item);
+                
+                // Calc cost
+                if(item.price && item.start && item.end) {
+                    const s = new Date(item.start);
+                    const e = new Date(item.end);
+                    const diff = Math.abs(e - s);
+                    const days = Math.max(1, Math.ceil(diff / (1000*60*60*24)));
+                    grouped[monthKey].total += (Number(item.price) * days);
+                }
+            });
+
+            // Sort months descending
+            const keys = Object.keys(grouped).sort().reverse();
+
+            keys.forEach(key => {
+                const group = grouped[key];
+                const [year, month] = key.split('-');
+                const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+
+                // Header
+                const header = document.createElement('div');
+                header.className = "flex justify-between items-center bg-gray-100 p-3 rounded-lg mt-6 mb-2";
+                header.innerHTML = `<h3 class="font-bold text-gray-700">${monthName}</h3><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Total: ${group.total} DH</span>`;
+                el.appendChild(header);
+
+                // Render items in this group using standard render
+                group.items.forEach(item => {
+                    el.appendChild(createBookingCard(item, 'past'));
+                });
+            });
         }
 
         function renderList(elementId, list, type) {
@@ -674,88 +724,90 @@
                 el.innerHTML = `<div class="text-center py-8 text-gray-400 border border-dashed border-gray-300 rounded-lg">No ${type} bookings found.</div>`;
                 return;
             }
+            list.forEach(item => el.appendChild(createBookingCard(item, type)));
+        }
+
+        function createBookingCard(item, type) {
+            const isActive = type === 'active';
+            const isUpcoming = type === 'upcoming';
+            let borderColor = 'border-gray-200'; 
+            let badge = '';
             
-            list.forEach(item => {
-                const isActive = type === 'active';
-                const isUpcoming = type === 'upcoming';
-                let borderColor = 'border-gray-200'; 
-                let badge = '';
-                
-                if (isActive) {
-                    borderColor = 'border-l-4 border-l-red-500 border-t border-r border-b border-gray-200';
-                    badge = '<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">In Use</span>';
-                } else if (isUpcoming) {
-                    borderColor = 'border-l-4 border-l-blue-500 border-t border-r border-b border-gray-200';
-                    badge = '<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Booked</span>';
-                }
+            if (isActive) {
+                borderColor = 'border-l-4 border-l-red-500 border-t border-r border-b border-gray-200';
+                badge = '<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">In Use</span>';
+            } else if (isUpcoming) {
+                borderColor = 'border-l-4 border-l-blue-500 border-t border-r border-b border-gray-200';
+                badge = '<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Booked</span>';
+            }
 
-                let actionBtn = '';
-                if(isActive) {
-                    actionBtn = `<button onclick="window.markReturned('${item.id}')" class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-bold mr-2 hover:bg-indigo-100 transition border border-indigo-200"><i class="fas fa-undo-alt mr-1"></i> Return</button>`;
-                }
-                
-                // Show client info if available
-                let clientInfo = '';
-                if(item.clientName || item.location) {
-                    clientInfo = `<div class="text-xs text-gray-500 mt-1 flex gap-3">
-                        ${item.clientName ? `<span><i class="fas fa-user text-gray-400 mr-1"></i>${item.clientName}</span>` : ''}
-                        ${item.location ? `<span><i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>${item.location}</span>` : ''}
-                    </div>`;
-                }
+            // Top-right actions
+            let actions = '';
+            if(isActive || isUpcoming) {
+                actions = `
+                <div class="absolute top-2 right-2 flex gap-2">
+                    ${isActive ? `<button onclick="window.markReturned('${item.id}')" class="bg-indigo-50 text-indigo-600 border border-indigo-200 text-[10px] font-bold px-2 py-1 rounded shadow-sm hover:bg-indigo-100 transition">Return</button>` : ''}
+                    <button onclick="window.deleteMemo('${item.id}')" class="text-gray-300 hover:text-red-500 transition"><i class="fas fa-trash text-sm"></i></button>
+                </div>`;
+            } else {
+                // History Delete
+                actions = `<button onclick="window.deleteMemo('${item.id}')" class="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition"><i class="fas fa-trash text-sm"></i></button>`;
+            }
+            
+            let clientInfo = '';
+            if(item.clientName || item.location) {
+                clientInfo = `<div class="text-xs text-gray-500 mt-1 flex gap-3">
+                    ${item.clientName ? `<span><i class="fas fa-user text-gray-400 mr-1"></i>${item.clientName}</span>` : ''}
+                    ${item.location ? `<span><i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>${item.location}</span>` : ''}
+                </div>`;
+            }
 
-                // --- NEW FINANCIALS SECTION ---
-                let financials = '';
-                if (item.price) {
-                    const dailyPrice = Number(item.price);
-                    // Calc duration
-                    const startD = new Date(item.start);
-                    const endD = new Date(item.end);
-                    const diffTime = Math.abs(endD - startD);
-                    let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-                    if(diffDays < 1) diffDays = 1;
-                    
-                    const totalCost = dailyPrice * diffDays;
-                    
-                    financials = `<div class="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-                        <span>${dailyPrice} DH / day</span>
-                        <span>${diffDays} Days</span>
-                        <span class="font-bold text-gray-900 text-sm">Total: ${totalCost} DH</span>
-                    </div>`;
-                }
+            // Financials
+            let financials = '';
+            if (item.price) {
+                const dailyPrice = Number(item.price);
+                const startD = new Date(item.start);
+                const endD = new Date(item.end);
+                const diffTime = Math.abs(endD - startD);
+                let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                if(diffDays < 1) diffDays = 1;
+                const totalCost = dailyPrice * diffDays;
                 
-                const div = document.createElement('div');
-                div.className = `bg-white p-4 rounded-r-xl rounded-l-md shadow-sm ${borderColor} flex flex-col sm:flex-row justify-between sm:items-center gap-3 hover:shadow-md transition-shadow relative overflow-hidden`;
-                
-                div.innerHTML = `
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-1">
-                            <h4 class="font-bold text-gray-800 text-lg">${item.carName}</h4>
-                            ${badge}
-                        </div>
-                        ${clientInfo}
-                        <div class="flex items-center text-sm font-medium text-gray-600 mt-2">
-                            <div class="flex items-center text-blue-700">
-                                <span class="w-10 text-xs text-gray-400 uppercase tracking-wide">Out</span>
-                                <span class="text-base">${formatDateTime(item.start)}</span>
-                            </div>
-                        </div>
-                        <div class="w-px h-2 bg-gray-300 ml-[2.5rem] my-0.5"></div>
-                        <div class="flex items-center text-sm font-medium text-gray-600">
-                            <div class="flex items-center text-red-700">
-                                <span class="w-10 text-xs text-gray-400 uppercase tracking-wide">In</span>
-                                <span class="text-base">${formatDateTime(item.end)}</span>
-                            </div>
-                        </div>
-                        ${financials}
+                financials = `<div class="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                    <span>${dailyPrice} DH / day</span>
+                    <span>${diffDays} Days</span>
+                    <span class="font-bold text-gray-900 text-sm">Total: ${totalCost} DH</span>
+                </div>`;
+            }
+            
+            const div = document.createElement('div');
+            div.className = `bg-white p-4 rounded-r-xl rounded-l-md shadow-sm ${borderColor} relative hover:shadow-md transition-shadow`;
+            
+            div.innerHTML = `
+                <div class="pr-16"> <!-- Padding right to avoid overlap with buttons -->
+                    <div class="flex items-center gap-2 mb-1">
+                        <h4 class="font-bold text-gray-800 text-lg">${item.carName}</h4>
+                        ${badge}
                     </div>
-                    
-                    <div class="flex items-center justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100 mt-2 sm:mt-0">
-                        ${actionBtn}
-                        <button onclick="window.deleteMemo('${item.id}')" class="text-gray-400 hover:text-red-500 p-2 transition rounded-lg hover:bg-red-50"><i class="fas fa-trash"></i></button>
+                    ${clientInfo}
+                    <div class="flex items-center text-sm font-medium text-gray-600 mt-2">
+                        <div class="flex items-center text-blue-700">
+                            <span class="w-10 text-xs text-gray-400 uppercase tracking-wide">Out</span>
+                            <span class="text-base">${formatDateTime(item.start)}</span>
+                        </div>
                     </div>
-                `;
-                el.appendChild(div);
-            });
+                    <div class="w-px h-2 bg-gray-300 ml-[2.5rem] my-0.5"></div>
+                    <div class="flex items-center text-sm font-medium text-gray-600">
+                        <div class="flex items-center text-red-700">
+                            <span class="w-10 text-xs text-gray-400 uppercase tracking-wide">In</span>
+                            <span class="text-base">${formatDateTime(item.end)}</span>
+                        </div>
+                    </div>
+                    ${financials}
+                </div>
+                ${actions}
+            `;
+            return div;
         }
 
         window.markReturned = async function(id) {
@@ -773,7 +825,6 @@
             let start = document.getElementById('memoStart').value;
             let end = document.getElementById('memoEnd').value;
 
-            // Auto-correction: force rounding to hour to ensure cleaner data
             start = roundToHour(start);
             end = roundToHour(end);
 
