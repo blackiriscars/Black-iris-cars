@@ -202,23 +202,25 @@
                     <ul id="notification-list" class="space-y-1 text-sm text-amber-700 font-medium"></ul>
                 </div>
 
-                <!-- ALIGNMENT FIX: Used Grid to keep boxes aligned and inside frame -->
+                <!-- ALIGNMENT FIX: Strictly Equal Grid -->
                 <form id="bookingMemoForm" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mb-6">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                         <div class="md:col-span-1">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Car Name</label>
-                            <input type="text" id="memoCar" class="w-full h-11 px-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="e.g. Dacia Logan" required>
+                            <input type="text" id="memoCar" class="w-full h-12 px-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="e.g. Dacia Logan" required>
                         </div>
                         <div class="md:col-span-1">
                             <label class="block text-xs font-bold text-blue-600 mb-1 uppercase tracking-wide">Departure (Hour)</label>
-                            <input type="datetime-local" id="memoStart" step="3600" class="w-full h-11 px-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-blue-700 font-medium" required>
+                            <!-- Removed step attribute to fix validation error -->
+                            <input type="datetime-local" id="memoStart" class="w-full h-12 px-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-blue-700 font-medium" required>
                         </div>
                         <div class="md:col-span-1">
                             <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return (Hour)</label>
-                            <input type="datetime-local" id="memoEnd" step="3600" class="w-full h-11 px-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-red-700 font-medium" required>
+                            <!-- Removed step attribute to fix validation error -->
+                            <input type="datetime-local" id="memoEnd" class="w-full h-12 px-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-red-700 font-medium" required>
                         </div>
                         <div class="md:col-span-1">
-                            <button type="submit" class="w-full h-11 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Add Memo</button>
+                            <button type="submit" class="w-full h-12 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Add Memo</button>
                         </div>
                     </div>
                 </form>
@@ -562,6 +564,15 @@
             return `${day}/${month}/${year} ${hours}:00`;
         }
 
+        // FORCE ROUND TO HOUR ON SAVE
+        function roundToHour(isoString) {
+            const date = new Date(isoString);
+            date.setMinutes(0, 0, 0); // Force minutes/seconds to 0
+            // Adjust for timezone offset to keep ISO string correct relative to local time selection
+            const offset = date.getTimezoneOffset() * 60000;
+            return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+        }
+
         function renderBookings() {
             const now = new Date();
             const todayStr = now.toISOString().split('T')[0];
@@ -625,24 +636,49 @@
             
             list.forEach(item => {
                 const isActive = type === 'active';
-                let actionBtn = '';
+                const isUpcoming = type === 'upcoming';
+                let borderColor = 'border-gray-200'; // Default History
+                let badge = '';
                 
+                if (isActive) {
+                    borderColor = 'border-l-4 border-l-red-500 border-t border-r border-b border-gray-200';
+                    badge = '<span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">In Use</span>';
+                } else if (isUpcoming) {
+                    borderColor = 'border-l-4 border-l-blue-500 border-t border-r border-b border-gray-200';
+                    badge = '<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Booked</span>';
+                }
+
+                let actionBtn = '';
                 if(isActive) {
-                    actionBtn = `<button onclick="window.markReturned('${item.id}')" class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-bold mr-2 hover:bg-indigo-100 transition border border-indigo-200"><i class="fas fa-undo-alt mr-1"></i> Return Car</button>`;
+                    actionBtn = `<button onclick="window.markReturned('${item.id}')" class="bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-bold mr-2 hover:bg-indigo-100 transition border border-indigo-200"><i class="fas fa-undo-alt mr-1"></i> Return</button>`;
                 }
                 
                 const div = document.createElement('div');
-                div.className = "bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row justify-between sm:items-center gap-3 hover:shadow-md transition-shadow";
+                div.className = `bg-white p-4 rounded-r-xl rounded-l-md shadow-sm ${borderColor} flex flex-col sm:flex-row justify-between sm:items-center gap-3 hover:shadow-md transition-shadow relative overflow-hidden`;
+                
                 div.innerHTML = `
-                    <div>
-                        <h4 class="font-bold text-gray-800 text-lg">${item.carName}</h4>
-                        <div class="flex flex-wrap items-center gap-2 text-sm mt-1 bg-gray-50 px-3 py-1.5 rounded-lg inline-flex">
-                            <span class="font-medium flex items-center gap-2"><i class="fas fa-arrow-right text-blue-500"></i> <span class="text-blue-600 font-bold tracking-wide">${formatDateTime(item.start)}</span></span>
-                            <span class="text-gray-300 hidden sm:inline">|</span>
-                            <span class="font-medium flex items-center gap-2"><i class="fas fa-arrow-left text-red-500"></i> <span class="text-red-600 font-bold tracking-wide">${formatDateTime(item.end)}</span></span>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <h4 class="font-bold text-gray-800 text-lg">${item.carName}</h4>
+                            ${badge}
+                        </div>
+                        
+                        <div class="flex items-center text-sm font-medium text-gray-600">
+                            <div class="flex items-center text-blue-700">
+                                <span class="w-16 text-xs text-gray-400 uppercase tracking-wide">Out</span>
+                                <span class="text-base">${formatDateTime(item.start)}</span>
+                            </div>
+                        </div>
+                        <div class="w-px h-2 bg-gray-300 ml-[4.5rem] my-0.5"></div>
+                        <div class="flex items-center text-sm font-medium text-gray-600">
+                            <div class="flex items-center text-red-700">
+                                <span class="w-16 text-xs text-gray-400 uppercase tracking-wide">In</span>
+                                <span class="text-base">${formatDateTime(item.end)}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex items-center justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100">
+                    
+                    <div class="flex items-center justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100 mt-2 sm:mt-0">
                         ${actionBtn}
                         <button onclick="window.deleteMemo('${item.id}')" class="text-gray-400 hover:text-red-500 p-2 transition rounded-lg hover:bg-red-50"><i class="fas fa-trash"></i></button>
                     </div>
@@ -660,8 +696,12 @@
         document.getElementById('bookingMemoForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const carName = document.getElementById('memoCar').value;
-            const start = document.getElementById('memoStart').value;
-            const end = document.getElementById('memoEnd').value;
+            let start = document.getElementById('memoStart').value;
+            let end = document.getElementById('memoEnd').value;
+
+            // Auto-correction: force rounding to hour to ensure cleaner data
+            start = roundToHour(start);
+            end = roundToHour(end);
 
             try {
                 await addDoc(collection(db, bookingCollection), {
