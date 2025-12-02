@@ -23,7 +23,7 @@
         .sortable-ghost { opacity: 0.4; background: #e0e7ff; }
         .drag-handle { cursor: grab; touch-action: none; } 
         
-        /* Custom scrollbar for lists */
+        /* Custom scrollbar */
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 4px; }
@@ -196,32 +196,30 @@
 
                 <h2 class="text-2xl font-bold text-gray-800">Booking Memos</h2>
                 
-                <!-- NOTIFICATION CENTER -->
-                <div id="notification-center" class="hidden bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
-                    <h3 class="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2"><i class="fas fa-bell"></i> Today's Alerts</h3>
-                    <ul id="notification-list" class="space-y-1 text-sm text-amber-700"></ul>
+                <!-- NOTIFICATION CENTER (Moved Inside) -->
+                <div id="notification-center" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 shadow-sm">
+                    <h3 class="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2"><i class="fas fa-bell text-amber-600"></i> Today's Alerts</h3>
+                    <ul id="notification-list" class="space-y-1 text-sm text-amber-700 font-medium"></ul>
                 </div>
 
-                <div class="bg-indigo-50 text-indigo-700 p-4 rounded-lg text-sm mb-4">
-                    <i class="fas fa-info-circle mr-2"></i> Internal memos only.
-                </div>
-                
-                <!-- Improved Vertical Grid Form for Inputs (Same Measurements) -->
+                <!-- ALIGNMENT FIX: Used Grid to keep boxes aligned and inside frame -->
                 <form id="bookingMemoForm" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mb-6">
-                    <div class="flex flex-col gap-4">
-                        <div>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                        <div class="md:col-span-1">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Car Name</label>
-                            <input type="text" id="memoCar" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="e.g. Dacia Logan" required>
+                            <input type="text" id="memoCar" class="w-full h-11 px-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="e.g. Dacia Logan" required>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-blue-600 mb-1 uppercase tracking-wide">Departure (Out)</label>
-                            <input type="datetime-local" id="memoStart" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-blue-700 font-medium" required>
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-bold text-blue-600 mb-1 uppercase tracking-wide">Departure (Hour)</label>
+                            <input type="datetime-local" id="memoStart" step="3600" class="w-full h-11 px-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-blue-700 font-medium" required>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return (In)</label>
-                            <input type="datetime-local" id="memoEnd" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-red-700 font-medium" required>
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return (Hour)</label>
+                            <input type="datetime-local" id="memoEnd" step="3600" class="w-full h-11 px-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-red-700 font-medium" required>
                         </div>
-                        <button type="submit" class="w-full h-12 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Add Booking</button>
+                        <div class="md:col-span-1">
+                            <button type="submit" class="w-full h-11 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Add Memo</button>
+                        </div>
                     </div>
                 </form>
 
@@ -561,8 +559,7 @@
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const year = date.getFullYear();
             const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${day}/${month}/${year} ${hours}:${minutes}`;
+            return `${day}/${month}/${year} ${hours}:00`;
         }
 
         function renderBookings() {
@@ -586,17 +583,17 @@
                     past.push(b); 
                 } else if (startDate > now) {
                     upcoming.push(b);
-                    if(startStr === todayStr) alerts.push(`${b.carName} is going out today at ${formatDateTime(b.start).split(' ')[1]}`);
+                    if(startStr === todayStr) alerts.push(`${b.carName} Going Out Today at ${formatDateTime(b.start).split(' ')[1]}`);
                 } else {
                     active.push(b);
-                    if(endStr === todayStr) alerts.push(`${b.carName} is due back today at ${formatDateTime(b.end).split(' ')[1]}`);
+                    if(endStr === todayStr) alerts.push(`${b.carName} Due Back Today at ${formatDateTime(b.end).split(' ')[1]}`);
                 }
             });
 
-            // Sort logic as requested
-            active.sort((a,b) => a.end.localeCompare(b.end)); // Closest return date first
-            upcoming.sort((a,b) => a.start.localeCompare(b.start)); // Closest start date first
-            past.sort((a,b) => b.end.localeCompare(a.end)); // Most recent history first
+            // Sort
+            active.sort((a,b) => a.end.localeCompare(b.end)); // Closest return first
+            upcoming.sort((a,b) => a.start.localeCompare(b.start)); // Closest start first
+            past.sort((a,b) => b.end.localeCompare(a.end)); // Recent first
 
             // Update Tab Counts
             document.getElementById('tab-active').innerHTML = `Active <span class="ml-2 bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-xs">${active.length}</span>`;
