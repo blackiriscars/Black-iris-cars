@@ -8,64 +8,106 @@ const db = admin.firestore();
 const NOTIFY_TOPIC = "black-iris-secure-09"; 
 
 async function checkAndNotify() {
-  console.log("Starting Hourly Check...");
-  
-  // 1. Get Current Time in Morocco
   const now = new Date();
-  // Server is UTC. Morocco is UTC+1. Add 1 hour (3600000 ms).
+  // Server is UTC. Morocco is UTC+1. Add 1 hour.
   const moroccoNow = new Date(now.getTime() + (3600 * 1000));
-  
-  console.log(`Current Morocco Time: ${moroccoNow.toISOString().slice(0,16).replace('T', ' ')}`);
+  const currentHour = moroccoNow.getHours();
+  const todayStr = moroccoNow.toISOString().split('T')[0];
+
+  // --- LOGIC SWITCH ---
+  // If it is 9:00 AM (Morocco), we send the "Daily Report" (Everything for today).
+  // At any other time, we only send "Urgent Alerts" (Next 90 mins).
+  const isMorningReport = (currentHour === 9); 
+
+  console.log(`Time: ${moroccoNow.toISOString().slice(0,16).replace('T', ' ')} (Hour: ${currentHour})`);
+  console.log(`Mode: ${isMorningReport ? "☀️ Morning Report (All Day)" : "⚡ Hourly Alert (Urgent Only)"}`);
   
   let messages = [];
 
   try {
-    // --- CHECK BOOKINGS ---
-    // We grab all active bookings
+    // ==========================================
+    // 1. CHECK BOOKINGS
+    // ==========================================
     const bookingsSnap = await db.collection('admin_bookings').where('returned', '==', false).get();
     
     bookingsSnap.forEach(doc => {
       const b = doc.data();
       if (!b.start || !b.end) return;
 
-      // Note: "new Date(b.start)" in Node assumes UTC. 
-      // Since your input is just a string (e.g. "14:30"), this works perfectly 
-      // when compared to our manually adjusted "moroccoNow".
       const startTime = new Date(b.start);
       const endTime = new Date(b.end);
+      const startDay = b.start.split('T')[0];
+      const endDay = b.end.split('T')[0];
 
-      // Calculate difference in minutes
+      // Calculate minutes until event
       const minsUntilStart = (startTime - moroccoNow) / 60000;
       const minsUntilEnd = (endTime - moroccoNow) / 60000;
-
-      // Logic: Notify if the event is between 0 and 90 minutes from now.
-      // We use 90 instead of 60 to be safe, so if the robot is slightly slow, we don't miss it.
       
-      // CHECK DEPARTURE
-      if (minsUntilStart > 0 && minsUntilStart <= 90) {
-        const timeStr = b.start.split('T')[1].slice(0,5);
-        messages.push(`🚀 GOING OUT SOON: ${b.carName} at ${timeStr}`);
+      const timeStart = b.start.split('T')[1].slice(0,5);
+      const timeEnd = b.end.split('T')[1].slice(0,5);
+
+      // --- SCENARIO A: MORNING REPORT (Everything Today) ---
+      if (isMorningReport) {
+        if (startDay === todayStr) {
+            messages.push(`📅 TODAY DEPARTURE: ${b.carName} at ${timeStart}`);
+        }
+        if (endDay === todayStr) {
+            messages.push(`📅 TODAY RETURN: ${b.carName} at ${timeEnd}`);
+        }
       }
 
-      // CHECK RETURN
+      // --- SCENARIO B: URGENT ALERT (Next 90 mins) ---
+      // We check this EVERY hour (even at 9am, so you don't miss a 10am car)
+      if (minsUntilStart > 0 && minsUntilStart <= 90) {
+        messages.push(`🚀 GOING OUT SOON: ${b.carName} at ${timeStart}`);
+      }
       if (minsUntilEnd > 0 && minsUntilEnd <= 90) {
-        const timeStr = b.end.split('T')[1].slice(0,5);
-        messages.push(`🏁 DUE BACK SOON: ${b.carName} at ${timeStr}`);
+        messages.push(`🏁 DUE BACK SOON: ${b.carName} at ${timeEnd}`);
       }
     });
 
-    // --- SEND NOTIFICATIONS ---
-    if (messages.length > 0) {
-      console.log(`Found ${messages.length} upcoming events.`);
-      for (const msg of messages) {
+    // ==========================================
+    // 2. CHECK TASKS
+    // ==========================================
+    const servicesSnap = await db.collection('service_memos').where('status', '!=', 'done').get();
+    
+    servicesSnap.forEach(doc => {
+      const s = doc.data();
+      if (!s.dueDate) return;
+
+      const dueTime = new Date(s.dueDate);
+      const dueDay = s.dueDate.split('T')[0];
+      const minsUntilDue = (dueTime - moroccoNow) / 60000;
+      const timeStr = s.dueDate.split('T')[1].slice(0,5);
+
+      // Morning Report
+      if (isMorningReport && dueDay === todayStr) {
+         messages.push(`📅 TODAY TASK: ${s.description} at ${timeStr}`);
+      }
+
+      // Urgent Alert
+      if (minsUntilDue > 0 && minsUntilDue <= 90) {
+         messages.push(`⚠️ TASK DUE SOON: ${s.description} at ${timeStr}`);
+      }
+    });
+
+    // ==========================================
+    // 3. SEND NOTIFICATIONS
+    // ==========================================
+    // Filter duplicates (In case a car is due at 10am, it might trigger both Morning + Urgent)
+    const uniqueMessages = [...new Set(messages)];
+
+    if (uniqueMessages.length > 0) {
+      console.log(`Sending ${uniqueMessages.length} alerts.`);
+      for (const msg of uniqueMessages) {
         await fetch(`https://ntfy.sh/${NOTIFY_TOPIC}`, {
           method: 'POST',
           body: msg,
-          headers: { 'Title': 'Black Iris Alert', 'Priority': 'high', 'Tags': 'car,clock' }
+          headers: { 'Title': isMorningReport ? 'Black Iris Daily Plan' : 'Black Iris Alert', 'Priority': 'high', 'Tags': 'car' }
         });
       }
     } else {
-      console.log("No events in the next 90 minutes.");
+      console.log("No alerts.");
     }
 
   } catch (error) {
