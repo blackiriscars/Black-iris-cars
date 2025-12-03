@@ -97,7 +97,7 @@
                 </li>
                 <li>
                     <button type="button" onclick="switchTab('service')" id="nav-service" class="nav-item w-full flex items-center justify-between px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer">
-                        <div class="flex items-center gap-3"><i class="fas fa-wrench w-5 text-center"></i><span class="font-medium">Service & Maint.</span></div>
+                        <div class="flex items-center gap-3"><i class="fas fa-tasks w-5 text-center"></i><span class="font-medium">Tasks & Alerts</span></div>
                         <span id="badge-service" class="hidden bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">0</span>
                     </button>
                 </li>
@@ -318,7 +318,7 @@
                     <i class="fas fa-arrow-left"></i> Back to Dashboard
                 </button>
 
-                <h2 class="text-2xl font-bold text-gray-800">Service & Maintenance</h2>
+                <h2 class="text-2xl font-bold text-gray-800">Task Manager</h2>
                 
                 <div id="service-notification-center" class="hidden bg-red-50 border border-red-200 rounded-xl p-4 mb-4 shadow-sm">
                     <h3 class="text-sm font-bold text-red-800 mb-2 flex items-center gap-2"><i class="fas fa-exclamation-triangle text-red-600"></i> Due Soon (48h)</h3>
@@ -326,17 +326,52 @@
                 </div>
 
                 <form id="serviceForm" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mb-6">
+                    <input type="hidden" id="editingServiceId">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-                        <div class="md:col-span-1">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Description (What is it?)</label>
-                            <input type="text" id="serviceDesc" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium" placeholder="e.g. Oil Change for BMW X5" required>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Description</label>
+                            <input type="text" id="serviceDesc" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium" placeholder="e.g. Pay Rent, Car Oil Change, Check to collect..." required>
                         </div>
                         <div class="md:col-span-1">
-                            <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Due Date (Exactly when?)</label>
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Category</label>
+                            <div class="relative">
+                                <select id="serviceType" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium appearance-none">
+                                    <option value="general">General Task</option>
+                                    <option value="finance">Finance / Check / Money</option>
+                                    <option value="maintenance">Car Maintenance</option>
+                                    <option value="urgent">Urgent / Important</option>
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                            </div>
+                        </div>
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-bold text-green-600 mb-1 uppercase tracking-wide">Cost (DH) - Optional</label>
+                            <input type="number" id="serviceCost" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-gray-700 font-medium" placeholder="0">
+                        </div>
+
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Repeat?</label>
+                            <div class="relative">
+                                <select id="serviceRecurrence" onchange="toggleRepeatLimit()" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium appearance-none">
+                                    <option value="none">One-time Task</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="yearly">Yearly</option>
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                            </div>
+                        </div>
+                        <div class="md:col-span-1 hidden" id="repeatLimitContainer">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Stop after how many times?</label>
+                            <input type="number" id="serviceRepeatLimit" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium" placeholder="e.g. 12 (Leave empty for forever)">
+                        </div>
+
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Due Date</label>
                             <input type="datetime-local" id="serviceDate" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-gray-700 font-medium" required>
                         </div>
-                        <div class="md:col-span-2">
-                            <button type="submit" class="w-full h-12 bg-gray-800 text-white font-bold rounded-lg hover:bg-gray-900 transition shadow-md flex items-center justify-center gap-2"><i class="fas fa-wrench"></i> Add Service Reminder</button>
+                        <div class="md:col-span-1">
+                            <button type="submit" id="serviceSubmitBtn" class="w-full h-12 bg-gray-800 text-white font-bold rounded-lg hover:bg-gray-900 transition shadow-md flex items-center justify-center gap-2"><i class="fas fa-plus-circle"></i> Create Task</button>
                         </div>
                     </div>
                 </form>
@@ -390,7 +425,7 @@
                 'fleet': 'Fleet Inventory',
                 'add-car': 'Add New Vehicle',
                 'bookings': 'Booking Memos',
-                'service': 'Service & Maintenance'
+                'service': 'Tasks & Alerts'
             };
             const titleEl = document.getElementById('desktopTitle');
             if(titleEl) titleEl.innerText = titles[tabName] || 'Admin Panel';
@@ -403,6 +438,14 @@
             document.getElementById('formPageTitle').innerText = 'Add New Vehicle';
             document.getElementById('submitBtn').innerText = 'Save Vehicle';
             document.getElementById('carSeats').value = 5; 
+        }
+        
+        // RECURRENCE TOGGLE
+        function toggleRepeatLimit() {
+            const val = document.getElementById('serviceRecurrence').value;
+            const container = document.getElementById('repeatLimitContainer');
+            if(val === 'none') container.classList.add('hidden');
+            else container.classList.remove('hidden');
         }
 
         // TABS LOGIC
@@ -770,21 +813,66 @@
             }
         }
 
-        // --- SERVICE FUNCTIONS ---
+        // --- SERVICE FUNCTIONS (UPDATED: Edit & Cost & Limit) ---
         document.getElementById('serviceForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const description = document.getElementById('serviceDesc').value;
             const dueDate = document.getElementById('serviceDate').value;
+            const type = document.getElementById('serviceType').value;
+            const recurrence = document.getElementById('serviceRecurrence').value;
+            const cost = document.getElementById('serviceCost').value;
+            const repeatLimit = document.getElementById('serviceRepeatLimit').value; // Get the limit
+            const editId = document.getElementById('editingServiceId').value;
+            const btn = document.getElementById('serviceSubmitBtn');
+
+            btn.innerText = 'Saving...';
             
             try {
-                await addDoc(collection(db, serviceCollection), {
-                    description, dueDate,
-                    status: 'pending', // Default status
-                    createdAt: serverTimestamp()
-                });
-                document.getElementById('serviceForm').reset();
+                const data = {
+                    description, dueDate, type, recurrence, 
+                    cost: cost ? Number(cost) : 0,
+                    repeatLimit: repeatLimit ? Number(repeatLimit) : null, // Store limit
+                    updatedAt: serverTimestamp()
+                };
+
+                if(editId) {
+                    await updateDoc(doc(db, serviceCollection, editId), data);
+                    resetServiceForm();
+                } else {
+                    data.status = 'pending';
+                    data.createdAt = serverTimestamp();
+                    data.repeatCount = 1; // Start at count 1
+                    await addDoc(collection(db, serviceCollection), data);
+                    resetServiceForm();
+                }
             } catch(e) { alert("Error: " + e.message); }
+            finally { btn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Task'; }
         });
+
+        window.editService = function(id) {
+            const task = allServices.find(s => s.id === id);
+            if(!task) return;
+
+            document.getElementById('editingServiceId').value = task.id;
+            document.getElementById('serviceDesc').value = task.description;
+            document.getElementById('serviceDate').value = task.dueDate;
+            document.getElementById('serviceType').value = task.type || 'general';
+            document.getElementById('serviceRecurrence').value = task.recurrence || 'none';
+            document.getElementById('serviceCost').value = task.cost || '';
+            document.getElementById('serviceRepeatLimit').value = task.repeatLimit || ''; // Load limit
+
+            toggleRepeatLimit(); // Show/hide input
+
+            document.getElementById('serviceSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Update Task';
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to form
+        }
+
+        function resetServiceForm() {
+            document.getElementById('serviceForm').reset();
+            document.getElementById('editingServiceId').value = '';
+            document.getElementById('serviceSubmitBtn').innerHTML = '<i class="fas fa-plus-circle"></i> Create Task';
+            toggleRepeatLimit();
+        }
 
         function renderServices() {
             const pendingContainer = document.getElementById('service-list-pending');
@@ -793,34 +881,51 @@
             pendingContainer.innerHTML = '';
             historyContainer.innerHTML = '';
             
-            // Pending Services (Sort by Date ASC)
             const pending = allServices.filter(s => s.status !== 'done').sort((a,b) => a.dueDate.localeCompare(b.dueDate));
-            
-            // History Services (Sort by Date DESC)
             const history = allServices.filter(s => s.status === 'done').sort((a,b) => b.dueDate.localeCompare(a.dueDate));
+
+            const getIcon = (type) => {
+                switch(type) {
+                    case 'finance': return '<div class="h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0"><i class="fas fa-money-bill-wave"></i></div>';
+                    case 'maintenance': return '<div class="h-10 w-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0"><i class="fas fa-wrench"></i></div>';
+                    case 'urgent': return '<div class="h-10 w-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center shrink-0"><i class="fas fa-exclamation-triangle"></i></div>';
+                    default: return '<div class="h-10 w-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0"><i class="fas fa-clipboard-list"></i></div>';
+                }
+            };
 
             // RENDER PENDING
             if(pending.length === 0) {
-                pendingContainer.innerHTML = `<div class="text-center text-gray-400 py-6">No upcoming services.</div>`;
+                pendingContainer.innerHTML = `<div class="text-center text-gray-400 py-6">No upcoming tasks.</div>`;
             } else {
                 pending.forEach(item => {
                     const dateObj = new Date(item.dueDate);
                     const dateStr = dateObj.toLocaleDateString('en-GB');
                     const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
                     
+                    let repeatBadge = '';
+                    if(item.recurrence && item.recurrence !== 'none') {
+                        // Show progress if limit is set e.g. (2/12)
+                        const countStr = item.repeatLimit ? ` (${item.repeatCount || 1}/${item.repeatLimit})` : '';
+                        repeatBadge = `<span class="ml-2 text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded uppercase font-bold border border-gray-200"><i class="fas fa-sync-alt mr-1"></i>${item.recurrence}${countStr}</span>`;
+                    }
+                    
+                    const costBadge = item.cost ? `<span class="ml-auto text-green-600 font-bold bg-green-50 px-2 py-1 rounded text-xs border border-green-100">${item.cost} DH</span>` : '';
+
                     const div = document.createElement('div');
                     div.className = "bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex justify-between items-center";
                     div.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <div class="h-10 w-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center shrink-0">
-                                <i class="fas fa-wrench"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-gray-800">${item.description}</h4>
-                                <p class="text-xs text-red-600 font-bold">Due: ${dateStr} at ${timeStr}</p>
+                        <div class="flex items-center gap-3 flex-1">
+                            ${getIcon(item.type)}
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between w-full pr-4">
+                                    <h4 class="font-bold text-gray-800 flex items-center">${item.description} ${repeatBadge}</h4>
+                                    ${costBadge}
+                                </div>
+                                <p class="text-xs text-gray-500 font-bold">Due: <span class="${item.type === 'urgent' ? 'text-red-600' : 'text-gray-700'}">${dateStr} at ${timeStr}</span></p>
                             </div>
                         </div>
                         <div class="flex gap-2">
+                             <button onclick="window.editService('${item.id}')" class="text-gray-300 hover:text-blue-600 transition p-2" title="Edit"><i class="fas fa-pencil-alt"></i></button>
                              <button onclick="window.markServiceDone('${item.id}')" class="text-gray-300 hover:text-green-600 transition p-2" title="Mark Done"><i class="fas fa-check-circle text-xl"></i></button>
                              <button onclick="window.deleteService('${item.id}')" class="text-gray-300 hover:text-red-600 transition p-2" title="Delete"><i class="fas fa-trash text-sm"></i></button>
                         </div>
@@ -836,6 +941,7 @@
                 history.forEach(item => {
                     const dateObj = new Date(item.dueDate);
                     const dateStr = dateObj.toLocaleDateString('en-GB');
+                    const costBadge = item.cost ? `<span class="ml-3 text-gray-400 text-xs font-bold">${item.cost} DH</span>` : '';
                     
                     const div = document.createElement('div');
                     div.className = "bg-gray-50 p-4 rounded-xl border border-gray-100 flex justify-between items-center opacity-75 hover:opacity-100 transition";
@@ -845,11 +951,14 @@
                                 <i class="fas fa-check"></i>
                             </div>
                             <div>
-                                <h4 class="font-bold text-gray-600 line-through">${item.description}</h4>
+                                <h4 class="font-bold text-gray-600 line-through flex items-center">${item.description} ${costBadge}</h4>
                                 <p class="text-xs text-gray-400 font-bold">Was due: ${dateStr}</p>
                             </div>
                         </div>
-                        <button onclick="window.deleteService('${item.id}')" class="text-gray-300 hover:text-red-600 transition p-2" title="Delete"><i class="fas fa-trash text-sm"></i></button>
+                        <div class="flex gap-2">
+                            <button onclick="window.editService('${item.id}')" class="text-gray-300 hover:text-blue-600 transition p-2" title="Edit"><i class="fas fa-pencil-alt text-sm"></i></button>
+                            <button onclick="window.deleteService('${item.id}')" class="text-gray-300 hover:text-red-600 transition p-2" title="Delete"><i class="fas fa-trash text-sm"></i></button>
+                        </div>
                     `;
                     historyContainer.appendChild(div);
                 });
@@ -857,16 +966,55 @@
         }
 
         window.markServiceDone = async function(id) {
-            if(confirm("Mark this service as completed?")) {
-                await updateDoc(doc(db, serviceCollection, id), {
+            const task = allServices.find(s => s.id === id);
+            if(!task) return;
+
+            if(confirm("Mark this task as completed?")) {
+                const batch = writeBatch(db);
+
+                // 1. Mark current as done
+                batch.update(doc(db, serviceCollection, id), {
                     status: 'done',
                     completedAt: serverTimestamp()
                 });
+
+                // 2. Handle Recurrence (Create NEW task if limit not reached)
+                if (task.recurrence && task.recurrence !== 'none') {
+                    const currentCount = task.repeatCount || 1;
+                    const limit = task.repeatLimit; // Could be null (infinite) or number
+                    
+                    // Proceed only if no limit OR we haven't hit the limit yet
+                    if (!limit || currentCount < limit) {
+                        const currentDue = new Date(task.dueDate);
+                        let nextDue = new Date(currentDue);
+
+                        if (task.recurrence === 'weekly') nextDue.setDate(nextDue.getDate() + 7);
+                        if (task.recurrence === 'monthly') nextDue.setMonth(nextDue.getMonth() + 1);
+                        if (task.recurrence === 'yearly') nextDue.setFullYear(nextDue.getFullYear() + 1);
+
+                        const nextDueISO = nextDue.toISOString().slice(0, 16); 
+
+                        const newTaskRef = doc(collection(db, serviceCollection));
+                        batch.set(newTaskRef, {
+                            description: task.description,
+                            type: task.type || 'general',
+                            recurrence: task.recurrence,
+                            dueDate: nextDueISO,
+                            cost: task.cost, // Copy cost
+                            repeatLimit: limit, // Copy limit
+                            repeatCount: currentCount + 1, // Increment count
+                            status: 'pending',
+                            createdAt: serverTimestamp()
+                        });
+                    }
+                }
+
+                await batch.commit();
             }
         }
 
         window.deleteService = async function(id) {
-            if(confirm("Permanently delete this service record?")) {
+            if(confirm("Permanently delete this task?")) {
                 await deleteDoc(doc(db, serviceCollection, id));
             }
         }
