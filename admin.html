@@ -87,8 +87,20 @@
                 <li class="px-6 pt-4 pb-1 text-xs font-bold text-indigo-400 uppercase">Inventory</li>
                 <li><button type="button" onclick="showAllFleet()" id="nav-fleet" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-car w-5 text-center"></i><span class="font-medium">Fleet Inventory</span></button></li>
                 <li><button type="button" onclick="switchTab('add-car', true)" id="nav-add-car" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-plus-circle w-5 text-center"></i><span class="font-medium">Add New Car</span></button></li>
+                
                 <li class="px-6 pt-4 pb-1 text-xs font-bold text-indigo-400 uppercase">Operations</li>
-                <li><button type="button" onclick="switchTab('bookings')" id="nav-bookings" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-calendar-alt w-5 text-center"></i><span class="font-medium">Bookings (Memo)</span></button></li>
+                <li>
+                    <button type="button" onclick="switchTab('bookings')" id="nav-bookings" class="nav-item w-full flex items-center justify-between px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer">
+                        <div class="flex items-center gap-3"><i class="fas fa-calendar-alt w-5 text-center"></i><span class="font-medium">Bookings (Memo)</span></div>
+                        <span id="badge-bookings" class="hidden bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">0</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" onclick="switchTab('service')" id="nav-service" class="nav-item w-full flex items-center justify-between px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer">
+                        <div class="flex items-center gap-3"><i class="fas fa-wrench w-5 text-center"></i><span class="font-medium">Service & Maint.</span></div>
+                        <span id="badge-service" class="hidden bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">0</span>
+                    </button>
+                </li>
             </ul>
         </nav>
         <div class="p-4 pb-8 md:pb-4 border-t border-indigo-800 bg-indigo-950 shrink-0">
@@ -107,6 +119,12 @@
             
             <div id="view-dashboard" class="page-view animate-fade-in block space-y-6">
                 <h2 class="md:hidden text-2xl font-bold text-gray-800 mb-4">Dashboard Overview</h2>
+                
+                <div id="dashboard-notifs" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 shadow-sm animate-fade-in">
+                    <h3 class="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2"><i class="fas fa-bell text-amber-600"></i> Action Required</h3>
+                    <ul id="dashboard-notif-list" class="space-y-1 text-sm text-amber-700 font-medium"></ul>
+                </div>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div onclick="showAllFleet()" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition"><div><p class="text-xs font-bold text-gray-400 uppercase">Total Fleet</p><h3 class="text-3xl font-bold text-gray-800 mt-1" id="stat-total">0</h3></div><div class="h-10 w-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center"><i class="fas fa-car"></i></div></div>
                     <div onclick="showFilteredFleet('Available')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-green-50 transition border-green-100"><div><p class="text-xs font-bold text-gray-400 uppercase">Available</p><h3 class="text-3xl font-bold text-green-600 mt-1" id="stat-available">0</h3></div><div class="h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><i class="fas fa-check"></i></div></div>
@@ -213,7 +231,7 @@
                 </div>
                 
                 <form id="bookingMemoForm" class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-200 mb-6 overflow-hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end min-w-0">
+                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end min-w-0">
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Car Name <span class="text-red-500">*</span></label>
                             <input type="text" id="memoCar" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Dacia Logan" required>
@@ -294,6 +312,38 @@
                     <div id="list-past" class="booking-list space-y-6 hidden"></div>
                 </div>
             </div>
+
+            <div id="view-service" class="page-view hidden space-y-4">
+                <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </button>
+
+                <h2 class="text-2xl font-bold text-gray-800">Service & Maintenance</h2>
+                
+                <div id="service-notification-center" class="hidden bg-red-50 border border-red-200 rounded-xl p-4 mb-4 shadow-sm">
+                    <h3 class="text-sm font-bold text-red-800 mb-2 flex items-center gap-2"><i class="fas fa-exclamation-triangle text-red-600"></i> Due Soon (48h)</h3>
+                    <ul id="service-notification-list" class="space-y-1 text-sm text-red-700 font-medium"></ul>
+                </div>
+
+                <form id="serviceForm" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Description (What is it?)</label>
+                            <input type="text" id="serviceDesc" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium" placeholder="e.g. Oil Change for BMW X5" required>
+                        </div>
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Due Date (Exactly when?)</label>
+                            <input type="datetime-local" id="serviceDate" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-gray-700 font-medium" required>
+                        </div>
+                        <div class="md:col-span-2">
+                            <button type="submit" class="w-full h-12 bg-gray-800 text-white font-bold rounded-lg hover:bg-gray-900 transition shadow-md flex items-center justify-center gap-2"><i class="fas fa-wrench"></i> Add Service Reminder</button>
+                        </div>
+                    </div>
+                </form>
+
+                <h3 class="font-bold text-gray-700 text-lg mb-2">Upcoming Tasks</h3>
+                <div id="service-list" class="grid gap-3 pb-20"></div>
+            </div>
         </div>
     </main>
 
@@ -330,7 +380,13 @@
             const navBtn = document.getElementById('nav-' + tabName);
             if(navBtn) navBtn.classList.add('active');
             
-            const titles = {'dashboard': 'Dashboard Overview','fleet': 'Fleet Inventory','add-car': 'Add New Vehicle','bookings': 'Booking Memos'};
+            const titles = {
+                'dashboard': 'Dashboard Overview',
+                'fleet': 'Fleet Inventory',
+                'add-car': 'Add New Vehicle',
+                'bookings': 'Booking Memos',
+                'service': 'Service & Maintenance'
+            };
             const titleEl = document.getElementById('desktopTitle');
             if(titleEl) titleEl.innerText = titles[tabName] || 'Admin Panel';
         }
@@ -380,11 +436,13 @@
         
         const collectionPath = 'cars'; 
         const bookingCollection = 'admin_bookings'; 
+        const serviceCollection = 'service_memos';
 
         let currentUser = null;
         let carsData = [];
         let sortable = null;
         let allBookings = [];
+        let allServices = [];
         
         onAuthStateChanged(auth, (user) => {
             const loginScreen = document.getElementById('login-screen');
@@ -393,6 +451,7 @@
                 loginScreen.classList.add('hidden'); 
                 loadCars();
                 loadBookings();
+                loadServices();
             } else {
                 currentUser = null;
                 loginScreen.classList.remove('hidden'); 
@@ -598,15 +657,159 @@
             finally { btn.innerText = originalText; btn.disabled = false; }
         });
 
-        // --- BOOKING MEMOS (UPDATED) ---
+        // --- GLOBAL NOTIFICATIONS & LOADING ---
         function loadBookings() {
             onSnapshot(collection(db, bookingCollection), (snapshot) => {
                 allBookings = [];
                 snapshot.forEach(doc => allBookings.push({id: doc.id, ...doc.data()}));
                 renderBookings();
+                updateGlobalNotifications();
             });
         }
 
+        function loadServices() {
+            onSnapshot(collection(db, serviceCollection), (snapshot) => {
+                allServices = [];
+                snapshot.forEach(doc => allServices.push({id: doc.id, ...doc.data()}));
+                renderServices();
+                updateGlobalNotifications();
+            });
+        }
+
+        // --- NOTIFICATION LOGIC ---
+        function updateGlobalNotifications() {
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+            const bookingAlerts = [];
+            const serviceAlerts = [];
+
+            // 1. Check Bookings (Today logic)
+            allBookings.forEach(b => {
+                if(b.returned) return;
+                const startStr = b.start.split('T')[0];
+                const endStr = b.end.split('T')[0];
+                
+                if(startStr === todayStr && new Date(b.start) > now) {
+                    bookingAlerts.push(`${b.carName} Going Out Today at ${b.start.split('T')[1].slice(0,5)}`);
+                } else if (endStr === todayStr) {
+                    bookingAlerts.push(`${b.carName} Due Back Today at ${b.end.split('T')[1].slice(0,5)}`);
+                }
+            });
+
+            // 2. Check Services (2 Days / 48h Logic)
+            const twoDaysInMs = 2 * 24 * 60 * 60 * 1000;
+            allServices.forEach(s => {
+                const due = new Date(s.dueDate);
+                const diff = due - now; // Time until due
+                
+                // If it's in the future AND less than 2 days away
+                if (diff > 0 && diff <= twoDaysInMs) {
+                    serviceAlerts.push(`${s.description} due on ${due.toLocaleDateString()}`);
+                }
+                // Or if it is overdue (negative diff) but not handled? (Optional, kept simple for now)
+            });
+
+            // 3. Update Sidebar Badges
+            updateBadge('badge-bookings', bookingAlerts.length);
+            updateBadge('badge-service', serviceAlerts.length);
+
+            // 4. Update Dashboard Notification Center
+            const dashList = document.getElementById('dashboard-notif-list');
+            const dashBox = document.getElementById('dashboard-notifs');
+            const combined = [...bookingAlerts, ...serviceAlerts];
+            
+            if(combined.length > 0) {
+                dashBox.classList.remove('hidden');
+                dashList.innerHTML = combined.map(m => `<li>• ${m}</li>`).join('');
+            } else {
+                dashBox.classList.add('hidden');
+            }
+
+            // 5. Update Page Specific Lists
+            updatePageNotification('notification-center', 'notification-list', bookingAlerts);
+            updatePageNotification('service-notification-center', 'service-notification-list', serviceAlerts);
+        }
+
+        function updateBadge(id, count) {
+            const el = document.getElementById(id);
+            if(count > 0) {
+                el.innerText = count;
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+
+        function updatePageNotification(boxId, listId, alerts) {
+            const box = document.getElementById(boxId);
+            const list = document.getElementById(listId);
+            if(!box || !list) return;
+
+            if(alerts.length > 0) {
+                box.classList.remove('hidden');
+                list.innerHTML = alerts.map(m => `<li>• ${m}</li>`).join('');
+            } else {
+                box.classList.add('hidden');
+            }
+        }
+
+        // --- SERVICE FUNCTIONS ---
+        document.getElementById('serviceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const description = document.getElementById('serviceDesc').value;
+            const dueDate = document.getElementById('serviceDate').value;
+            
+            try {
+                await addDoc(collection(db, serviceCollection), {
+                    description, dueDate,
+                    createdAt: serverTimestamp()
+                });
+                document.getElementById('serviceForm').reset();
+            } catch(e) { alert("Error: " + e.message); }
+        });
+
+        function renderServices() {
+            const container = document.getElementById('service-list');
+            container.innerHTML = '';
+            
+            // Sort by Date
+            const sorted = [...allServices].sort((a,b) => a.dueDate.localeCompare(b.dueDate));
+
+            if(sorted.length === 0) {
+                container.innerHTML = `<div class="text-center text-gray-400 py-6">No upcoming services.</div>`;
+                return;
+            }
+
+            sorted.forEach(item => {
+                const dateObj = new Date(item.dueDate);
+                const dateStr = dateObj.toLocaleDateString('en-GB');
+                const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+                
+                const div = document.createElement('div');
+                div.className = "bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex justify-between items-center";
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center shrink-0">
+                            <i class="fas fa-wrench"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-800">${item.description}</h4>
+                            <p class="text-xs text-red-600 font-bold">Due: ${dateStr} at ${timeStr}</p>
+                        </div>
+                    </div>
+                    <button onclick="window.deleteService('${item.id}')" class="text-gray-300 hover:text-green-600 transition p-2"><i class="fas fa-check-circle text-xl"></i></button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.deleteService = async function(id) {
+            if(confirm("Mark this service as done (delete)?")) {
+                await deleteDoc(doc(db, serviceCollection, id));
+            }
+        }
+
+        // --- BOOKING RENDER LOGIC (Legacy) ---
         // Search Filter Logic
         document.getElementById('bookingSearch').addEventListener('input', (e) => {
             renderBookings();
@@ -629,19 +832,15 @@
             return new Date(date.getTime() - offset).toISOString().slice(0, 16);
         }
 
-        // UPDATED: Notification Time + List Logic
         function renderBookings() {
             const searchTerm = document.getElementById('bookingSearch').value.toLowerCase();
             const now = new Date();
-            const todayStr = now.toISOString().split('T')[0];
             
             const active = [];
             const upcoming = [];
             const past = [];
-            const alerts = [];
 
             allBookings.forEach(b => {
-                // Filter by search term first
                 const match = b.carName.toLowerCase().includes(searchTerm) || 
                               (b.clientName && b.clientName.toLowerCase().includes(searchTerm));
                 
@@ -649,13 +848,6 @@
 
                 const startDate = new Date(b.start);
                 const endDate = new Date(b.end);
-                const startStr = b.start.split('T')[0];
-                const endStr = b.end.split('T')[0];
-
-                // Time formatting for alerts
-                const formatTimeOnly = (dateObj) => {
-                    return dateObj.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-                };
 
                 if (b.returned) {
                     past.push(b); 
@@ -663,39 +855,24 @@
                     past.push(b); 
                 } else if (startDate > now) {
                     upcoming.push(b);
-                    if(startStr === todayStr) alerts.push(`${b.carName} Going Out Today at ${formatTimeOnly(startDate)}`);
                 } else {
                     active.push(b);
-                    if(endStr === todayStr) alerts.push(`${b.carName} Due Back Today at ${formatTimeOnly(endDate)}`);
                 }
             });
 
-            // Sort
-            active.sort((a,b) => a.end.localeCompare(b.end)); // Closest return first
-            upcoming.sort((a,b) => a.start.localeCompare(b.start)); // Closest start first
-            past.sort((a,b) => b.end.localeCompare(a.end)); // Recent first
+            active.sort((a,b) => a.end.localeCompare(b.end)); 
+            upcoming.sort((a,b) => a.start.localeCompare(b.start)); 
+            past.sort((a,b) => b.end.localeCompare(a.end)); 
 
-            // Update Tab Counts
             document.getElementById('tab-active').innerHTML = `Active <span class="ml-2 bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-xs">${active.length}</span>`;
             document.getElementById('tab-upcoming').innerHTML = `Upcoming <span class="ml-2 bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs">${upcoming.length}</span>`;
             document.getElementById('tab-past').innerText = 'History';
-
-            // Notifications
-            const notifCenter = document.getElementById('notification-center');
-            const notifList = document.getElementById('notification-list');
-            if (alerts.length > 0) {
-                notifCenter.classList.remove('hidden');
-                notifList.innerHTML = alerts.map(msg => `<li>• ${msg}</li>`).join('');
-            } else {
-                notifCenter.classList.add('hidden');
-            }
 
             renderList('list-active', active, 'active');
             renderList('list-upcoming', upcoming, 'upcoming');
             renderHistory(past);
         }
 
-        // UPDATED: History Money Logic (Split by Month)
         function renderHistory(list) {
             const el = document.getElementById('list-past');
             el.innerHTML = '';
@@ -704,55 +881,44 @@
                 return;
             }
 
-            // 1. Calculate Revenue per Month (Splitting dates)
-            const revenueMap = {}; // Key: "YYYY-MM", Value: Total Money
-            const itemsByMonth = {}; // Key: "YYYY-MM", Value: Array of items (grouped by End Date for display)
+            const revenueMap = {}; 
+            const itemsByMonth = {}; 
 
             list.forEach(item => {
-                // Group item by End Date for visual list
                 const endD = new Date(item.end);
                 const listKey = `${endD.getFullYear()}-${String(endD.getMonth() + 1).padStart(2, '0')}`;
                 if(!itemsByMonth[listKey]) itemsByMonth[listKey] = [];
                 itemsByMonth[listKey].push(item);
 
-                // Calculate Revenue Split
                 if(item.price && item.start && item.end) {
                     const price = Number(item.price);
                     const startObj = new Date(item.start);
                     const endObj = new Date(item.end);
-                    
-                    // Calculate total billable days same as before
                     const diffTime = Math.abs(endObj - startObj);
                     let totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     if(totalDays < 1) totalDays = 1;
 
-                    // Distribute price across the calendar days involved
                     let current = new Date(startObj);
                     for(let i = 0; i < totalDays; i++) {
                         const monthKey = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`;
                         revenueMap[monthKey] = (revenueMap[monthKey] || 0) + price;
-                        
-                        // Move to next day
                         current.setDate(current.getDate() + 1);
                     }
                 }
             });
 
-            // 2. Render
-            const keys = Object.keys(itemsByMonth).sort().reverse(); // Show newest months first
+            const keys = Object.keys(itemsByMonth).sort().reverse(); 
 
             keys.forEach(key => {
                 const [year, month] = key.split('-');
                 const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
                 const monthlyTotal = revenueMap[key] || 0;
 
-                // Header
                 const header = document.createElement('div');
                 header.className = "flex justify-between items-center bg-gray-100 p-3 rounded-lg mt-6 mb-2";
                 header.innerHTML = `<h3 class="font-bold text-gray-700">${monthName}</h3><span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Rev: ${monthlyTotal} DH</span>`;
                 el.appendChild(header);
 
-                // Items
                 itemsByMonth[key].forEach(item => {
                     el.appendChild(createBookingCard(item, 'past'));
                 });
@@ -769,7 +935,6 @@
             list.forEach(item => el.appendChild(createBookingCard(item, type)));
         }
 
-        // UPDATED: Added Deposit Back & Cleaned Up
         function createBookingCard(item, type) {
             const isActive = type === 'active';
             const isUpcoming = type === 'upcoming';
@@ -787,7 +952,6 @@
                 statusText = 'Upcoming';
             }
 
-            // Calculations
             let totalCost = 0;
             let diffDays = 0;
             if (item.price) {
@@ -800,7 +964,6 @@
                 totalCost = dailyPrice * diffDays;
             }
 
-            // Formatters
             const formatDate = (dateStr) => {
                 const d = new Date(dateStr);
                 return d.toLocaleDateString('en-GB', {day: 'numeric', month: 'short'});
@@ -813,7 +976,6 @@
             const div = document.createElement('div');
             div.className = `bg-white rounded-xl shadow-sm border border-gray-200 mb-4 overflow-hidden ${borderColor} transition-transform active:scale-[0.99]`;
 
-            // Card Header (Car & Actions)
             let actions = '';
             if(isActive || isUpcoming) {
                 actions = `
@@ -836,7 +998,6 @@
                     </div>
                     ${actions}
                 </div>
-
                 <div class="px-4 py-3 bg-gray-50/50 border-t border-b border-gray-100 grid grid-cols-2 gap-4">
                     <div class="flex flex-col">
                         <span class="text-[10px] uppercase font-bold text-gray-400 mb-1">Departure</span>
@@ -855,7 +1016,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="p-3 bg-gray-50 flex justify-between items-center text-xs">
                     <div class="text-gray-500 font-medium flex flex-wrap gap-3">
                         ${item.agent ? `<span><i class="fas fa-user-tie text-gray-400 mr-1"></i>${item.agent}</span>` : ''}
