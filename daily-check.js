@@ -2,89 +2,74 @@ const admin = require("firebase-admin");
 
 // 1. Setup Firebase
 const serviceAccount = JSON.parse(process.env.FIREBASE_KEY);
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-
+admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 const db = admin.firestore();
-const NOTIFY_TOPIC = "black-iris-secure-09"; // Must match your phone app
+
+const NOTIFY_TOPIC = "black-iris-secure-09"; 
 
 async function checkAndNotify() {
-  console.log("Starting Daily Fleet Check...");
-  const now = new Date();
-  // Adjust for Morocco Time (UTC+1)
-  // The server time is UTC. We add 1 hour to get local date string.
-  const moroccoTime = new Date(now.getTime() + (60 * 60 * 1000));
-  const todayStr = moroccoTime.toISOString().split('T')[0];
+  console.log("Starting Hourly Check...");
   
-  console.log(`Checking for date: ${todayStr}`);
+  // 1. Get Current Time in Morocco
+  const now = new Date();
+  // Server is UTC. Morocco is UTC+1. Add 1 hour (3600000 ms).
+  const moroccoNow = new Date(now.getTime() + (3600 * 1000));
+  
+  console.log(`Current Morocco Time: ${moroccoNow.toISOString().slice(0,16).replace('T', ' ')}`);
   
   let messages = [];
 
   try {
-    // --- 1. CHECK BOOKINGS ---
-    // We get all active bookings to check dates
+    // --- CHECK BOOKINGS ---
+    // We grab all active bookings
     const bookingsSnap = await db.collection('admin_bookings').where('returned', '==', false).get();
     
     bookingsSnap.forEach(doc => {
       const b = doc.data();
       if (!b.start || !b.end) return;
 
-      const startStr = b.start.split('T')[0];
-      const endStr = b.end.split('T')[0];
-      const timeStart = b.start.split('T')[1].slice(0, 5); // 14:00
-      const timeEnd = b.end.split('T')[1].slice(0, 5);
+      // Note: "new Date(b.start)" in Node assumes UTC. 
+      // Since your input is just a string (e.g. "14:30"), this works perfectly 
+      // when compared to our manually adjusted "moroccoNow".
+      const startTime = new Date(b.start);
+      const endTime = new Date(b.end);
 
-      if (startStr === todayStr) {
-        messages.push(`🚀 OUT TODAY: ${b.carName} at ${timeStart}`);
+      // Calculate difference in minutes
+      const minsUntilStart = (startTime - moroccoNow) / 60000;
+      const minsUntilEnd = (endTime - moroccoNow) / 60000;
+
+      // Logic: Notify if the event is between 0 and 90 minutes from now.
+      // We use 90 instead of 60 to be safe, so if the robot is slightly slow, we don't miss it.
+      
+      // CHECK DEPARTURE
+      if (minsUntilStart > 0 && minsUntilStart <= 90) {
+        const timeStr = b.start.split('T')[1].slice(0,5);
+        messages.push(`🚀 GOING OUT SOON: ${b.carName} at ${timeStr}`);
       }
-      if (endStr === todayStr) {
-        messages.push(`🏁 RETURN TODAY: ${b.carName} at ${timeEnd}`);
-      }
-    });
 
-    // --- 2. CHECK TASKS (Due in 48h) ---
-    const servicesSnap = await db.collection('service_memos').where('status', '!=', 'done').get();
-    const twoDaysInMs = 2 * 24 * 60 * 60 * 1000;
-    
-    servicesSnap.forEach(doc => {
-      const s = doc.data();
-      if (!s.dueDate) return;
-
-      const due = new Date(s.dueDate);
-      const diff = due - moroccoTime;
-
-      // If due within 48 hours and not in the past (allow small buffer)
-      if (diff > -86400000 && diff <= twoDaysInMs) {
-         // Format date simply
-         const day = String(due.getDate()).padStart(2, '0');
-         const month = String(due.getMonth() + 1).padStart(2, '0');
-         messages.push(`⚠️ TASK DUE: ${s.description} (${day}/${month})`);
+      // CHECK RETURN
+      if (minsUntilEnd > 0 && minsUntilEnd <= 90) {
+        const timeStr = b.end.split('T')[1].slice(0,5);
+        messages.push(`🏁 DUE BACK SOON: ${b.carName} at ${timeStr}`);
       }
     });
 
-    // --- 3. SEND TO PHONE ---
+    // --- SEND NOTIFICATIONS ---
     if (messages.length > 0) {
-      console.log(`Found ${messages.length} alerts. Sending to phone...`);
+      console.log(`Found ${messages.length} upcoming events.`);
       for (const msg of messages) {
         await fetch(`https://ntfy.sh/${NOTIFY_TOPIC}`, {
           method: 'POST',
           body: msg,
-          headers: { 
-              'Title': 'Black Iris Update', 
-              'Priority': 'high', 
-              'Tags': 'car' 
-          }
+          headers: { 'Title': 'Black Iris Alert', 'Priority': 'high', 'Tags': 'car,clock' }
         });
       }
-      console.log("Notifications sent.");
     } else {
-      console.log("No alerts found for today.");
+      console.log("No events in the next 90 minutes.");
     }
 
   } catch (error) {
-    console.error("Critical Error:", error);
+    console.error("Error:", error);
     process.exit(1);
   }
 }
