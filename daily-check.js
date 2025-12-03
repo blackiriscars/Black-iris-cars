@@ -36,6 +36,7 @@ async function checkAndNotify() {
       const startDay = b.start.split('T')[0];
       const endDay = b.end.split('T')[0];
 
+      // Calculate minutes until event
       const minsUntilStart = (startTime - moroccoNow) / 60000;
       const minsUntilEnd = (endTime - moroccoNow) / 60000;
       
@@ -48,14 +49,36 @@ async function checkAndNotify() {
         if (endDay === todayStr) messages.push(`📅 TODAY RETURN: ${b.carName} at ${timeEnd}`);
       }
 
-      // URGENT ALERT (Window: -40 to +50)
-      // This guarantees roughly 2-3 alerts per event, but NEVER zero.
+      // --- LOGIC UPDATED FOR CLARITY ---
+      
+      // DEPARTURE CHECK (Window: -40 to +50)
       if (minsUntilStart > -40 && minsUntilStart <= 50) {
-        const prefix = minsUntilStart < 0 ? "🚨 HAPPENING NOW" : "🚀 GOING OUT SOON";
+        let prefix;
+        if (minsUntilStart < 0) {
+            // It is in the past (0 to 40 mins ago)
+            prefix = "✅ DEPARTED RECENTLY (Check Active)"; 
+        } else if (minsUntilStart <= 15) {
+            // It is very close (0 to 15 mins away)
+            prefix = "🚨 GOING OUT NOW";
+        } else {
+            // It is a bit further (15 to 50 mins away)
+            prefix = "🚀 GOING OUT SOON";
+        }
         messages.push(`${prefix}: ${b.carName} at ${timeStart}`);
       }
+
+      // RETURN CHECK (Window: -40 to +50)
       if (minsUntilEnd > -40 && minsUntilEnd <= 50) {
-        const prefix = minsUntilEnd < 0 ? "🚨 OVERDUE / NOW" : "🏁 DUE BACK SOON";
+        let prefix;
+        if (minsUntilEnd < 0) {
+            // It is in the past (Overdue)
+            prefix = "🚨 OVERDUE / RETURN NOW"; 
+        } else if (minsUntilEnd <= 15) {
+             // Very close
+            prefix = "🚨 RETURNING NOW";
+        } else {
+            prefix = "🏁 DUE BACK SOON";
+        }
         messages.push(`${prefix}: ${b.carName} at ${timeEnd}`);
       }
     });
@@ -82,9 +105,12 @@ async function checkAndNotify() {
          messages.push(`🛠️ MAINTENANCE DUE (${dateStr}): ${s.description}`);
       }
 
-      // URGENT ALERT (Window: -40 to +50)
+      // URGENT ALERT
       if (minsUntilDue > -40 && minsUntilDue <= 50) {
-         const prefix = minsUntilDue < 0 ? "🚨 TASK OVERDUE / NOW" : "⚠️ TASK DUE SOON";
+         let prefix = "⚠️ TASK DUE SOON";
+         if (minsUntilDue < 0) prefix = "🚨 TASK OVERDUE";
+         else if (minsUntilDue <= 15) prefix = "🚨 TASK DUE NOW";
+         
          messages.push(`${prefix}: ${s.description} at ${timeStr}`);
       }
     });
