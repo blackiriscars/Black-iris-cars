@@ -1,13 +1,13 @@
-name: Hourly Fleet Check
+name: Fleet Check (30m)
 
 on:
   schedule:
-    # Runs at minute 0 of every hour (00:00, 01:00, 02:00...)
-    - cron: '0 * * * *'
+    # Runs at minute 0 and minute 30 of every hour
+    - cron: '0,30 * * * *'
   workflow_dispatch: 
 
 jobs:
-  run-hourly-check:
+  run-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
