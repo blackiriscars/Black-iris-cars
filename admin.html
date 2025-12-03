@@ -341,8 +341,13 @@
                     </div>
                 </form>
 
-                <h3 class="font-bold text-gray-700 text-lg mb-2">Upcoming Tasks</h3>
-                <div id="service-list" class="grid gap-3 pb-20"></div>
+                <div class="flex space-x-2 mb-4 border-b border-gray-200 overflow-x-auto no-scrollbar">
+                    <button onclick="filterService('pending')" id="tab-service-pending" class="service-tab whitespace-nowrap px-6 py-3 border-b-2 border-indigo-600 font-bold text-indigo-600 transition-colors">Pending Tasks</button>
+                    <button onclick="filterService('history')" id="tab-service-history" class="service-tab whitespace-nowrap px-6 py-3 border-b-2 border-transparent text-gray-500 hover:text-indigo-600 transition-colors">History</button>
+                </div>
+
+                <div id="service-list-pending" class="service-list grid gap-3 pb-20"></div>
+                <div id="service-list-history" class="service-list grid gap-3 pb-20 hidden"></div>
             </div>
         </div>
     </main>
@@ -412,6 +417,20 @@
 
             document.querySelectorAll('.booking-list').forEach(l => l.classList.add('hidden'));
             document.getElementById('list-' + tab).classList.remove('hidden');
+        }
+
+        // SERVICE TABS
+        window.filterService = function(tab) {
+            document.querySelectorAll('.service-tab').forEach(b => {
+                b.classList.remove('border-indigo-600', 'text-indigo-600', 'font-bold');
+                b.classList.add('border-transparent', 'text-gray-500');
+            });
+            const activeBtn = document.getElementById('tab-service-' + tab);
+            activeBtn.classList.remove('border-transparent', 'text-gray-500');
+            activeBtn.classList.add('border-indigo-600', 'text-indigo-600', 'font-bold');
+
+            document.querySelectorAll('.service-list').forEach(l => l.classList.add('hidden'));
+            document.getElementById('service-list-' + tab).classList.remove('hidden');
         }
     </script>
 
@@ -683,7 +702,7 @@
             const bookingAlerts = [];
             const serviceAlerts = [];
 
-            // 1. Check Bookings (Today logic)
+            // 1. Check Bookings
             allBookings.forEach(b => {
                 if(b.returned) return;
                 const startStr = b.start.split('T')[0];
@@ -696,24 +715,22 @@
                 }
             });
 
-            // 2. Check Services (2 Days / 48h Logic)
+            // 2. Check Services
             const twoDaysInMs = 2 * 24 * 60 * 60 * 1000;
             allServices.forEach(s => {
+                if(s.status === 'done') return; // Skip done services
                 const due = new Date(s.dueDate);
-                const diff = due - now; // Time until due
-                
-                // If it's in the future AND less than 2 days away
+                const diff = due - now;
                 if (diff > 0 && diff <= twoDaysInMs) {
                     serviceAlerts.push(`${s.description} due on ${due.toLocaleDateString()}`);
                 }
-                // Or if it is overdue (negative diff) but not handled? (Optional, kept simple for now)
             });
 
             // 3. Update Sidebar Badges
             updateBadge('badge-bookings', bookingAlerts.length);
             updateBadge('badge-service', serviceAlerts.length);
 
-            // 4. Update Dashboard Notification Center
+            // 4. Update Dashboard
             const dashList = document.getElementById('dashboard-notif-list');
             const dashBox = document.getElementById('dashboard-notifs');
             const combined = [...bookingAlerts, ...serviceAlerts];
@@ -725,7 +742,7 @@
                 dashBox.classList.add('hidden');
             }
 
-            // 5. Update Page Specific Lists
+            // 5. Update Lists
             updatePageNotification('notification-center', 'notification-list', bookingAlerts);
             updatePageNotification('service-notification-center', 'service-notification-list', serviceAlerts);
         }
@@ -762,6 +779,7 @@
             try {
                 await addDoc(collection(db, serviceCollection), {
                     description, dueDate,
+                    status: 'pending', // Default status
                     createdAt: serverTimestamp()
                 });
                 document.getElementById('serviceForm').reset();
@@ -769,42 +787,86 @@
         });
 
         function renderServices() {
-            const container = document.getElementById('service-list');
-            container.innerHTML = '';
+            const pendingContainer = document.getElementById('service-list-pending');
+            const historyContainer = document.getElementById('service-list-history');
             
-            // Sort by Date
-            const sorted = [...allServices].sort((a,b) => a.dueDate.localeCompare(b.dueDate));
+            pendingContainer.innerHTML = '';
+            historyContainer.innerHTML = '';
+            
+            // Pending Services (Sort by Date ASC)
+            const pending = allServices.filter(s => s.status !== 'done').sort((a,b) => a.dueDate.localeCompare(b.dueDate));
+            
+            // History Services (Sort by Date DESC)
+            const history = allServices.filter(s => s.status === 'done').sort((a,b) => b.dueDate.localeCompare(a.dueDate));
 
-            if(sorted.length === 0) {
-                container.innerHTML = `<div class="text-center text-gray-400 py-6">No upcoming services.</div>`;
-                return;
+            // RENDER PENDING
+            if(pending.length === 0) {
+                pendingContainer.innerHTML = `<div class="text-center text-gray-400 py-6">No upcoming services.</div>`;
+            } else {
+                pending.forEach(item => {
+                    const dateObj = new Date(item.dueDate);
+                    const dateStr = dateObj.toLocaleDateString('en-GB');
+                    const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+                    
+                    const div = document.createElement('div');
+                    div.className = "bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex justify-between items-center";
+                    div.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center shrink-0">
+                                <i class="fas fa-wrench"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">${item.description}</h4>
+                                <p class="text-xs text-red-600 font-bold">Due: ${dateStr} at ${timeStr}</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                             <button onclick="window.markServiceDone('${item.id}')" class="text-gray-300 hover:text-green-600 transition p-2" title="Mark Done"><i class="fas fa-check-circle text-xl"></i></button>
+                             <button onclick="window.deleteService('${item.id}')" class="text-gray-300 hover:text-red-600 transition p-2" title="Delete"><i class="fas fa-trash text-sm"></i></button>
+                        </div>
+                    `;
+                    pendingContainer.appendChild(div);
+                });
             }
 
-            sorted.forEach(item => {
-                const dateObj = new Date(item.dueDate);
-                const dateStr = dateObj.toLocaleDateString('en-GB');
-                const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
-                
-                const div = document.createElement('div');
-                div.className = "bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex justify-between items-center";
-                div.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="h-10 w-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center shrink-0">
-                            <i class="fas fa-wrench"></i>
+            // RENDER HISTORY
+            if(history.length === 0) {
+                historyContainer.innerHTML = `<div class="text-center text-gray-400 py-6">No completed history.</div>`;
+            } else {
+                history.forEach(item => {
+                    const dateObj = new Date(item.dueDate);
+                    const dateStr = dateObj.toLocaleDateString('en-GB');
+                    
+                    const div = document.createElement('div');
+                    div.className = "bg-gray-50 p-4 rounded-xl border border-gray-100 flex justify-between items-center opacity-75 hover:opacity-100 transition";
+                    div.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center shrink-0">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-600 line-through">${item.description}</h4>
+                                <p class="text-xs text-gray-400 font-bold">Was due: ${dateStr}</p>
+                            </div>
                         </div>
-                        <div>
-                            <h4 class="font-bold text-gray-800">${item.description}</h4>
-                            <p class="text-xs text-red-600 font-bold">Due: ${dateStr} at ${timeStr}</p>
-                        </div>
-                    </div>
-                    <button onclick="window.deleteService('${item.id}')" class="text-gray-300 hover:text-green-600 transition p-2"><i class="fas fa-check-circle text-xl"></i></button>
-                `;
-                container.appendChild(div);
-            });
+                        <button onclick="window.deleteService('${item.id}')" class="text-gray-300 hover:text-red-600 transition p-2" title="Delete"><i class="fas fa-trash text-sm"></i></button>
+                    `;
+                    historyContainer.appendChild(div);
+                });
+            }
+        }
+
+        window.markServiceDone = async function(id) {
+            if(confirm("Mark this service as completed?")) {
+                await updateDoc(doc(db, serviceCollection, id), {
+                    status: 'done',
+                    completedAt: serverTimestamp()
+                });
+            }
         }
 
         window.deleteService = async function(id) {
-            if(confirm("Mark this service as done (delete)?")) {
+            if(confirm("Permanently delete this service record?")) {
                 await deleteDoc(doc(db, serviceCollection, id));
             }
         }
