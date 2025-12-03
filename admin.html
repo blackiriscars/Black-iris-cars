@@ -874,7 +874,7 @@
             toggleRepeatLimit();
         }
 
-        // REDESIGNED COMPACT TASK CARD
+        // REDESIGNED COMPACT TASK CARD (WITH OVERDUE RED ALERT)
         function renderServices() {
             const pendingContainer = document.getElementById('service-list-pending');
             const historyContainer = document.getElementById('service-list-history');
@@ -887,12 +887,14 @@
 
             const getIcon = (type) => {
                 switch(type) {
-                    case 'finance': return '<div class="h-9 w-9 rounded-lg bg-green-100 text-green-600 flex items-center justify-center shrink-0 text-sm"><i class="fas fa-money-bill-wave"></i></div>';
-                    case 'maintenance': return '<div class="h-9 w-9 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0 text-sm"><i class="fas fa-wrench"></i></div>';
-                    case 'urgent': return '<div class="h-9 w-9 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center shrink-0 text-sm"><i class="fas fa-exclamation-triangle"></i></div>';
-                    default: return '<div class="h-9 w-9 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 text-sm"><i class="fas fa-clipboard-list"></i></div>';
+                    case 'finance': return '<div class="h-9 w-9 rounded-lg bg-white/50 text-green-700 flex items-center justify-center shrink-0 text-sm"><i class="fas fa-money-bill-wave"></i></div>';
+                    case 'maintenance': return '<div class="h-9 w-9 rounded-lg bg-white/50 text-red-700 flex items-center justify-center shrink-0 text-sm"><i class="fas fa-wrench"></i></div>';
+                    case 'urgent': return '<div class="h-9 w-9 rounded-lg bg-white/50 text-orange-700 flex items-center justify-center shrink-0 text-sm"><i class="fas fa-exclamation-triangle"></i></div>';
+                    default: return '<div class="h-9 w-9 rounded-lg bg-white/50 text-blue-700 flex items-center justify-center shrink-0 text-sm"><i class="fas fa-clipboard-list"></i></div>';
                 }
             };
+
+            const now = new Date();
 
             // RENDER PENDING
             if(pending.length === 0) {
@@ -902,6 +904,20 @@
                     const dateObj = new Date(item.dueDate);
                     const dateStr = dateObj.toLocaleDateString('en-GB');
                     const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+                    
+                    // --- NEW: CHECK IF OVERDUE ---
+                    const isOverdue = dateObj < now;
+                    
+                    // STYLE LOGIC: 
+                    // If Overdue: Red Border + Light Red Background
+                    // If Normal: Gray Border + White Background
+                    const boxClass = isOverdue 
+                        ? "bg-red-50 border-red-300 shadow-red-100" 
+                        : "bg-white border-gray-100 hover:shadow-md";
+
+                    const textClass = isOverdue ? "text-red-800" : "text-gray-800";
+                    const timeClass = isOverdue ? "text-red-600 font-bold" : "text-gray-500";
+                    const badgeText = isOverdue ? `<span class="bg-red-200 text-red-800 text-[10px] font-bold px-2 py-0.5 rounded ml-2">OVERDUE</span>` : "";
                     
                     let badges = '';
                     if(item.recurrence && item.recurrence !== 'none') {
@@ -913,19 +929,19 @@
                     }
 
                     const div = document.createElement('div');
-                    // COMPACT STYLE
-                    div.className = "bg-white p-3 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex items-center gap-3 relative overflow-hidden group";
+                    // APPLY THE DYNAMIC CLASSES
+                    div.className = `${boxClass} p-3 rounded-xl border shadow-sm transition-all flex items-center gap-3 relative overflow-hidden group`;
                     
                     div.innerHTML = `
-                        <div class="absolute left-0 top-0 bottom-0 w-1 ${item.type === 'urgent' ? 'bg-red-500' : 'bg-transparent'}"></div>
                         ${getIcon(item.type)}
                         
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center">
-                                <h4 class="font-bold text-gray-800 text-sm truncate mr-2">${item.description}</h4>
+                                <h4 class="font-bold ${textClass} text-sm truncate mr-2">${item.description}</h4>
+                                ${badgeText}
                             </div>
-                            <div class="flex items-center text-xs text-gray-500 mt-0.5">
-                                <span class="${item.type === 'urgent' ? 'text-red-600 font-bold' : ''}">${dateStr} ${timeStr}</span>
+                            <div class="flex items-center text-xs ${timeClass} mt-0.5">
+                                <span>${dateStr} ${timeStr}</span>
                                 ${badges}
                             </div>
                         </div>
@@ -940,7 +956,7 @@
                 });
             }
 
-            // RENDER HISTORY
+            // RENDER HISTORY (Keep this same as before)
             if(history.length === 0) {
                 historyContainer.innerHTML = `<div class="text-center text-gray-400 py-10 border-2 border-dashed border-gray-100 rounded-2xl">No completed history.</div>`;
             } else {
