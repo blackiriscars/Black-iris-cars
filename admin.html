@@ -381,8 +381,8 @@
                     <button onclick="filterService('history')" id="tab-service-history" class="service-tab whitespace-nowrap px-6 py-3 border-b-2 border-transparent text-gray-500 hover:text-indigo-600 transition-colors">History</button>
                 </div>
 
-                <div id="service-list-pending" class="service-list grid gap-4 pb-20"></div>
-                <div id="service-list-history" class="service-list grid gap-4 pb-20 hidden"></div>
+                <div id="service-list-pending" class="service-list grid gap-3 pb-20"></div>
+                <div id="service-list-history" class="service-list grid gap-3 pb-20 hidden"></div>
             </div>
         </div>
     </main>
@@ -874,7 +874,7 @@
             toggleRepeatLimit();
         }
 
-        // REDESIGNED TASK CARD
+        // REDESIGNED COMPACT TASK CARD
         function renderServices() {
             const pendingContainer = document.getElementById('service-list-pending');
             const historyContainer = document.getElementById('service-list-history');
@@ -887,10 +887,10 @@
 
             const getIcon = (type) => {
                 switch(type) {
-                    case 'finance': return '<div class="h-12 w-12 rounded-xl bg-green-100 text-green-600 flex items-center justify-center shrink-0 text-xl"><i class="fas fa-money-bill-wave"></i></div>';
-                    case 'maintenance': return '<div class="h-12 w-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0 text-xl"><i class="fas fa-wrench"></i></div>';
-                    case 'urgent': return '<div class="h-12 w-12 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center shrink-0 text-xl"><i class="fas fa-exclamation-triangle"></i></div>';
-                    default: return '<div class="h-12 w-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 text-xl"><i class="fas fa-clipboard-list"></i></div>';
+                    case 'finance': return '<div class="h-9 w-9 rounded-lg bg-green-100 text-green-600 flex items-center justify-center shrink-0 text-sm"><i class="fas fa-money-bill-wave"></i></div>';
+                    case 'maintenance': return '<div class="h-9 w-9 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0 text-sm"><i class="fas fa-wrench"></i></div>';
+                    case 'urgent': return '<div class="h-9 w-9 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center shrink-0 text-sm"><i class="fas fa-exclamation-triangle"></i></div>';
+                    default: return '<div class="h-9 w-9 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 text-sm"><i class="fas fa-clipboard-list"></i></div>';
                 }
             };
 
@@ -906,34 +906,34 @@
                     let badges = '';
                     if(item.recurrence && item.recurrence !== 'none') {
                         const countStr = item.repeatLimit ? ` (${item.repeatCount || 1}/${item.repeatLimit})` : '';
-                        badges += `<span class="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide border border-indigo-100"><i class="fas fa-sync-alt"></i> ${item.recurrence}${countStr}</span>`;
+                        badges += `<span class="text-indigo-600 text-[10px] font-bold uppercase tracking-wide ml-2"><i class="fas fa-sync-alt"></i> ${item.recurrence}${countStr}</span>`;
                     }
                     if(item.cost) {
-                        badges += `<span class="inline-flex items-center gap-1 bg-green-50 text-green-700 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide border border-green-100 ml-2"><i class="fas fa-tag"></i> ${item.cost} DH</span>`;
+                        badges += `<span class="text-green-600 text-[10px] font-bold uppercase tracking-wide ml-2"><i class="fas fa-tag"></i> ${item.cost} DH</span>`;
                     }
 
                     const div = document.createElement('div');
-                    div.className = "bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row gap-4 items-start md:items-center relative overflow-hidden group";
+                    // COMPACT STYLE
+                    div.className = "bg-white p-3 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex items-center gap-3 relative overflow-hidden group";
                     
                     div.innerHTML = `
-                        <div class="absolute left-0 top-0 bottom-0 w-1 ${item.type === 'urgent' ? 'bg-red-500' : 'bg-gray-200'}"></div>
-                        
+                        <div class="absolute left-0 top-0 bottom-0 w-1 ${item.type === 'urgent' ? 'bg-red-500' : 'bg-transparent'}"></div>
                         ${getIcon(item.type)}
                         
                         <div class="flex-1 min-w-0">
-                            <h4 class="font-bold text-gray-900 text-lg mb-1 truncate">${item.description}</h4>
-                            <div class="flex flex-wrap items-center mb-2">
+                            <div class="flex items-center">
+                                <h4 class="font-bold text-gray-800 text-sm truncate mr-2">${item.description}</h4>
+                            </div>
+                            <div class="flex items-center text-xs text-gray-500 mt-0.5">
+                                <span class="${item.type === 'urgent' ? 'text-red-600 font-bold' : ''}">${dateStr} ${timeStr}</span>
                                 ${badges}
                             </div>
-                            <p class="text-sm text-gray-500 font-medium flex items-center gap-2">
-                                <i class="far fa-calendar-alt"></i> Due: <span class="${item.type === 'urgent' ? 'text-red-600 font-bold' : 'text-gray-700'}">${dateStr} at ${timeStr}</span>
-                            </p>
                         </div>
 
-                        <div class="flex gap-2 self-end md:self-center">
-                             <button onclick="window.editService('${item.id}')" class="h-10 w-10 rounded-lg bg-gray-50 text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition flex items-center justify-center border border-gray-200" title="Edit"><i class="fas fa-pencil-alt"></i></button>
-                             <button onclick="window.markServiceDone('${item.id}')" class="h-10 w-10 rounded-lg bg-gray-50 text-gray-400 hover:bg-green-50 hover:text-green-600 transition flex items-center justify-center border border-gray-200" title="Mark Done"><i class="fas fa-check"></i></button>
-                             <button onclick="window.deleteService('${item.id}')" class="h-10 w-10 rounded-lg bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-600 transition flex items-center justify-center border border-gray-200" title="Delete"><i class="fas fa-trash"></i></button>
+                        <div class="flex gap-1">
+                             <button onclick="window.editService('${item.id}')" class="h-8 w-8 rounded-lg text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition flex items-center justify-center" title="Edit"><i class="fas fa-pencil-alt text-xs"></i></button>
+                             <button onclick="window.markServiceDone('${item.id}')" class="h-8 w-8 rounded-lg text-gray-400 hover:bg-green-50 hover:text-green-600 transition flex items-center justify-center" title="Mark Done"><i class="fas fa-check text-xs"></i></button>
+                             <button onclick="window.deleteService('${item.id}')" class="h-8 w-8 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600 transition flex items-center justify-center" title="Delete"><i class="fas fa-trash text-xs"></i></button>
                         </div>
                     `;
                     pendingContainer.appendChild(div);
@@ -947,23 +947,21 @@
                 history.forEach(item => {
                     const dateObj = new Date(item.dueDate);
                     const dateStr = dateObj.toLocaleDateString('en-GB');
-                    const costBadge = item.cost ? `<span class="ml-2 bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded font-bold">${item.cost} DH</span>` : '';
+                    const costBadge = item.cost ? `<span class="ml-2 text-gray-400 text-[10px] font-bold">${item.cost} DH</span>` : '';
                     
                     const div = document.createElement('div');
-                    div.className = "bg-gray-50 p-5 rounded-2xl border border-gray-100 flex justify-between items-center opacity-60 hover:opacity-100 transition";
+                    div.className = "bg-gray-50 p-3 rounded-xl border border-gray-100 flex justify-between items-center opacity-70 hover:opacity-100 transition";
                     div.innerHTML = `
-                        <div class="flex items-center gap-4">
-                            <div class="h-10 w-10 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center shrink-0">
-                                <i class="fas fa-check"></i>
-                            </div>
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-check-circle text-gray-300"></i>
                             <div>
-                                <h4 class="font-bold text-gray-600 line-through text-base flex items-center">${item.description} ${costBadge}</h4>
-                                <p class="text-sm text-gray-400 font-medium">Was due: ${dateStr}</p>
+                                <h4 class="font-bold text-gray-500 line-through text-sm flex items-center">${item.description} ${costBadge}</h4>
+                                <p class="text-[10px] text-gray-400 font-medium">Was due: ${dateStr}</p>
                             </div>
                         </div>
-                        <div class="flex gap-2">
-                            <button onclick="window.editService('${item.id}')" class="text-gray-300 hover:text-blue-600 p-2" title="Edit"><i class="fas fa-pencil-alt"></i></button>
-                            <button onclick="window.deleteService('${item.id}')" class="text-gray-300 hover:text-red-600 p-2" title="Delete"><i class="fas fa-trash"></i></button>
+                        <div class="flex gap-1">
+                            <button onclick="window.editService('${item.id}')" class="text-gray-300 hover:text-blue-600 p-2" title="Edit"><i class="fas fa-pencil-alt text-xs"></i></button>
+                            <button onclick="window.deleteService('${item.id}')" class="text-gray-300 hover:text-red-600 p-2" title="Delete"><i class="fas fa-trash text-xs"></i></button>
                         </div>
                     `;
                     historyContainer.appendChild(div);
@@ -1024,8 +1022,7 @@
             }
         }
 
-        // REDESIGNED BOOKING CARD
-        // Search Filter Logic
+        // REDESIGNED COMPACT BOOKING CARD
         document.getElementById('bookingSearch').addEventListener('input', (e) => {
             renderBookings();
         });
@@ -1130,8 +1127,8 @@
                 const monthlyTotal = revenueMap[key] || 0;
 
                 const header = document.createElement('div');
-                header.className = "flex justify-between items-center bg-gray-50 p-4 rounded-xl mt-8 mb-4 shadow-sm border border-gray-100";
-                header.innerHTML = `<h3 class="font-bold text-gray-800 text-lg">${monthName}</h3><span class="bg-green-50 text-green-700 px-3 py-1 rounded-lg text-sm font-bold border border-green-100">Rev: ${monthlyTotal} DH</span>`;
+                header.className = "flex justify-between items-center bg-gray-50 p-3 rounded-lg mt-6 mb-2 shadow-sm border border-gray-100";
+                header.innerHTML = `<h3 class="font-bold text-gray-800 text-sm">${monthName}</h3><span class="bg-green-50 text-green-700 px-2 py-0.5 rounded-lg text-xs font-bold border border-green-100">Rev: ${monthlyTotal} DH</span>`;
                 el.appendChild(header);
 
                 itemsByMonth[key].forEach(item => {
@@ -1158,12 +1155,12 @@
 
             if (isActive) {
                 borderColorClass = 'border-l-4 border-l-indigo-500';
-                badge = '<span class="bg-indigo-50 text-indigo-600 text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide border border-indigo-100">Active</span>';
+                badge = '<span class="text-indigo-600 text-[10px] font-bold uppercase tracking-wide bg-indigo-50 px-1.5 rounded">Active</span>';
             } else if (isUpcoming) {
                 borderColorClass = 'border-l-4 border-l-blue-400';
-                badge = '<span class="bg-blue-50 text-blue-600 text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide border border-blue-100">Upcoming</span>';
+                badge = '<span class="text-blue-600 text-[10px] font-bold uppercase tracking-wide bg-blue-50 px-1.5 rounded">Upcoming</span>';
             } else {
-                badge = '<span class="bg-gray-100 text-gray-500 text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide">Done</span>';
+                badge = '<span class="text-gray-400 text-[10px] font-bold uppercase tracking-wide bg-gray-100 px-1.5 rounded">Done</span>';
             }
 
             let totalCost = 0;
@@ -1188,61 +1185,45 @@
             };
 
             const div = document.createElement('div');
-            // SPACIOUS CARD DESIGN
-            div.className = `bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 overflow-hidden relative group hover:shadow-md transition-all p-6 ${borderColorClass}`;
+            // COMPACT CARD DESIGN - Reduced padding, removed large inner boxes
+            div.className = `bg-white rounded-xl shadow-sm border border-gray-100 mb-3 relative group hover:shadow-md transition-all p-4 ${borderColorClass}`;
 
             let actions = '';
             if(isActive || isUpcoming) {
                 actions = `
-                    <div class="flex gap-2">
-                        ${isActive ? `<button onclick="window.markReturned('${item.id}')" class="h-9 px-3 rounded-lg bg-indigo-50 text-indigo-600 font-bold text-xs hover:bg-indigo-100 transition border border-indigo-100">Return</button>` : ''}
-                        <button onclick="window.deleteMemo('${item.id}')" class="h-9 w-9 rounded-lg bg-gray-50 text-gray-400 hover:text-red-500 hover:bg-red-50 transition border border-gray-100 flex items-center justify-center"><i class="fas fa-trash"></i></button>
+                    <div class="flex gap-1 ml-2">
+                        ${isActive ? `<button onclick="window.markReturned('${item.id}')" class="h-7 px-2 rounded-md bg-indigo-50 text-indigo-600 font-bold text-[10px] hover:bg-indigo-100 transition border border-indigo-100 uppercase">Return</button>` : ''}
+                        <button onclick="window.deleteMemo('${item.id}')" class="h-7 w-7 rounded-md bg-gray-50 text-gray-400 hover:text-red-500 hover:bg-red-50 transition border border-gray-100 flex items-center justify-center"><i class="fas fa-trash text-xs"></i></button>
                     </div>`;
             } else {
-                actions = `<button onclick="window.deleteMemo('${item.id}')" class="h-9 w-9 rounded-lg bg-gray-50 text-gray-400 hover:text-red-500 hover:bg-red-50 transition border border-gray-100 flex items-center justify-center"><i class="fas fa-trash"></i></button>`;
+                actions = `<button onclick="window.deleteMemo('${item.id}')" class="h-7 w-7 rounded-md bg-gray-50 text-gray-400 hover:text-red-500 hover:bg-red-50 transition border border-gray-100 flex items-center justify-center ml-2"><i class="fas fa-trash text-xs"></i></button>`;
             }
 
             div.innerHTML = `
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <h4 class="font-bold text-gray-900 text-xl leading-tight mb-1">${item.carName}</h4>
-                        <div class="flex items-center gap-2">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <h4 class="font-bold text-gray-900 text-base truncate">${item.carName}</h4>
                             ${badge}
-                            ${item.clientName ? `<span class="text-gray-300">|</span> <span class="text-sm text-gray-500 font-medium"><i class="fas fa-user text-gray-400 mr-1"></i>${item.clientName}</span>` : ''}
                         </div>
-                    </div>
-                    ${actions}
-                </div>
+                        
+                        <div class="text-xs text-gray-500 mb-2 flex flex-wrap gap-x-2 gap-y-1">
+                            <span class="font-medium text-gray-700">${formatDate(item.start)} <span class="text-gray-400">${formatTime(item.start)}</span></span>
+                            <i class="fas fa-arrow-right text-gray-300 text-[10px] self-center"></i>
+                            <span class="font-medium text-gray-700">${formatDate(item.end)} <span class="text-gray-400">${formatTime(item.end)}</span></span>
+                        </div>
 
-                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 bg-gray-50 p-4 rounded-xl border border-gray-100 mb-5">
-                    <div class="flex items-center gap-3">
-                        <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                        <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Departure</p>
-                            <p class="text-sm font-bold text-gray-800">${formatDate(item.start)} <span class="text-gray-400 font-normal pl-1">${formatTime(item.start)}</span></p>
+                        <div class="flex flex-wrap gap-2 text-[10px] text-gray-500 font-medium">
+                            ${item.clientName ? `<div class="bg-gray-50 px-2 py-0.5 rounded border border-gray-100"><i class="fas fa-user text-gray-400 mr-1"></i>${item.clientName}</div>` : ''}
+                            ${item.agent ? `<div class="bg-gray-50 px-2 py-0.5 rounded border border-gray-100"><i class="fas fa-user-tie text-gray-400 mr-1"></i>${item.agent}</div>` : ''}
+                            ${item.location ? `<div class="bg-gray-50 px-2 py-0.5 rounded border border-gray-100"><i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>${item.location}</div>` : ''}
+                            ${item.depositAmount ? `<div class="bg-gray-50 px-2 py-0.5 rounded border border-gray-100"><i class="fas fa-wallet text-gray-400 mr-1"></i>${item.depositAmount} DH</div>` : ''}
                         </div>
                     </div>
-                    <div class="hidden sm:block h-8 w-px bg-gray-300"></div> <div class="flex items-center gap-3">
-                        <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                        <div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Return</p>
-                            <p class="text-sm font-bold text-gray-800">${formatDate(item.end)} <span class="text-gray-400 font-normal pl-1">${formatTime(item.end)}</span></p>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pt-2">
-                    <div class="flex flex-wrap gap-4 text-sm text-gray-500 font-medium">
-                        ${item.agent ? `<div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm"><i class="fas fa-user-tie text-gray-400"></i> ${item.agent}</div>` : ''}
-                        ${item.location ? `<div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm"><i class="fas fa-map-marker-alt text-gray-400"></i> ${item.location}</div>` : ''}
-                        ${item.depositAmount ? `<div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-gray-100 shadow-sm text-gray-700"><i class="fas fa-wallet text-gray-400"></i> ${item.depositAmount} DH <span class="text-gray-400 text-xs">(${item.depositMethod})</span></div>` : ''}
-                    </div>
-                    
-                    <div class="text-right">
-                        ${item.price ? `
-                            <div class="text-gray-900 font-bold text-xl leading-none">${totalCost} DH</div>
-                            <div class="text-xs text-gray-400 mt-1 font-medium">${item.price} dh/day × ${diffDays} days</div>
-                        ` : ''}
+                    <div class="flex flex-col items-end">
+                        <div class="text-gray-900 font-bold text-lg leading-none mb-1">${totalCost} <span class="text-xs font-normal text-gray-400">DH</span></div>
+                        ${actions}
                     </div>
                 </div>
             `;
