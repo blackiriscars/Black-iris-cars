@@ -14,13 +14,10 @@ async function checkAndNotify() {
   const currentHour = moroccoNow.getHours();
   const todayStr = moroccoNow.toISOString().split('T')[0];
 
-  // --- LOGIC SWITCH ---
-  // If it is 9:00 AM (Morocco), we send the "Daily Report" (Everything for today).
-  // At any other time, we only send "Urgent Alerts" (Next 90 mins).
+  // Logic: Morning Report at 9 AM (includes 48h lookahead for tasks)
   const isMorningReport = (currentHour === 9); 
 
   console.log(`Time: ${moroccoNow.toISOString().slice(0,16).replace('T', ' ')} (Hour: ${currentHour})`);
-  console.log(`Mode: ${isMorningReport ? "☀️ Morning Report (All Day)" : "⚡ Hourly Alert (Urgent Only)"}`);
   
   let messages = [];
 
@@ -39,14 +36,14 @@ async function checkAndNotify() {
       const startDay = b.start.split('T')[0];
       const endDay = b.end.split('T')[0];
 
-      // Calculate minutes until event
+      // Minutes calculation for Hourly Alert
       const minsUntilStart = (startTime - moroccoNow) / 60000;
       const minsUntilEnd = (endTime - moroccoNow) / 60000;
       
       const timeStart = b.start.split('T')[1].slice(0,5);
       const timeEnd = b.end.split('T')[1].slice(0,5);
 
-      // --- SCENARIO A: MORNING REPORT (Everything Today) ---
+      // --- MORNING REPORT (Today Only for Cars) ---
       if (isMorningReport) {
         if (startDay === todayStr) {
             messages.push(`📅 TODAY DEPARTURE: ${b.carName} at ${timeStart}`);
@@ -56,8 +53,7 @@ async function checkAndNotify() {
         }
       }
 
-      // --- SCENARIO B: URGENT ALERT (Next 90 mins) ---
-      // We check this EVERY hour (even at 9am, so you don't miss a 10am car)
+      // --- HOURLY ALERT (Next 90 mins) ---
       if (minsUntilStart > 0 && minsUntilStart <= 90) {
         messages.push(`🚀 GOING OUT SOON: ${b.carName} at ${timeStart}`);
       }
@@ -67,25 +63,30 @@ async function checkAndNotify() {
     });
 
     // ==========================================
-    // 2. CHECK TASKS
+    // 2. CHECK TASKS (Maintenance)
     // ==========================================
     const servicesSnap = await db.collection('service_memos').where('status', '!=', 'done').get();
+    const twoDaysInMs = 2 * 24 * 60 * 60 * 1000; // 48 Hours
     
     servicesSnap.forEach(doc => {
       const s = doc.data();
       if (!s.dueDate) return;
 
       const dueTime = new Date(s.dueDate);
-      const dueDay = s.dueDate.split('T')[0];
-      const minsUntilDue = (dueTime - moroccoNow) / 60000;
+      const diff = dueTime - moroccoNow;
       const timeStr = s.dueDate.split('T')[1].slice(0,5);
+      const dateStr = s.dueDate.split('T')[0];
 
-      // Morning Report
-      if (isMorningReport && dueDay === todayStr) {
-         messages.push(`📅 TODAY TASK: ${s.description} at ${timeStr}`);
+      // --- MORNING REPORT (48 Hours Lookahead) ---
+      // This matches your Admin Panel logic exactly.
+      // If due anytime in the next 48 hours, list it in the morning report.
+      if (isMorningReport && diff > 0 && diff <= twoDaysInMs) {
+         messages.push(`🛠️ MAINTENANCE DUE (${dateStr}): ${s.description}`);
       }
 
-      // Urgent Alert
+      // --- HOURLY ALERT (Next 90 mins) ---
+      // If the specific time is approaching (e.g. you set it for 14:00)
+      const minsUntilDue = diff / 60000;
       if (minsUntilDue > 0 && minsUntilDue <= 90) {
          messages.push(`⚠️ TASK DUE SOON: ${s.description} at ${timeStr}`);
       }
@@ -94,7 +95,6 @@ async function checkAndNotify() {
     // ==========================================
     // 3. SEND NOTIFICATIONS
     // ==========================================
-    // Filter duplicates (In case a car is due at 10am, it might trigger both Morning + Urgent)
     const uniqueMessages = [...new Set(messages)];
 
     if (uniqueMessages.length > 0) {
@@ -103,7 +103,7 @@ async function checkAndNotify() {
         await fetch(`https://ntfy.sh/${NOTIFY_TOPIC}`, {
           method: 'POST',
           body: msg,
-          headers: { 'Title': isMorningReport ? 'Black Iris Daily Plan' : 'Black Iris Alert', 'Priority': 'high', 'Tags': 'car' }
+          headers: { 'Title': isMorningReport ? 'Black Iris Morning Report' : 'Black Iris Alert', 'Priority': 'high', 'Tags': 'car' }
         });
       }
     } else {
