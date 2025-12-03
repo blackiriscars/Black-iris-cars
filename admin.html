@@ -1022,7 +1022,7 @@
             }
         }
 
-        // REDESIGNED COMPACT BOOKING CARD
+        // REDESIGNED BOOKING CARD
         document.getElementById('bookingSearch').addEventListener('input', (e) => {
             renderBookings();
         });
@@ -1185,45 +1185,64 @@
             };
 
             const div = document.createElement('div');
-            // COMPACT CARD DESIGN - Reduced padding, removed large inner boxes
+            // CLEAN CARD DESIGN: Not too big, not too small
             div.className = `bg-white rounded-xl shadow-sm border border-gray-100 mb-3 relative group hover:shadow-md transition-all p-4 ${borderColorClass}`;
 
             let actions = '';
             if(isActive || isUpcoming) {
                 actions = `
-                    <div class="flex gap-1 ml-2">
-                        ${isActive ? `<button onclick="window.markReturned('${item.id}')" class="h-7 px-2 rounded-md bg-indigo-50 text-indigo-600 font-bold text-[10px] hover:bg-indigo-100 transition border border-indigo-100 uppercase">Return</button>` : ''}
-                        <button onclick="window.deleteMemo('${item.id}')" class="h-7 w-7 rounded-md bg-gray-50 text-gray-400 hover:text-red-500 hover:bg-red-50 transition border border-gray-100 flex items-center justify-center"><i class="fas fa-trash text-xs"></i></button>
+                    <div class="flex gap-2">
+                        ${isActive ? `<button onclick="window.markReturned('${item.id}')" class="h-8 px-2 rounded-md bg-indigo-50 text-indigo-600 font-bold text-[10px] hover:bg-indigo-100 transition border border-indigo-100 uppercase">Return</button>` : ''}
+                        <button onclick="window.deleteMemo('${item.id}')" class="h-8 w-8 rounded-md bg-gray-50 text-gray-400 hover:text-red-500 hover:bg-red-50 transition border border-gray-100 flex items-center justify-center"><i class="fas fa-trash text-xs"></i></button>
                     </div>`;
             } else {
-                actions = `<button onclick="window.deleteMemo('${item.id}')" class="h-7 w-7 rounded-md bg-gray-50 text-gray-400 hover:text-red-500 hover:bg-red-50 transition border border-gray-100 flex items-center justify-center ml-2"><i class="fas fa-trash text-xs"></i></button>`;
+                actions = `<button onclick="window.deleteMemo('${item.id}')" class="h-8 w-8 rounded-md bg-gray-50 text-gray-400 hover:text-red-500 hover:bg-red-50 transition border border-gray-100 flex items-center justify-center"><i class="fas fa-trash text-xs"></i></button>`;
             }
 
             div.innerHTML = `
-                <div class="flex justify-between items-start">
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1">
-                            <h4 class="font-bold text-gray-900 text-base truncate">${item.carName}</h4>
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-lg leading-tight">${item.carName}</h4>
+                        <div class="flex items-center gap-2 mt-1">
                             ${badge}
-                        </div>
-                        
-                        <div class="text-xs text-gray-500 mb-2 flex flex-wrap gap-x-2 gap-y-1">
-                            <span class="font-medium text-gray-700">${formatDate(item.start)} <span class="text-gray-400">${formatTime(item.start)}</span></span>
-                            <i class="fas fa-arrow-right text-gray-300 text-[10px] self-center"></i>
-                            <span class="font-medium text-gray-700">${formatDate(item.end)} <span class="text-gray-400">${formatTime(item.end)}</span></span>
-                        </div>
-
-                        <div class="flex flex-wrap gap-2 text-[10px] text-gray-500 font-medium">
-                            ${item.clientName ? `<div class="bg-gray-50 px-2 py-0.5 rounded border border-gray-100"><i class="fas fa-user text-gray-400 mr-1"></i>${item.clientName}</div>` : ''}
-                            ${item.agent ? `<div class="bg-gray-50 px-2 py-0.5 rounded border border-gray-100"><i class="fas fa-user-tie text-gray-400 mr-1"></i>${item.agent}</div>` : ''}
-                            ${item.location ? `<div class="bg-gray-50 px-2 py-0.5 rounded border border-gray-100"><i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>${item.location}</div>` : ''}
-                            ${item.depositAmount ? `<div class="bg-gray-50 px-2 py-0.5 rounded border border-gray-100"><i class="fas fa-wallet text-gray-400 mr-1"></i>${item.depositAmount} DH</div>` : ''}
+                            ${item.clientName ? `<span class="text-sm text-gray-500 font-medium"><i class="fas fa-user text-gray-400 mr-1"></i>${item.clientName}</span>` : ''}
                         </div>
                     </div>
+                    ${actions}
+                </div>
 
-                    <div class="flex flex-col items-end">
-                        <div class="text-gray-900 font-bold text-lg leading-none mb-1">${totalCost} <span class="text-xs font-normal text-gray-400">DH</span></div>
-                        ${actions}
+                <div class="flex items-center gap-4 text-sm mb-4 border-b border-gray-50 pb-2">
+                    <div class="flex items-center gap-2 text-blue-700">
+                        <i class="fas fa-arrow-circle-right text-blue-500"></i>
+                        <div>
+                            <span class="text-xs font-bold uppercase text-blue-400 block leading-none mb-0.5">Out</span>
+                            <span class="font-bold">${formatDate(item.start)}</span> <span class="text-blue-400 text-xs">${formatTime(item.start)}</span>
+                        </div>
+                    </div>
+                    <div class="h-6 w-px bg-gray-200"></div>
+                    <div class="flex items-center gap-2 text-red-700">
+                        <i class="fas fa-arrow-circle-left text-red-500"></i>
+                        <div>
+                            <span class="text-xs font-bold uppercase text-red-400 block leading-none mb-0.5">In</span>
+                            <span class="font-bold">${formatDate(item.end)}</span> <span class="text-red-400 text-xs">${formatTime(item.end)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-end justify-between">
+                    <div class="flex flex-col gap-1.5">
+                        <div class="flex flex-wrap gap-2 text-[10px]">
+                            ${item.agent ? `<div class="bg-gray-50 px-2 py-1 rounded border border-gray-100 text-gray-600 font-medium"><i class="fas fa-user-tie text-gray-400 mr-1"></i>${item.agent}</div>` : ''}
+                            ${item.location ? `<div class="bg-gray-50 px-2 py-1 rounded border border-gray-100 text-gray-500"><i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>${item.location}</div>` : ''}
+                        </div>
+                         ${item.depositAmount ? `<div class="text-[10px] text-gray-400 ml-1"><i class="fas fa-shield-alt text-gray-300 mr-1"></i>Deposit: ${item.depositAmount} DH (${item.depositMethod})</div>` : ''}
+                    </div>
+
+                    <div class="text-right">
+                        ${item.price ? `
+                            <div class="text-gray-900 font-bold text-xl leading-none">${totalCost} <span class="text-sm font-normal text-gray-400">DH</span></div>
+                            <div class="text-[10px] text-gray-400 mt-1 font-medium bg-gray-50 px-1.5 py-0.5 rounded inline-block">${item.price} × ${diffDays} days</div>
+                        ` : ''}
                     </div>
                 </div>
             `;
