@@ -1,0 +1,27 @@
+name: Daily Fleet Notification
+
+on:
+  schedule:
+    # Runs at 08:00 UTC (Which is 09:00 AM Morocco Time)
+    - cron: '0 8 * * *'
+  workflow_dispatch: 
+
+jobs:
+  run-daily-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install Tools
+        run: npm install
+
+      - name: Run Script
+        env:
+          FIREBASE_KEY: ${{ secrets.FIREBASE_KEY }}
+        run: node daily-check.js
