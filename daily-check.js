@@ -14,10 +14,10 @@ async function checkAndNotify() {
   const currentHour = moroccoNow.getHours();
   const todayStr = moroccoNow.toISOString().split('T')[0];
 
-  // Logic: Morning Report at 9 AM (includes 48h lookahead for tasks)
+  // Morning Report only at 9 AM
   const isMorningReport = (currentHour === 9); 
 
-  console.log(`Time: ${moroccoNow.toISOString().slice(0,16).replace('T', ' ')} (Hour: ${currentHour})`);
+  console.log(`Time: ${moroccoNow.toISOString().slice(0,16).replace('T', ' ')}`);
   
   let messages = [];
 
@@ -36,37 +36,35 @@ async function checkAndNotify() {
       const startDay = b.start.split('T')[0];
       const endDay = b.end.split('T')[0];
 
-      // Minutes calculation for Hourly Alert
       const minsUntilStart = (startTime - moroccoNow) / 60000;
       const minsUntilEnd = (endTime - moroccoNow) / 60000;
       
       const timeStart = b.start.split('T')[1].slice(0,5);
       const timeEnd = b.end.split('T')[1].slice(0,5);
 
-      // --- MORNING REPORT (Today Only for Cars) ---
+      // MORNING REPORT
       if (isMorningReport) {
-        if (startDay === todayStr) {
-            messages.push(`📅 TODAY DEPARTURE: ${b.carName} at ${timeStart}`);
-        }
-        if (endDay === todayStr) {
-            messages.push(`📅 TODAY RETURN: ${b.carName} at ${timeEnd}`);
-        }
+        if (startDay === todayStr) messages.push(`📅 TODAY DEPARTURE: ${b.carName} at ${timeStart}`);
+        if (endDay === todayStr) messages.push(`📅 TODAY RETURN: ${b.carName} at ${timeEnd}`);
       }
 
-      // --- HOURLY ALERT (Next 90 mins) ---
-      if (minsUntilStart > 0 && minsUntilStart <= 90) {
-        messages.push(`🚀 GOING OUT SOON: ${b.carName} at ${timeStart}`);
+      // URGENT ALERT (Window: -40 to +50)
+      // This guarantees roughly 2-3 alerts per event, but NEVER zero.
+      if (minsUntilStart > -40 && minsUntilStart <= 50) {
+        const prefix = minsUntilStart < 0 ? "🚨 HAPPENING NOW" : "🚀 GOING OUT SOON";
+        messages.push(`${prefix}: ${b.carName} at ${timeStart}`);
       }
-      if (minsUntilEnd > 0 && minsUntilEnd <= 90) {
-        messages.push(`🏁 DUE BACK SOON: ${b.carName} at ${timeEnd}`);
+      if (minsUntilEnd > -40 && minsUntilEnd <= 50) {
+        const prefix = minsUntilEnd < 0 ? "🚨 OVERDUE / NOW" : "🏁 DUE BACK SOON";
+        messages.push(`${prefix}: ${b.carName} at ${timeEnd}`);
       }
     });
 
     // ==========================================
-    // 2. CHECK TASKS (Maintenance)
+    // 2. CHECK TASKS
     // ==========================================
     const servicesSnap = await db.collection('service_memos').where('status', '!=', 'done').get();
-    const twoDaysInMs = 2 * 24 * 60 * 60 * 1000; // 48 Hours
+    const twoDaysInMs = 2 * 24 * 60 * 60 * 1000;
     
     servicesSnap.forEach(doc => {
       const s = doc.data();
@@ -74,21 +72,20 @@ async function checkAndNotify() {
 
       const dueTime = new Date(s.dueDate);
       const diff = dueTime - moroccoNow;
+      const minsUntilDue = diff / 60000;
+      
       const timeStr = s.dueDate.split('T')[1].slice(0,5);
       const dateStr = s.dueDate.split('T')[0];
 
-      // --- MORNING REPORT (48 Hours Lookahead) ---
-      // This matches your Admin Panel logic exactly.
-      // If due anytime in the next 48 hours, list it in the morning report.
+      // MORNING REPORT
       if (isMorningReport && diff > 0 && diff <= twoDaysInMs) {
          messages.push(`🛠️ MAINTENANCE DUE (${dateStr}): ${s.description}`);
       }
 
-      // --- HOURLY ALERT (Next 90 mins) ---
-      // If the specific time is approaching (e.g. you set it for 14:00)
-      const minsUntilDue = diff / 60000;
-      if (minsUntilDue > 0 && minsUntilDue <= 90) {
-         messages.push(`⚠️ TASK DUE SOON: ${s.description} at ${timeStr}`);
+      // URGENT ALERT (Window: -40 to +50)
+      if (minsUntilDue > -40 && minsUntilDue <= 50) {
+         const prefix = minsUntilDue < 0 ? "🚨 TASK OVERDUE / NOW" : "⚠️ TASK DUE SOON";
+         messages.push(`${prefix}: ${s.description} at ${timeStr}`);
       }
     });
 
@@ -103,7 +100,7 @@ async function checkAndNotify() {
         await fetch(`https://ntfy.sh/${NOTIFY_TOPIC}`, {
           method: 'POST',
           body: msg,
-          headers: { 'Title': isMorningReport ? 'Black Iris Morning Report' : 'Black Iris Alert', 'Priority': 'high', 'Tags': 'car' }
+          headers: { 'Title': isMorningReport ? 'Black Iris Daily' : 'Black Iris Alert', 'Priority': 'high', 'Tags': 'car' }
         });
       }
     } else {
