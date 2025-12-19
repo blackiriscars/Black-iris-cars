@@ -36,26 +36,42 @@
             min-height: 3rem; 
         }
 
-        /* PRINT STYLES FOR PDF REPORT */
+        /* CLEAN PDF PRINT STYLES */
         @media print {
-            #sidebar, header, #view-dashboard, #view-fleet, #view-add-car, #view-service, #view-bookings, #finance-controls, .no-print {
+            /* Hide everything unrelated */
+            #sidebar, header, #view-dashboard, #view-fleet, #view-add-car, #view-service, #view-bookings, #finance-controls, #mobileOverlay, .no-print {
                 display: none !important;
             }
+            
+            /* Show only finance view */
             #view-finance {
                 display: block !important;
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                background: white;
-                padding: 0;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 20px !important;
+                background: white !important;
+                z-index: 9999;
             }
+
             #finance-report-container {
                 box-shadow: none !important;
                 border: none !important;
+                padding: 0 !important;
             }
-            body, main { overflow: visible !important; height: auto !important; background: white !important; }
-            .print-header { display: block !important; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 20px; }
+
+            /* Improve table legibility for print */
+            table { width: 100% !important; border-collapse: collapse !important; }
+            th, td { border-bottom: 1px solid #ddd !important; padding: 8px 4px !important; font-size: 12px !important; }
+            
+            /* Show the specific print header */
+            .print-header { display: block !important; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+            
+            /* Hide scrollbars */
+            body { overflow: visible !important; }
         }
         .print-header { display: none; }
     </style>
@@ -407,7 +423,7 @@
                 </button>
                 
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4 no-print" id="finance-controls">
-                    <h2 class="text-2xl font-bold text-gray-800">Financial Statement</h2>
+                    <h2 class="text-2xl font-bold text-gray-800">Financial Reports</h2>
                     <div class="flex flex-wrap gap-2">
                          <select id="financePeriod" onchange="renderFinanceDashboard()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white font-medium text-sm h-10 shadow-sm">
                             <option value="this_month">This Month</option>
@@ -420,16 +436,16 @@
                              <option value="active">Active Only</option>
                              <option value="past">History Only</option>
                          </select>
-                         <button onclick="window.print()" class="px-4 py-2 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 transition flex items-center gap-2 shadow-sm h-10"><i class="fas fa-print"></i> Save PDF</button>
+                         <button onclick="window.print()" class="px-4 py-2 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 transition flex items-center gap-2 shadow-sm h-10"><i class="fas fa-file-pdf"></i> Generate Report</button>
                     </div>
                 </div>
 
-                <div id="finance-report-container" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 min-h-[600px]">
+                <div id="finance-report-container" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8 min-h-[600px]">
                     
                     <div class="print-header hidden">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Financial Statement</h1>
+                                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Financial Report</h1>
                                 <p class="text-gray-500 font-medium mt-1">Black Iris Fleet Admin</p>
                             </div>
                             <div class="text-right">
@@ -439,43 +455,18 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8 border-b border-gray-100 pb-8">
+                    <div class="grid grid-cols-3 gap-6 mb-8 border-b border-gray-100 pb-8">
                         <div>
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Revenue</p>
-                            <h3 class="text-2xl md:text-3xl font-bold text-gray-900" id="fin-total-revenue">0 <span class="text-sm font-normal text-gray-400">DH</span></h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Expected</p>
+                            <h3 class="text-2xl md:text-4xl font-bold text-gray-900" id="fin-total-revenue">0</h3>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Cash Collected</p>
-                            <h3 class="text-2xl md:text-3xl font-bold text-green-600" id="fin-total-received">0 <span class="text-sm font-normal text-gray-400">DH</span></h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Cash Received</p>
+                            <h3 class="text-2xl md:text-4xl font-bold text-green-600" id="fin-total-received">0</h3>
                         </div>
                         <div>
                             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Balance Due</p>
-                            <h3 class="text-2xl md:text-3xl font-bold text-orange-600" id="fin-total-rest">0 <span class="text-sm font-normal text-gray-400">DH</span></h3>
-                        </div>
-                        <div class="border-l border-gray-100 pl-6">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Deposits Held</p>
-                            <h3 class="text-2xl md:text-3xl font-bold text-gray-700" id="fin-total-deposits">0 <span class="text-sm font-normal text-gray-400">DH</span></h3>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col md:flex-row gap-8 mb-8">
-                        <div class="flex-1 bg-gray-50 rounded-lg p-4 border border-gray-100">
-                             <h4 class="text-xs font-bold text-gray-500 uppercase mb-3">Collection Progress</h4>
-                             <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
-                                <div id="fin-progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
-                             </div>
-                             <div class="flex justify-between text-xs font-medium text-gray-500">
-                                <span id="fin-progress-text">0% Collected</span>
-                                <span>Target: 100%</span>
-                             </div>
-                        </div>
-                        <div class="flex-1 bg-gray-50 rounded-lg p-4 border border-gray-100">
-                            <h4 class="text-xs font-bold text-gray-500 uppercase mb-3">Payment Breakdown (Collected)</h4>
-                            <div class="flex justify-between items-center text-sm font-medium">
-                                <div><span class="w-2 h-2 rounded-full bg-green-500 inline-block mr-1"></span> Cash: <span id="fin-cash" class="font-bold">0</span></div>
-                                <div><span class="w-2 h-2 rounded-full bg-blue-500 inline-block mr-1"></span> Transfer: <span id="fin-transfer" class="font-bold">0</span></div>
-                                <div><span class="w-2 h-2 rounded-full bg-purple-500 inline-block mr-1"></span> Other: <span id="fin-other" class="font-bold">0</span></div>
-                            </div>
+                            <h3 class="text-2xl md:text-4xl font-bold text-orange-600" id="fin-total-rest">0</h3>
                         </div>
                     </div>
 
@@ -486,7 +477,7 @@
                                     <th class="py-4 px-2">Date</th>
                                     <th class="py-4 px-2">Description</th>
                                     <th class="py-4 px-2">Agent</th>
-                                    <th class="py-4 px-2">Rate / Days</th>
+                                    <th class="py-4 px-2">Calculation</th>
                                     <th class="py-4 px-2 text-right">Total</th>
                                     <th class="py-4 px-2 text-right">Received</th>
                                     <th class="py-4 px-2 text-right">Balance</th>
@@ -1146,7 +1137,7 @@
             }
         }
 
-        // --- REVISED FINANCE DASHBOARD LOGIC (DETAILED) ---
+        // --- REVISED FINANCE DASHBOARD LOGIC (CLEAN) ---
         window.renderFinanceDashboard = function() {
             const period = document.getElementById('financePeriod').value;
             const statusFilter = document.getElementById('financeStatus').value;
@@ -1180,11 +1171,7 @@
 
             let totalRev = 0;
             let totalRec = 0;
-            let totalDeposits = 0;
             
-            // Payment Breakdown
-            let payMethods = { Cash: 0, Card: 0, Transfer: 0, Other: 0 };
-
             filtered.forEach(item => {
                 const startD = new Date(item.start);
                 const endD = new Date(item.end);
@@ -1197,18 +1184,7 @@
                 const receivedVal = Number(item.amountReceived) || 0;
                 const restVal = totalVal - receivedVal;
                 
-                // Active Deposits Only (if booking is not returned)
-                if(!item.returned) {
-                    totalDeposits += Number(item.depositAmount) || 0;
-                }
-
-                // Payment Method logic (assuming received amount uses Deposit Method if not specified separately, or we treat it generally)
-                // Since we don't have separate "payment method" for revenue, we approximate using the Deposit Method or default to Cash
-                // Realistically, you might want to add a specific field for this, but I'll use deposit method as proxy for now or default
-                // For better detail, I will use 'Cash' as default unless deposit method says otherwise
-                const method = item.depositMethod || 'Cash';
-                if(payMethods[method] !== undefined) payMethods[method] += receivedVal;
-                else payMethods['Other'] += receivedVal;
+                // NOTE: We do NOT count deposit here as requested
 
                 totalRev += totalVal;
                 totalRec += receivedVal;
@@ -1234,17 +1210,6 @@
             document.getElementById('fin-total-revenue').innerHTML = totalRev.toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
             document.getElementById('fin-total-received').innerHTML = totalRec.toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
             document.getElementById('fin-total-rest').innerHTML = (totalRev - totalRec).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
-            document.getElementById('fin-total-deposits').innerHTML = totalDeposits.toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
-
-            // Update Progress Bar
-            const percent = totalRev > 0 ? Math.round((totalRec / totalRev) * 100) : 0;
-            document.getElementById('fin-progress-bar').style.width = `${percent}%`;
-            document.getElementById('fin-progress-text').innerText = `${percent}% Collected`;
-
-            // Update Payment Breakdown
-            document.getElementById('fin-cash').innerText = payMethods.Cash.toLocaleString();
-            document.getElementById('fin-transfer').innerText = payMethods.Transfer.toLocaleString();
-            document.getElementById('fin-other').innerText = (payMethods.Card + payMethods.Other + payMethods.Cheque).toLocaleString();
         }
 
         // --- BOOKING LOGIC ---
