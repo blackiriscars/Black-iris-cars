@@ -36,42 +36,33 @@
             min-height: 3rem; 
         }
 
-        /* CLEAN PDF PRINT STYLES */
+        /* STRICT PDF PRINT STYLES */
         @media print {
-            /* Hide everything unrelated */
             #sidebar, header, #view-dashboard, #view-fleet, #view-add-car, #view-service, #view-bookings, #finance-controls, #mobileOverlay, .no-print {
                 display: none !important;
             }
-            
-            /* Show only finance view */
             #view-finance {
                 display: block !important;
                 position: absolute !important;
                 top: 0 !important;
                 left: 0 !important;
                 width: 100% !important;
-                height: auto !important;
-                margin: 0 !important;
-                padding: 20px !important;
                 background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
                 z-index: 9999;
             }
-
+            /* Force Desktop Table on Print even if on Mobile */
+            #finance-mobile-list { display: none !important; }
+            #finance-desktop-table { display: table !important; width: 100% !important; }
+            
             #finance-report-container {
                 box-shadow: none !important;
                 border: none !important;
                 padding: 0 !important;
             }
-
-            /* Improve table legibility for print */
-            table { width: 100% !important; border-collapse: collapse !important; }
-            th, td { border-bottom: 1px solid #ddd !important; padding: 8px 4px !important; font-size: 12px !important; }
-            
-            /* Show the specific print header */
-            .print-header { display: block !important; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-            
-            /* Hide scrollbars */
-            body { overflow: visible !important; }
+            .print-header { display: block !important; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px; }
+            body { background: white !important; color: black !important; }
         }
         .print-header { display: none; }
     </style>
@@ -142,7 +133,7 @@
                 </li>
                 <li>
                     <button type="button" onclick="switchTab('finance')" id="nav-finance" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer">
-                        <i class="fas fa-file-invoice-dollar w-5 text-center"></i><span class="font-medium">Finance Reports</span>
+                        <i class="fas fa-wallet w-5 text-center"></i><span class="font-medium">Finance Reports</span>
                     </button>
                 </li>
             </ul>
@@ -424,23 +415,23 @@
                 
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4 no-print" id="finance-controls">
                     <h2 class="text-2xl font-bold text-gray-800">Financial Reports</h2>
-                    <div class="flex flex-wrap gap-2">
-                         <select id="financePeriod" onchange="renderFinanceDashboard()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white font-medium text-sm h-10 shadow-sm">
+                    <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+                         <select id="financePeriod" onchange="renderFinanceDashboard()" class="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white font-medium text-sm h-10 shadow-sm">
                             <option value="this_month">This Month</option>
                             <option value="last_month">Last Month</option>
                             <option value="this_year">This Year</option>
                             <option value="all">All Time</option>
                          </select>
-                         <select id="financeStatus" onchange="renderFinanceDashboard()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white font-medium text-sm h-10 shadow-sm">
+                         <select id="financeStatus" onchange="renderFinanceDashboard()" class="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white font-medium text-sm h-10 shadow-sm">
                              <option value="all">All Status</option>
                              <option value="active">Active Only</option>
                              <option value="past">History Only</option>
                          </select>
-                         <button onclick="window.print()" class="px-4 py-2 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 transition flex items-center gap-2 shadow-sm h-10"><i class="fas fa-file-pdf"></i> Generate Report</button>
+                         <button onclick="window.print()" class="w-full md:w-auto px-4 py-2 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 transition flex items-center justify-center gap-2 shadow-sm h-10"><i class="fas fa-file-pdf"></i> Save PDF</button>
                     </div>
                 </div>
 
-                <div id="finance-report-container" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8 min-h-[600px]">
+                <div id="finance-report-container" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-8 min-h-[600px]">
                     
                     <div class="print-header hidden">
                         <div class="flex justify-between items-start">
@@ -455,22 +446,22 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-6 mb-8 border-b border-gray-100 pb-8">
-                        <div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 border-b border-gray-100 pb-8">
+                        <div class="bg-gray-50 md:bg-white p-4 md:p-0 rounded-lg">
                             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Expected</p>
-                            <h3 class="text-2xl md:text-4xl font-bold text-gray-900" id="fin-total-revenue">0</h3>
+                            <h3 class="text-3xl md:text-4xl font-bold text-gray-900" id="fin-total-revenue">0</h3>
                         </div>
-                        <div>
+                        <div class="bg-gray-50 md:bg-white p-4 md:p-0 rounded-lg">
                             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Cash Received</p>
-                            <h3 class="text-2xl md:text-4xl font-bold text-green-600" id="fin-total-received">0</h3>
+                            <h3 class="text-3xl md:text-4xl font-bold text-green-600" id="fin-total-received">0</h3>
                         </div>
-                        <div>
+                        <div class="bg-gray-50 md:bg-white p-4 md:p-0 rounded-lg">
                             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Balance Due</p>
-                            <h3 class="text-2xl md:text-4xl font-bold text-orange-600" id="fin-total-rest">0</h3>
+                            <h3 class="text-3xl md:text-4xl font-bold text-orange-600" id="fin-total-rest">0</h3>
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto">
+                    <div class="hidden md:block overflow-x-auto" id="finance-desktop-table">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="border-b-2 border-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wider">
@@ -487,6 +478,10 @@
                                 </tbody>
                         </table>
                     </div>
+
+                    <div class="md:hidden space-y-4" id="finance-mobile-list">
+                        </div>
+
                 </div>
                 <div class="h-20"></div>
             </div>
@@ -1142,9 +1137,11 @@
             const period = document.getElementById('financePeriod').value;
             const statusFilter = document.getElementById('financeStatus').value;
             const tableBody = document.getElementById('finance-table-body');
+            const mobileList = document.getElementById('finance-mobile-list');
             const now = new Date();
             
             tableBody.innerHTML = '';
+            mobileList.innerHTML = '';
             
             // Filter Data
             let filtered = allBookings.filter(b => {
@@ -1184,11 +1181,10 @@
                 const receivedVal = Number(item.amountReceived) || 0;
                 const restVal = totalVal - receivedVal;
                 
-                // NOTE: We do NOT count deposit here as requested
-
                 totalRev += totalVal;
                 totalRec += receivedVal;
                 
+                // DESKTOP ROW
                 const tr = document.createElement('tr');
                 tr.className = "border-b border-gray-50 hover:bg-gray-50 transition-colors";
                 tr.innerHTML = `
@@ -1204,6 +1200,33 @@
                     <td class="py-4 px-2 text-right ${restVal > 0 ? 'text-orange-600 font-bold' : 'text-gray-300'}">${restVal > 0 ? restVal.toLocaleString() : '0'}</td>
                 `;
                 tableBody.appendChild(tr);
+
+                // MOBILE CARD
+                const card = document.createElement('div');
+                card.className = "bg-gray-50 p-4 rounded-lg border border-gray-200";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs font-bold text-gray-400">${startD.toLocaleDateString()}</span>
+                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">${diffDays} Days</span>
+                    </div>
+                    <h4 class="font-bold text-gray-900">${item.carName}</h4>
+                    <p class="text-sm text-gray-500 mb-3">${item.clientName || 'Unknown'}</p>
+                    <div class="grid grid-cols-3 gap-2 border-t border-gray-200 pt-2">
+                        <div>
+                            <p class="text-[10px] text-gray-400 uppercase">Total</p>
+                            <p class="font-bold text-gray-800 text-sm">${totalVal.toLocaleString()}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-gray-400 uppercase">Paid</p>
+                            <p class="font-bold text-green-600 text-sm">${receivedVal.toLocaleString()}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-gray-400 uppercase">Rest</p>
+                            <p class="font-bold ${restVal > 0 ? 'text-orange-600' : 'text-gray-400'} text-sm">${restVal.toLocaleString()}</p>
+                        </div>
+                    </div>
+                `;
+                mobileList.appendChild(card);
             });
             
             // Update Top Cards
