@@ -1158,10 +1158,45 @@
         function renderList(elementId, list, type) {
             const el = document.getElementById(elementId);
             el.innerHTML = '';
+            
             if(list.length === 0) {
                 el.innerHTML = `<div class="text-center py-10 border-2 border-dashed border-gray-100 rounded-2xl text-gray-400">No ${type} bookings found.</div>`;
                 return;
             }
+
+            // --- START CHANGE: Calculate Total ---
+            let totalRevenue = 0;
+            list.forEach(item => {
+                if(item.price && item.start && item.end) {
+                    const price = Number(item.price);
+                    const startD = new Date(item.start);
+                    const endD = new Date(item.end);
+                    const diffTime = Math.abs(endD - startD);
+                    let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if(diffDays < 1) diffDays = 1;
+                    totalRevenue += (price * diffDays);
+                }
+            });
+
+            // Create Summary Card
+            const summaryDiv = document.createElement('div');
+            // different styling based on type
+            const bgClass = type === 'active' ? 'bg-indigo-50 border-indigo-200 text-indigo-800' : 'bg-blue-50 border-blue-200 text-blue-800';
+            const title = type === 'active' ? 'Total Active Value' : 'Total Upcoming Value';
+            
+            summaryDiv.className = `${bgClass} border rounded-xl p-4 mb-4 flex justify-between items-center shadow-sm`;
+            summaryDiv.innerHTML = `
+                <div>
+                    <h4 class="font-bold text-sm uppercase opacity-70">${title}</h4>
+                    <p class="text-xs font-medium opacity-70">${list.length} bookings</p>
+                </div>
+                <div class="text-2xl font-bold">
+                    ${totalRevenue.toLocaleString()} <span class="text-sm font-normal">DH</span>
+                </div>
+            `;
+            el.appendChild(summaryDiv);
+            // --- END CHANGE ---
+
             list.forEach(item => el.appendChild(createBookingCard(item, type)));
         }
 
