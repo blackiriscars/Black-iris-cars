@@ -30,7 +30,7 @@
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
 
         /* Force consistent look for inputs */
-        input[type="datetime-local"], select {
+        input[type="datetime-local"], input[type="date"], select {
             appearance: none;
             -webkit-appearance: none;
             min-height: 3rem; 
@@ -52,17 +52,18 @@
                 margin: 0 !important;
                 z-index: 9999;
             }
-            /* Force Desktop Table on Print even if on Mobile */
-            #finance-mobile-list { display: none !important; }
-            #finance-desktop-table { display: table !important; width: 100% !important; }
             
             #finance-report-container {
                 box-shadow: none !important;
                 border: none !important;
                 padding: 0 !important;
             }
+            
+            /* Print Table Styles */
+            table { width: 100% !important; border-collapse: collapse !important; font-size: 11px !important; }
+            th, td { border-bottom: 1px solid #ddd !important; padding: 4px !important; }
             .print-header { display: block !important; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px; }
-            body { background: white !important; color: black !important; }
+            body { background: white !important; color: black !important; overflow: visible !important; }
         }
         .print-header { display: none; }
     </style>
@@ -413,25 +414,31 @@
                     <i class="fas fa-arrow-left"></i> Back to Dashboard
                 </button>
                 
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4 no-print" id="finance-controls">
+                <div class="flex flex-col gap-4 no-print" id="finance-controls">
                     <h2 class="text-2xl font-bold text-gray-800">Financial Reports</h2>
-                    <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
-                         <select id="financePeriod" onchange="renderFinanceDashboard()" class="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white font-medium text-sm h-10 shadow-sm">
-                            <option value="this_month">This Month</option>
-                            <option value="last_month">Last Month</option>
-                            <option value="this_year">This Year</option>
-                            <option value="all">All Time</option>
-                         </select>
-                         <select id="financeStatus" onchange="renderFinanceDashboard()" class="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white font-medium text-sm h-10 shadow-sm">
-                             <option value="all">All Status</option>
-                             <option value="active">Active Only</option>
-                             <option value="past">History Only</option>
-                         </select>
-                         <button onclick="window.print()" class="w-full md:w-auto px-4 py-2 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 transition flex items-center justify-center gap-2 shadow-sm h-10"><i class="fas fa-file-pdf"></i> Save PDF</button>
+                    
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row gap-3 items-end md:items-center">
+                         <div class="w-full md:w-auto">
+                             <label class="block text-xs font-bold text-gray-500 mb-1">Status</label>
+                             <select id="financeStatus" onchange="renderFinanceDashboard()" class="w-full md:w-40 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white font-medium text-sm">
+                                 <option value="all">All</option>
+                                 <option value="active">Active</option>
+                                 <option value="past">History</option>
+                             </select>
+                         </div>
+                         <div class="w-full md:w-auto">
+                             <label class="block text-xs font-bold text-gray-500 mb-1">Start Date</label>
+                             <input type="date" id="finStartDate" onchange="renderFinanceDashboard()" class="w-full md:w-40 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                         </div>
+                         <div class="w-full md:w-auto">
+                             <label class="block text-xs font-bold text-gray-500 mb-1">End Date</label>
+                             <input type="date" id="finEndDate" onchange="renderFinanceDashboard()" class="w-full md:w-40 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                         </div>
+                         <button onclick="window.print()" class="w-full md:w-auto px-6 py-2 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 transition flex items-center justify-center gap-2 shadow-sm h-[38px]"><i class="fas fa-file-pdf"></i> Save PDF</button>
                     </div>
                 </div>
 
-                <div id="finance-report-container" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-8 min-h-[600px]">
+                <div id="finance-report-container" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 min-h-[600px]">
                     
                     <div class="print-header hidden">
                         <div class="flex justify-between items-start">
@@ -461,26 +468,22 @@
                         </div>
                     </div>
 
-                    <div class="hidden md:block overflow-x-auto" id="finance-desktop-table">
-                        <table class="w-full text-left border-collapse">
+                    <div class="overflow-x-auto custom-scroll pb-2">
+                        <table class="w-full text-left border-collapse min-w-[600px] md:min-w-0">
                             <thead>
-                                <tr class="border-b-2 border-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    <th class="py-4 px-2">Date</th>
-                                    <th class="py-4 px-2">Description</th>
-                                    <th class="py-4 px-2">Agent</th>
-                                    <th class="py-4 px-2">Calculation</th>
-                                    <th class="py-4 px-2 text-right">Total</th>
-                                    <th class="py-4 px-2 text-right">Received</th>
-                                    <th class="py-4 px-2 text-right">Balance</th>
+                                <tr class="border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wide">
+                                    <th class="py-3 px-2">Date</th>
+                                    <th class="py-3 px-2">Car / Client</th>
+                                    <th class="py-3 px-2">Days</th>
+                                    <th class="py-3 px-2 text-right">Total</th>
+                                    <th class="py-3 px-2 text-right text-green-600">Paid</th>
+                                    <th class="py-3 px-2 text-right text-orange-600">Rest</th>
                                 </tr>
                             </thead>
-                            <tbody id="finance-table-body" class="text-sm text-gray-700 font-medium">
+                            <tbody id="finance-table-body" class="text-sm text-gray-700">
                                 </tbody>
                         </table>
                     </div>
-
-                    <div class="md:hidden space-y-4" id="finance-mobile-list">
-                        </div>
 
                 </div>
                 <div class="h-20"></div>
@@ -534,6 +537,14 @@
             if(titleEl) titleEl.innerText = titles[tabName] || 'Admin Panel';
 
             if(tabName === 'finance') {
+                // Set default dates if empty
+                if(!document.getElementById('finStartDate').value) {
+                    const now = new Date();
+                    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+                    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    document.getElementById('finStartDate').value = firstDay.toISOString().split('T')[0];
+                    document.getElementById('finEndDate').value = lastDay.toISOString().split('T')[0];
+                }
                 renderFinanceDashboard();
             }
         }
@@ -1132,47 +1143,38 @@
             }
         }
 
-        // --- REVISED FINANCE DASHBOARD LOGIC (CLEAN) ---
+        // --- REVISED FINANCE DASHBOARD LOGIC (DATE RANGE) ---
         window.renderFinanceDashboard = function() {
-            const period = document.getElementById('financePeriod').value;
+            const startDateVal = document.getElementById('finStartDate').value;
+            const endDateVal = document.getElementById('finEndDate').value;
             const statusFilter = document.getElementById('financeStatus').value;
             const tableBody = document.getElementById('finance-table-body');
-            const mobileList = document.getElementById('finance-mobile-list');
             const now = new Date();
             
             tableBody.innerHTML = '';
-            mobileList.innerHTML = '';
             
             // Filter Data
             let filtered = allBookings.filter(b => {
                 if (statusFilter === 'active' && (b.returned || new Date(b.end) < now)) return false;
                 if (statusFilter === 'past' && (!b.returned && new Date(b.end) >= now)) return false;
                 
-                const bDate = new Date(b.start);
-                if (period === 'this_month') {
-                    return bDate.getMonth() === now.getMonth() && bDate.getFullYear() === now.getFullYear();
-                }
-                if (period === 'last_month') {
-                    const lastMonth = new Date();
-                    lastMonth.setMonth(now.getMonth() - 1);
-                    return bDate.getMonth() === lastMonth.getMonth() && bDate.getFullYear() === lastMonth.getFullYear();
-                }
-                if (period === 'this_year') {
-                    return bDate.getFullYear() === now.getFullYear();
-                }
-                return true; 
+                const bDate = b.start.split('T')[0]; // Compare using YYYY-MM-DD string
+                return bDate >= startDateVal && bDate <= endDateVal;
             });
             
             filtered.sort((a,b) => new Date(b.start) - new Date(a.start));
-            document.getElementById('print-date-range').innerText = `Report Period: ${period.replace('_', ' ').toUpperCase()} | Generated on ${now.toLocaleDateString()}`;
+            
+            // Format for Print
+            const sDate = new Date(startDateVal).toLocaleDateString();
+            const eDate = new Date(endDateVal).toLocaleDateString();
+            document.getElementById('print-date-range').innerText = `Period: ${sDate} - ${eDate}`;
 
             let totalRev = 0;
             let totalRec = 0;
             
             filtered.forEach(item => {
                 const startD = new Date(item.start);
-                const endD = new Date(item.end);
-                const diffTime = Math.abs(endD - startD);
+                const diffTime = Math.abs(new Date(item.end) - startD);
                 let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 if(diffDays < 1) diffDays = 1;
                 
@@ -1184,52 +1186,22 @@
                 totalRev += totalVal;
                 totalRec += receivedVal;
                 
-                // DESKTOP ROW
                 const tr = document.createElement('tr');
-                tr.className = "border-b border-gray-50 hover:bg-gray-50 transition-colors";
+                tr.className = "border-b border-gray-100 hover:bg-gray-50 transition-colors";
                 tr.innerHTML = `
-                    <td class="py-4 px-2 font-medium text-gray-500">${startD.toLocaleDateString()}</td>
-                    <td class="py-4 px-2">
+                    <td class="py-3 px-2 font-medium text-gray-500 whitespace-nowrap">${startD.toLocaleDateString()}</td>
+                    <td class="py-3 px-2">
                         <div class="font-bold text-gray-900">${item.carName}</div>
-                        <div class="text-xs text-gray-400">${item.clientName || 'Unknown Client'}</div>
+                        <div class="text-xs text-gray-400 truncate max-w-[100px]">${item.clientName || 'Unknown'}</div>
                     </td>
-                    <td class="py-4 px-2 text-xs text-gray-500 font-medium">${item.agent || '-'}</td>
-                    <td class="py-4 px-2 text-xs text-gray-500">${dailyPrice} × ${diffDays}d</td>
-                    <td class="py-4 px-2 text-right font-bold text-gray-900">${totalVal.toLocaleString()}</td>
-                    <td class="py-4 px-2 text-right text-green-600 font-bold">${receivedVal > 0 ? receivedVal.toLocaleString() : '-'}</td>
-                    <td class="py-4 px-2 text-right ${restVal > 0 ? 'text-orange-600 font-bold' : 'text-gray-300'}">${restVal > 0 ? restVal.toLocaleString() : '0'}</td>
+                    <td class="py-3 px-2 text-xs text-gray-500 font-medium whitespace-nowrap">${diffDays}d</td>
+                    <td class="py-3 px-2 text-right font-bold text-gray-900 whitespace-nowrap">${totalVal.toLocaleString()}</td>
+                    <td class="py-3 px-2 text-right text-green-600 font-bold whitespace-nowrap">${receivedVal > 0 ? receivedVal.toLocaleString() : '-'}</td>
+                    <td class="py-3 px-2 text-right ${restVal > 0 ? 'text-orange-600 font-bold' : 'text-gray-300'} whitespace-nowrap">${restVal > 0 ? restVal.toLocaleString() : '0'}</td>
                 `;
                 tableBody.appendChild(tr);
-
-                // MOBILE CARD
-                const card = document.createElement('div');
-                card.className = "bg-gray-50 p-4 rounded-lg border border-gray-200";
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-xs font-bold text-gray-400">${startD.toLocaleDateString()}</span>
-                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">${diffDays} Days</span>
-                    </div>
-                    <h4 class="font-bold text-gray-900">${item.carName}</h4>
-                    <p class="text-sm text-gray-500 mb-3">${item.clientName || 'Unknown'}</p>
-                    <div class="grid grid-cols-3 gap-2 border-t border-gray-200 pt-2">
-                        <div>
-                            <p class="text-[10px] text-gray-400 uppercase">Total</p>
-                            <p class="font-bold text-gray-800 text-sm">${totalVal.toLocaleString()}</p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-gray-400 uppercase">Paid</p>
-                            <p class="font-bold text-green-600 text-sm">${receivedVal.toLocaleString()}</p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-gray-400 uppercase">Rest</p>
-                            <p class="font-bold ${restVal > 0 ? 'text-orange-600' : 'text-gray-400'} text-sm">${restVal.toLocaleString()}</p>
-                        </div>
-                    </div>
-                `;
-                mobileList.appendChild(card);
             });
             
-            // Update Top Cards
             document.getElementById('fin-total-revenue').innerHTML = totalRev.toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
             document.getElementById('fin-total-received').innerHTML = totalRec.toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
             document.getElementById('fin-total-rest').innerHTML = (totalRev - totalRec).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
