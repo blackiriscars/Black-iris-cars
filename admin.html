@@ -38,7 +38,7 @@
 
         /* PRINT STYLES FOR PDF REPORT */
         @media print {
-            #sidebar, header, #view-dashboard, #view-fleet, #view-add-car, #view-service, #view-bookings, .no-print {
+            #sidebar, header, #view-dashboard, #view-fleet, #view-add-car, #view-service, #view-bookings, #finance-controls, .no-print {
                 display: none !important;
             }
             #view-finance {
@@ -47,18 +47,15 @@
                 top: 0;
                 left: 0;
                 width: 100%;
-                margin: 0;
-                padding: 0;
                 background: white;
+                padding: 0;
             }
-            #finance-controls { display: none !important; }
             #finance-report-container {
                 box-shadow: none !important;
                 border: none !important;
-                width: 100% !important;
             }
             body, main { overflow: visible !important; height: auto !important; background: white !important; }
-            .print-header { display: block !important; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; }
+            .print-header { display: block !important; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 20px; }
         }
         .print-header { display: none; }
     </style>
@@ -129,7 +126,7 @@
                 </li>
                 <li>
                     <button type="button" onclick="switchTab('finance')" id="nav-finance" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer">
-                        <i class="fas fa-calculator w-5 text-center"></i><span class="font-medium">Finance & Reports</span>
+                        <i class="fas fa-file-invoice-dollar w-5 text-center"></i><span class="font-medium">Finance Reports</span>
                     </button>
                 </li>
             </ul>
@@ -177,12 +174,10 @@
                 <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2">
                     <i class="fas fa-arrow-left"></i> Back to Dashboard
                 </button>
-
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h2 class="text-2xl font-bold text-gray-800" id="fleetTitle">Fleet Inventory</h2>
                     <div class="relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="searchInput" placeholder="Search cars..." class="w-full md:w-64 pl-10 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none"></div>
                 </div>
-
                 <div id="loading" class="py-12 text-center"><i class="fas fa-spinner fa-spin text-3xl text-indigo-600 mb-2"></i><p class="text-gray-500">Loading fleet...</p></div>
                 <div id="carsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-20"></div>
             </div>
@@ -191,13 +186,11 @@
                 <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2">
                     <i class="fas fa-arrow-left"></i> Back to Dashboard
                 </button>
-
                 <h2 id="formPageTitle" class="text-2xl font-bold text-gray-800">Add New Vehicle</h2>
                 <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
                     <form id="addCarForm" class="p-5 md:p-8 space-y-6">
                         <input type="hidden" id="editCarId">
                         <input type="hidden" id="carOrder" value="999">
-
                         <div><label class="block text-sm font-bold text-gray-700 mb-2">Name of Car</label><input type="text" id="carName" required class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="e.g. BMW X5"></div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-2">Category</label>
@@ -249,18 +242,14 @@
                 <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2">
                     <i class="fas fa-arrow-left"></i> Back to Dashboard
                 </button>
-
                 <h2 class="text-2xl font-bold text-gray-800">Booking Memos</h2>
-                 
                 <div id="notification-center" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 shadow-sm">
                     <h3 class="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2"><i class="fas fa-bell text-amber-600"></i> Today's Alerts</h3>
                     <ul id="notification-list" class="space-y-1 text-sm text-amber-700 font-medium"></ul>
                 </div>
-
                 <div class="bg-indigo-50 text-indigo-700 p-4 rounded-lg text-sm mb-4">
                     <i class="fas fa-info-circle mr-2"></i> Internal memos only.
                 </div>
-                 
                 <form id="bookingMemoForm" class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-200 mb-6 overflow-hidden">
                       <input type="hidden" id="editMemoId">
                       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end min-w-0">
@@ -276,17 +265,14 @@
                             <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return <span class="text-red-500">*</span></label>
                             <input type="datetime-local" id="memoEnd" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
                         </div>
-
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Daily Price (DH) <span class="text-red-500">*</span></label>
                             <input type="number" id="memoPrice" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
                         </div>
-                        
                         <div class="md:col-span-1 min-w-0">
                              <label class="block text-xs font-bold text-green-600 mb-1 uppercase tracking-wide">Amount Received (Advance)</label>
                              <input type="number" id="memoReceived" class="w-full h-12 px-4 bg-gray-50 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
                         </div>
-                        
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Client Name</label>
                             <input type="text" id="memoClient" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="Client Name">
@@ -295,7 +281,6 @@
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Location</label>
                             <input type="text" id="memoLocation" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Airport">
                         </div>
-
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Agent</label>
                             <div class="relative">
@@ -324,7 +309,6 @@
                                 <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
                             </div>
                         </div>
-                         
                         <div class="md:col-span-3 min-w-0 mt-4 flex gap-2">
                             <button type="button" onclick="resetMemoForm()" id="cancelMemoEdit" class="hidden w-1/3 h-12 bg-gray-200 text-gray-600 font-bold rounded-lg hover:bg-gray-300 transition text-sm">Cancel</button>
                             <button type="submit" id="memoSubmitBtn" class="flex-1 h-12 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2 text-sm"><i class="fas fa-plus"></i> Add Booking Memo</button>
@@ -356,14 +340,11 @@
                 <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2">
                     <i class="fas fa-arrow-left"></i> Back to Dashboard
                 </button>
-
                 <h2 class="text-2xl font-bold text-gray-800">Task Manager</h2>
-                 
                 <div id="service-notification-center" class="hidden bg-red-50 border border-red-200 rounded-xl p-4 mb-4 shadow-sm">
                     <h3 class="text-sm font-bold text-red-800 mb-2 flex items-center gap-2"><i class="fas fa-exclamation-triangle text-red-600"></i> Due Soon (48h)</h3>
                     <ul id="service-notification-list" class="space-y-1 text-sm text-red-700 font-medium"></ul>
                 </div>
-
                 <form id="serviceForm" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mb-6">
                     <input type="hidden" id="editingServiceId">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
@@ -387,7 +368,6 @@
                             <label class="block text-xs font-bold text-green-600 mb-1 uppercase tracking-wide">Cost (DH) - Optional</label>
                             <input type="number" id="serviceCost" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-gray-700 font-medium" placeholder="0">
                         </div>
-
                         <div class="md:col-span-1">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Repeat?</label>
                             <div class="relative">
@@ -404,7 +384,6 @@
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Stop after how many times?</label>
                             <input type="number" id="serviceRepeatLimit" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium" placeholder="e.g. 12 (Leave empty for forever)">
                         </div>
-
                         <div class="md:col-span-1">
                             <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Due Date</label>
                             <input type="datetime-local" id="serviceDate" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-gray-700 font-medium" required>
@@ -414,12 +393,10 @@
                         </div>
                     </div>
                 </form>
-
                 <div class="flex space-x-2 mb-4 border-b border-gray-200 overflow-x-auto no-scrollbar">
                     <button onclick="filterService('pending')" id="tab-service-pending" class="service-tab whitespace-nowrap px-6 py-3 border-b-2 border-indigo-600 font-bold text-indigo-600 transition-colors">Pending Tasks</button>
                     <button onclick="filterService('history')" id="tab-service-history" class="service-tab whitespace-nowrap px-6 py-3 border-b-2 border-transparent text-gray-500 hover:text-indigo-600 transition-colors">History</button>
                 </div>
-
                 <div id="service-list-pending" class="service-list grid gap-3 pb-20"></div>
                 <div id="service-list-history" class="service-list grid gap-3 pb-20 hidden"></div>
             </div>
@@ -430,59 +407,89 @@
                 </button>
                 
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4 no-print" id="finance-controls">
-                    <h2 class="text-2xl font-bold text-gray-800">Detailed Finance Reports</h2>
+                    <h2 class="text-2xl font-bold text-gray-800">Financial Statement</h2>
                     <div class="flex flex-wrap gap-2">
-                         <select id="financePeriod" onchange="renderFinanceDashboard()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white font-medium text-sm h-10">
+                         <select id="financePeriod" onchange="renderFinanceDashboard()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white font-medium text-sm h-10 shadow-sm">
                             <option value="this_month">This Month</option>
                             <option value="last_month">Last Month</option>
                             <option value="this_year">This Year</option>
                             <option value="all">All Time</option>
                          </select>
-                         <select id="financeStatus" onchange="renderFinanceDashboard()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white font-medium text-sm h-10">
-                             <option value="all">All Bookings</option>
+                         <select id="financeStatus" onchange="renderFinanceDashboard()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white font-medium text-sm h-10 shadow-sm">
+                             <option value="all">All Status</option>
                              <option value="active">Active Only</option>
                              <option value="past">History Only</option>
                          </select>
-                         <button onclick="window.print()" class="px-4 py-2 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 transition flex items-center gap-2 shadow-sm h-10"><i class="fas fa-print"></i> Print PDF</button>
+                         <button onclick="window.print()" class="px-4 py-2 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 transition flex items-center gap-2 shadow-sm h-10"><i class="fas fa-print"></i> Save PDF</button>
                     </div>
                 </div>
 
-                <div id="finance-report-container" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div id="finance-report-container" class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 min-h-[600px]">
                     
                     <div class="print-header hidden">
-                        <h1 class="text-2xl font-bold uppercase">Black Iris Fleet - Financial Report</h1>
-                        <p id="print-date-range" class="text-gray-500 text-sm mt-1"></p>
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Financial Statement</h1>
+                                <p class="text-gray-500 font-medium mt-1">Black Iris Fleet Admin</p>
+                            </div>
+                            <div class="text-right">
+                                <p id="print-date-range" class="text-sm font-bold text-gray-800"></p>
+                                <p class="text-xs text-gray-400 mt-1">Generated Automatically</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div class="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
-                            <p class="text-xs font-bold text-indigo-500 uppercase tracking-wide mb-1">Total Expected Revenue</p>
-                            <h3 class="text-3xl font-bold text-indigo-700" id="fin-total-revenue">0 DH</h3>
-                            <p class="text-xs text-indigo-400 mt-1">Based on daily price × days</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8 border-b border-gray-100 pb-8">
+                        <div>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Revenue</p>
+                            <h3 class="text-2xl md:text-3xl font-bold text-gray-900" id="fin-total-revenue">0 <span class="text-sm font-normal text-gray-400">DH</span></h3>
                         </div>
-                        <div class="p-4 bg-green-50 rounded-lg border border-green-100">
-                            <p class="text-xs font-bold text-green-600 uppercase tracking-wide mb-1">Cash Collected (Received)</p>
-                            <h3 class="text-3xl font-bold text-green-700" id="fin-total-received">0 DH</h3>
-                            <p class="text-xs text-green-500 mt-1">Total advance payments</p>
+                        <div>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Cash Collected</p>
+                            <h3 class="text-2xl md:text-3xl font-bold text-green-600" id="fin-total-received">0 <span class="text-sm font-normal text-gray-400">DH</span></h3>
                         </div>
-                        <div class="p-4 bg-orange-50 rounded-lg border border-orange-100">
-                            <p class="text-xs font-bold text-orange-600 uppercase tracking-wide mb-1">Balance Due (Rest)</p>
-                            <h3 class="text-3xl font-bold text-orange-700" id="fin-total-rest">0 DH</h3>
-                            <p class="text-xs text-orange-500 mt-1">Pending collection</p>
+                        <div>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Balance Due</p>
+                            <h3 class="text-2xl md:text-3xl font-bold text-orange-600" id="fin-total-rest">0 <span class="text-sm font-normal text-gray-400">DH</span></h3>
+                        </div>
+                        <div class="border-l border-gray-100 pl-6">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Deposits Held</p>
+                            <h3 class="text-2xl md:text-3xl font-bold text-gray-700" id="fin-total-deposits">0 <span class="text-sm font-normal text-gray-400">DH</span></h3>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-8 mb-8">
+                        <div class="flex-1 bg-gray-50 rounded-lg p-4 border border-gray-100">
+                             <h4 class="text-xs font-bold text-gray-500 uppercase mb-3">Collection Progress</h4>
+                             <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                                <div id="fin-progress-bar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                             </div>
+                             <div class="flex justify-between text-xs font-medium text-gray-500">
+                                <span id="fin-progress-text">0% Collected</span>
+                                <span>Target: 100%</span>
+                             </div>
+                        </div>
+                        <div class="flex-1 bg-gray-50 rounded-lg p-4 border border-gray-100">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase mb-3">Payment Breakdown (Collected)</h4>
+                            <div class="flex justify-between items-center text-sm font-medium">
+                                <div><span class="w-2 h-2 rounded-full bg-green-500 inline-block mr-1"></span> Cash: <span id="fin-cash" class="font-bold">0</span></div>
+                                <div><span class="w-2 h-2 rounded-full bg-blue-500 inline-block mr-1"></span> Transfer: <span id="fin-transfer" class="font-bold">0</span></div>
+                                <div><span class="w-2 h-2 rounded-full bg-purple-500 inline-block mr-1"></span> Other: <span id="fin-other" class="font-bold">0</span></div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wide">
-                                    <th class="py-3 px-2">Date (Out)</th>
-                                    <th class="py-3 px-2">Car</th>
-                                    <th class="py-3 px-2">Client</th>
-                                    <th class="py-3 px-2">Days</th>
-                                    <th class="py-3 px-2 text-right">Total</th>
-                                    <th class="py-3 px-2 text-right text-green-600">Paid</th>
-                                    <th class="py-3 px-2 text-right text-orange-600">Rest</th>
+                                <tr class="border-b-2 border-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                    <th class="py-4 px-2">Date</th>
+                                    <th class="py-4 px-2">Description</th>
+                                    <th class="py-4 px-2">Agent</th>
+                                    <th class="py-4 px-2">Rate / Days</th>
+                                    <th class="py-4 px-2 text-right">Total</th>
+                                    <th class="py-4 px-2 text-right">Received</th>
+                                    <th class="py-4 px-2 text-right">Balance</th>
                                 </tr>
                             </thead>
                             <tbody id="finance-table-body" class="text-sm text-gray-700 font-medium">
@@ -535,7 +542,7 @@
                 'add-car': 'Add New Vehicle',
                 'bookings': 'Booking Memos',
                 'service': 'Tasks & Alerts',
-                'finance': 'Finance & Reports'
+                'finance': 'Finance Reports'
             };
             const titleEl = document.getElementById('desktopTitle');
             if(titleEl) titleEl.innerText = titles[tabName] || 'Admin Panel';
@@ -1045,7 +1052,6 @@
                     
                     div.innerHTML = `
                         ${getIcon(item.type)}
-                        
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center">
                                 <h4 class="font-bold ${textClass} text-sm truncate mr-2">${item.description}</h4>
@@ -1056,7 +1062,6 @@
                                 ${badges}
                             </div>
                         </div>
-
                         <div class="flex gap-1">
                              <button onclick="window.editService('${item.id}')" class="h-8 w-8 rounded-lg text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition flex items-center justify-center" title="Edit"><i class="fas fa-pencil-alt text-xs"></i></button>
                              <button onclick="window.markServiceDone('${item.id}')" class="h-8 w-8 rounded-lg text-gray-400 hover:bg-green-50 hover:text-green-600 transition flex items-center justify-center" title="Mark Done"><i class="fas fa-check text-xs"></i></button>
@@ -1113,13 +1118,10 @@
                     if (!limit || currentCount < limit) {
                         const currentDue = new Date(task.dueDate);
                         let nextDue = new Date(currentDue);
-
                         if (task.recurrence === 'weekly') nextDue.setDate(nextDue.getDate() + 7);
                         if (task.recurrence === 'monthly') nextDue.setMonth(nextDue.getMonth() + 1);
                         if (task.recurrence === 'yearly') nextDue.setFullYear(nextDue.getFullYear() + 1);
-
                         const nextDueISO = nextDue.toISOString().slice(0, 16); 
-
                         const newTaskRef = doc(collection(db, serviceCollection));
                         batch.set(newTaskRef, {
                             description: task.description,
@@ -1144,23 +1146,20 @@
             }
         }
 
-        // --- NEW: FINANCE DASHBOARD LOGIC ---
+        // --- REVISED FINANCE DASHBOARD LOGIC (DETAILED) ---
         window.renderFinanceDashboard = function() {
             const period = document.getElementById('financePeriod').value;
             const statusFilter = document.getElementById('financeStatus').value;
             const tableBody = document.getElementById('finance-table-body');
             const now = new Date();
             
-            // Clear table
             tableBody.innerHTML = '';
             
             // Filter Data
             let filtered = allBookings.filter(b => {
-                // Status Filter
                 if (statusFilter === 'active' && (b.returned || new Date(b.end) < now)) return false;
                 if (statusFilter === 'past' && (!b.returned && new Date(b.end) >= now)) return false;
                 
-                // Date Filter
                 const bDate = new Date(b.start);
                 if (period === 'this_month') {
                     return bDate.getMonth() === now.getMonth() && bDate.getFullYear() === now.getFullYear();
@@ -1173,18 +1172,19 @@
                 if (period === 'this_year') {
                     return bDate.getFullYear() === now.getFullYear();
                 }
-                return true; // All Time
+                return true; 
             });
             
-            // Sort by Date Descending
             filtered.sort((a,b) => new Date(b.start) - new Date(a.start));
-            
-            // Update Print Header Date
             document.getElementById('print-date-range').innerText = `Report Period: ${period.replace('_', ' ').toUpperCase()} | Generated on ${now.toLocaleDateString()}`;
 
             let totalRev = 0;
             let totalRec = 0;
+            let totalDeposits = 0;
             
+            // Payment Breakdown
+            let payMethods = { Cash: 0, Card: 0, Transfer: 0, Other: 0 };
+
             filtered.forEach(item => {
                 const startD = new Date(item.start);
                 const endD = new Date(item.end);
@@ -1197,28 +1197,54 @@
                 const receivedVal = Number(item.amountReceived) || 0;
                 const restVal = totalVal - receivedVal;
                 
+                // Active Deposits Only (if booking is not returned)
+                if(!item.returned) {
+                    totalDeposits += Number(item.depositAmount) || 0;
+                }
+
+                // Payment Method logic (assuming received amount uses Deposit Method if not specified separately, or we treat it generally)
+                // Since we don't have separate "payment method" for revenue, we approximate using the Deposit Method or default to Cash
+                // Realistically, you might want to add a specific field for this, but I'll use deposit method as proxy for now or default
+                // For better detail, I will use 'Cash' as default unless deposit method says otherwise
+                const method = item.depositMethod || 'Cash';
+                if(payMethods[method] !== undefined) payMethods[method] += receivedVal;
+                else payMethods['Other'] += receivedVal;
+
                 totalRev += totalVal;
                 totalRec += receivedVal;
                 
-                // Add Row
                 const tr = document.createElement('tr');
-                tr.className = "border-b border-gray-100 hover:bg-gray-50";
+                tr.className = "border-b border-gray-50 hover:bg-gray-50 transition-colors";
                 tr.innerHTML = `
-                    <td class="py-3 px-2">${startD.toLocaleDateString()}</td>
-                    <td class="py-3 px-2 font-bold">${item.carName}</td>
-                    <td class="py-3 px-2">${item.clientName || '-'}</td>
-                    <td class="py-3 px-2">${diffDays}</td>
-                    <td class="py-3 px-2 text-right font-bold">${totalVal.toLocaleString()}</td>
-                    <td class="py-3 px-2 text-right text-green-600 font-bold">${receivedVal > 0 ? receivedVal.toLocaleString() : '-'}</td>
-                    <td class="py-3 px-2 text-right ${restVal > 0 ? 'text-orange-600 font-bold' : 'text-gray-400'}">${restVal > 0 ? restVal.toLocaleString() : '0'}</td>
+                    <td class="py-4 px-2 font-medium text-gray-500">${startD.toLocaleDateString()}</td>
+                    <td class="py-4 px-2">
+                        <div class="font-bold text-gray-900">${item.carName}</div>
+                        <div class="text-xs text-gray-400">${item.clientName || 'Unknown Client'}</div>
+                    </td>
+                    <td class="py-4 px-2 text-xs text-gray-500 font-medium">${item.agent || '-'}</td>
+                    <td class="py-4 px-2 text-xs text-gray-500">${dailyPrice} × ${diffDays}d</td>
+                    <td class="py-4 px-2 text-right font-bold text-gray-900">${totalVal.toLocaleString()}</td>
+                    <td class="py-4 px-2 text-right text-green-600 font-bold">${receivedVal > 0 ? receivedVal.toLocaleString() : '-'}</td>
+                    <td class="py-4 px-2 text-right ${restVal > 0 ? 'text-orange-600 font-bold' : 'text-gray-300'}">${restVal > 0 ? restVal.toLocaleString() : '0'}</td>
                 `;
                 tableBody.appendChild(tr);
             });
             
-            // Update Cards
-            document.getElementById('fin-total-revenue').innerText = totalRev.toLocaleString() + ' DH';
-            document.getElementById('fin-total-received').innerText = totalRec.toLocaleString() + ' DH';
-            document.getElementById('fin-total-rest').innerText = (totalRev - totalRec).toLocaleString() + ' DH';
+            // Update Top Cards
+            document.getElementById('fin-total-revenue').innerHTML = totalRev.toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
+            document.getElementById('fin-total-received').innerHTML = totalRec.toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
+            document.getElementById('fin-total-rest').innerHTML = (totalRev - totalRec).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
+            document.getElementById('fin-total-deposits').innerHTML = totalDeposits.toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
+
+            // Update Progress Bar
+            const percent = totalRev > 0 ? Math.round((totalRec / totalRev) * 100) : 0;
+            document.getElementById('fin-progress-bar').style.width = `${percent}%`;
+            document.getElementById('fin-progress-text').innerText = `${percent}% Collected`;
+
+            // Update Payment Breakdown
+            document.getElementById('fin-cash').innerText = payMethods.Cash.toLocaleString();
+            document.getElementById('fin-transfer').innerText = payMethods.Transfer.toLocaleString();
+            document.getElementById('fin-other').innerText = (payMethods.Card + payMethods.Other + payMethods.Cheque).toLocaleString();
         }
 
         // --- BOOKING LOGIC ---
