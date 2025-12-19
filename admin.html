@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
      
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -23,49 +24,16 @@
         .sortable-ghost { opacity: 0.4; background: #e0e7ff; }
         .drag-handle { cursor: grab; touch-action: none; } 
         
-        /* Custom scrollbar */
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
 
-        /* Force consistent look for inputs */
         input[type="datetime-local"], input[type="date"], select {
             appearance: none;
             -webkit-appearance: none;
             min-height: 3rem; 
         }
-
-        /* STRICT PDF PRINT STYLES */
-        @media print {
-            #sidebar, header, #view-dashboard, #view-fleet, #view-add-car, #view-service, #view-bookings, #finance-controls, #mobileOverlay, .no-print {
-                display: none !important;
-            }
-            #view-finance {
-                display: block !important;
-                position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                background: white !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                z-index: 9999;
-            }
-            
-            #finance-report-container {
-                box-shadow: none !important;
-                border: none !important;
-                padding: 0 !important;
-            }
-            
-            /* Print Table Styles */
-            table { width: 100% !important; border-collapse: collapse !important; font-size: 11px !important; }
-            th, td { border-bottom: 1px solid #ddd !important; padding: 4px !important; }
-            .print-header { display: block !important; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px; }
-            body { background: white !important; color: black !important; overflow: visible !important; }
-        }
-        .print-header { display: none; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans h-[100dvh] w-full overflow-hidden flex flex-col md:flex-row">
@@ -94,7 +62,7 @@
         </div>
     </div>
 
-    <header class="md:hidden h-16 bg-indigo-900 text-white flex items-center justify-between px-4 fixed top-0 w-full z-40 shadow-md no-print">
+    <header class="md:hidden h-16 bg-indigo-900 text-white flex items-center justify-between px-4 fixed top-0 w-full z-40 shadow-md">
         <div class="flex items-center gap-2">
             <i class="fas fa-shield-alt text-indigo-300"></i>
             <span class="font-bold text-lg tracking-wide">AdminPanel</span>
@@ -104,7 +72,7 @@
         </button>
     </header>
 
-    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-indigo-900 text-white shadow-2xl z-50 flex flex-col transform -translate-x-full md:translate-x-0 md:relative md:w-64 no-print">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-indigo-900 text-white shadow-2xl z-50 flex flex-col transform -translate-x-full md:translate-x-0 md:relative md:w-64">
         <div class="h-16 flex items-center justify-between px-6 bg-indigo-950 border-b border-indigo-800 shrink-0">
             <span class="text-xl font-bold tracking-wide">Menu</span>
             <button type="button" onclick="toggleMenu()" class="md:hidden p-2 text-indigo-300 hover:text-white cursor-pointer"><i class="fas fa-times text-xl"></i></button>
@@ -144,10 +112,10 @@
         </div>
     </aside>
 
-    <div id="mobileOverlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/50 z-45 hidden md:hidden backdrop-blur-sm no-print"></div>
+    <div id="mobileOverlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/50 z-45 hidden md:hidden backdrop-blur-sm"></div>
 
     <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full bg-gray-50 z-0">
-        <header class="hidden md:flex h-16 bg-white shadow-sm items-center justify-between px-8 border-b border-gray-200 shrink-0 z-10 no-print">
+        <header class="hidden md:flex h-16 bg-white shadow-sm items-center justify-between px-8 border-b border-gray-200 shrink-0 z-10">
             <h2 id="desktopTitle" class="text-xl font-bold text-gray-800">Dashboard Overview</h2>
         </header>
 
@@ -417,39 +385,55 @@
                 <div class="flex flex-col gap-4 no-print" id="finance-controls">
                     <h2 class="text-2xl font-bold text-gray-800">Financial Reports</h2>
                     
-                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row gap-3 items-end md:items-center">
-                         <div class="w-full md:w-auto">
-                             <label class="block text-xs font-bold text-gray-500 mb-1">Status</label>
-                             <select id="financeStatus" class="w-full md:w-40 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white font-medium text-sm">
-                                 <option value="all">All</option>
-                                 <option value="active">Active</option>
-                                 <option value="past">History</option>
-                             </select>
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-3">
+                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                             <div>
+                                 <label class="block text-xs font-bold text-gray-500 mb-1">Status</label>
+                                 <select id="financeStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                                     <option value="all">All</option>
+                                     <option value="active">Active Only</option>
+                                     <option value="past">History Only</option>
+                                 </select>
+                             </div>
+                             <div>
+                                 <label class="block text-xs font-bold text-gray-500 mb-1">Start Date</label>
+                                 <input type="date" id="finStartDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                             </div>
+                             <div>
+                                 <label class="block text-xs font-bold text-gray-500 mb-1">End Date</label>
+                                 <input type="date" id="finEndDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                             </div>
+                             <div class="sm:col-span-2 md:col-span-1">
+                                 <label class="block text-xs font-bold text-gray-500 mb-1">Sort By (Trier par)</label>
+                                 <select id="financeSort" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                                     <option value="date_desc">Date (Newest First)</option>
+                                     <option value="date_asc">Date (Oldest First)</option>
+                                     <option value="days_desc">Days (High to Low)</option>
+                                     <option value="days_asc">Days (Low to High)</option>
+                                     <option value="total_desc">Total Amount (High to Low)</option>
+                                     <option value="total_asc">Total Amount (Low to High)</option>
+                                     <option value="rest_desc">Rest/Debt (High to Low)</option>
+                                 </select>
+                             </div>
                          </div>
-                         <div class="w-full md:w-auto">
-                             <label class="block text-xs font-bold text-gray-500 mb-1">Start Date</label>
-                             <input type="date" id="finStartDate" class="w-full md:w-40 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                         <div class="flex gap-2 mt-2">
+                             <button onclick="renderFinanceDashboard()" class="flex-1 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2 py-2.5 shadow-sm"><i class="fas fa-search"></i> Search</button>
+                             <button onclick="downloadPDF()" class="flex-1 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 transition flex items-center justify-center gap-2 py-2.5 shadow-sm"><i class="fas fa-file-download"></i> Download PDF</button>
                          </div>
-                         <div class="w-full md:w-auto">
-                             <label class="block text-xs font-bold text-gray-500 mb-1">End Date</label>
-                             <input type="date" id="finEndDate" class="w-full md:w-40 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
-                         </div>
-                         <button onclick="renderFinanceDashboard()" class="w-full md:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-sm h-[38px]"><i class="fas fa-search"></i> Search</button>
-                         <button onclick="window.print()" class="w-full md:w-auto px-6 py-2 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 transition flex items-center justify-center gap-2 shadow-sm h-[38px]"><i class="fas fa-file-pdf"></i> Save PDF</button>
                     </div>
                 </div>
 
                 <div id="finance-report-container" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 min-h-[600px]">
                     
-                    <div class="print-header hidden">
-                        <div class="flex justify-between items-start">
+                    <div class="mb-8 hidden" id="pdf-header">
+                        <div class="flex justify-between items-start border-b-2 border-gray-800 pb-4 mb-6">
                             <div>
-                                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Financial Report</h1>
-                                <p class="text-gray-500 font-medium mt-1">Black Iris Fleet Admin</p>
+                                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Black Iris Fleet</h1>
+                                <p class="text-gray-500 font-medium mt-1">Financial Statement</p>
                             </div>
                             <div class="text-right">
                                 <p id="print-date-range" class="text-sm font-bold text-gray-800"></p>
-                                <p class="text-xs text-gray-400 mt-1">Generated Automatically</p>
+                                <p class="text-xs text-gray-400 mt-1">Generated: <span id="print-gen-date"></span></p>
                             </div>
                         </div>
                     </div>
@@ -472,7 +456,7 @@
                     <div class="overflow-x-auto custom-scroll pb-2">
                         <table class="w-full text-left border-collapse min-w-[600px] md:min-w-0">
                             <thead>
-                                <tr class="border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wide">
+                                <tr class="border-b-2 border-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wide">
                                     <th class="py-3 px-2">Date</th>
                                     <th class="py-3 px-2">Car / Client</th>
                                     <th class="py-3 px-2">Days</th>
@@ -559,7 +543,6 @@
             document.getElementById('carSeats').value = 5; 
         }
         
-        // RECURRENCE TOGGLE
         function toggleRepeatLimit() {
             const val = document.getElementById('serviceRecurrence').value;
             const container = document.getElementById('repeatLimitContainer');
@@ -567,7 +550,6 @@
             else container.classList.remove('hidden');
         }
 
-        // TABS LOGIC
         window.filterBookings = function(tab) {
             document.querySelectorAll('.booking-tab').forEach(b => {
                 b.classList.remove('border-indigo-600', 'text-indigo-600', 'font-bold');
@@ -581,7 +563,6 @@
             document.getElementById('list-' + tab).classList.remove('hidden');
         }
 
-        // SERVICE TABS
         window.filterService = function(tab) {
             document.querySelectorAll('.service-tab').forEach(b => {
                 b.classList.remove('border-indigo-600', 'text-indigo-600', 'font-bold');
@@ -1144,11 +1125,34 @@
             }
         }
 
-        // --- REVISED FINANCE DASHBOARD LOGIC (DATE RANGE) ---
+        // --- INSTANT PDF DOWNLOAD ---
+        window.downloadPDF = function() {
+            const element = document.getElementById('finance-report-container');
+            
+            // Show header temporarily
+            const header = document.getElementById('pdf-header');
+            header.classList.remove('hidden');
+            document.getElementById('print-gen-date').innerText = new Date().toLocaleString();
+
+            const opt = {
+                margin:       0.5,
+                filename:     `BlackIris_Report_${new Date().toISOString().split('T')[0]}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                header.classList.add('hidden'); // Hide header after save
+            });
+        }
+
+        // --- REVISED FINANCE DASHBOARD LOGIC (DATE RANGE + SORT) ---
         window.renderFinanceDashboard = function() {
             const startDateVal = document.getElementById('finStartDate').value;
             const endDateVal = document.getElementById('finEndDate').value;
             const statusFilter = document.getElementById('financeStatus').value;
+            const sortVal = document.getElementById('financeSort').value; // NEW
             const tableBody = document.getElementById('finance-table-body');
             const now = new Date();
             
@@ -1159,11 +1163,34 @@
                 if (statusFilter === 'active' && (b.returned || new Date(b.end) < now)) return false;
                 if (statusFilter === 'past' && (!b.returned && new Date(b.end) >= now)) return false;
                 
-                const bDate = b.start.split('T')[0]; // Compare using YYYY-MM-DD string
+                const bDate = b.start.split('T')[0]; 
                 return bDate >= startDateVal && bDate <= endDateVal;
             });
             
-            filtered.sort((a,b) => new Date(b.start) - new Date(a.start));
+            // SORTING LOGIC
+            filtered.sort((a,b) => {
+                const dateA = new Date(a.start);
+                const dateB = new Date(b.start);
+                
+                // Helper vars for calculation sort
+                const diffDaysA = Math.ceil(Math.abs(new Date(a.end) - dateA) / (86400000)) || 1;
+                const diffDaysB = Math.ceil(Math.abs(new Date(b.end) - dateB) / (86400000)) || 1;
+                const totalA = (Number(a.price)||0) * diffDaysA;
+                const totalB = (Number(b.price)||0) * diffDaysB;
+                const restA = totalA - (Number(a.amountReceived)||0);
+                const restB = totalB - (Number(b.amountReceived)||0);
+
+                switch(sortVal) {
+                    case 'date_desc': return dateB - dateA; // Newest first
+                    case 'date_asc': return dateA - dateB;  // Oldest first
+                    case 'days_desc': return diffDaysB - diffDaysA;
+                    case 'days_asc': return diffDaysA - diffDaysB;
+                    case 'total_desc': return totalB - totalA;
+                    case 'total_asc': return totalA - totalB;
+                    case 'rest_desc': return restB - restA;
+                    default: return dateB - dateA;
+                }
+            });
             
             // Format for Print
             const sDate = new Date(startDateVal).toLocaleDateString();
@@ -1332,34 +1359,34 @@
                 return;
             }
 
-            let totalRevenue = 0;
-            list.forEach(item => {
-                if(item.price && item.start && item.end) {
-                    const price = Number(item.price);
-                    const startD = new Date(item.start);
-                    const endD = new Date(item.end);
-                    const diffTime = Math.abs(endD - startD);
-                    let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    if(diffDays < 1) diffDays = 1;
-                    totalRevenue += (price * diffDays);
-                }
-            });
+            // ONLY SHOW SUMMARY FOR PAST (HISTORY)
+            if (type === 'past') {
+                let totalRevenue = 0;
+                list.forEach(item => {
+                    if(item.price && item.start && item.end) {
+                        const price = Number(item.price);
+                        const startD = new Date(item.start);
+                        const endD = new Date(item.end);
+                        const diffTime = Math.abs(endD - startD);
+                        let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        if(diffDays < 1) diffDays = 1;
+                        totalRevenue += (price * diffDays);
+                    }
+                });
 
-            const summaryDiv = document.createElement('div');
-            const bgClass = type === 'active' ? 'bg-indigo-50 border-indigo-200 text-indigo-800' : 'bg-blue-50 border-blue-200 text-blue-800';
-            const title = type === 'active' ? 'Total Active Value' : 'Total Upcoming Value';
-            
-            summaryDiv.className = `${bgClass} border rounded-xl p-4 mb-4 flex justify-between items-center shadow-sm`;
-            summaryDiv.innerHTML = `
-                <div>
-                    <h4 class="font-bold text-sm uppercase opacity-70">${title}</h4>
-                    <p class="text-xs font-medium opacity-70">${list.length} bookings</p>
-                </div>
-                <div class="text-2xl font-bold">
-                    ${totalRevenue.toLocaleString()} <span class="text-sm font-normal">DH</span>
-                </div>
-            `;
-            el.appendChild(summaryDiv);
+                const summaryDiv = document.createElement('div');
+                summaryDiv.className = `bg-blue-50 border border-blue-200 text-blue-800 border rounded-xl p-4 mb-4 flex justify-between items-center shadow-sm`;
+                summaryDiv.innerHTML = `
+                    <div>
+                        <h4 class="font-bold text-sm uppercase opacity-70">Total History Value</h4>
+                        <p class="text-xs font-medium opacity-70">${list.length} bookings</p>
+                    </div>
+                    <div class="text-2xl font-bold">
+                        ${totalRevenue.toLocaleString()} <span class="text-sm font-normal">DH</span>
+                    </div>
+                `;
+                el.appendChild(summaryDiv);
+            }
 
             list.forEach(item => el.appendChild(createBookingCard(item, type)));
         }
