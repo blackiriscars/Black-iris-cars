@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    
+     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -35,6 +35,32 @@
             -webkit-appearance: none;
             min-height: 3rem; 
         }
+
+        /* PRINT STYLES FOR PDF REPORT */
+        @media print {
+            #sidebar, header, #view-dashboard, #view-fleet, #view-add-car, #view-service, #view-bookings, .no-print {
+                display: none !important;
+            }
+            #view-finance {
+                display: block !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+            #finance-controls { display: none !important; }
+            #finance-report-container {
+                box-shadow: none !important;
+                border: none !important;
+                width: 100% !important;
+            }
+            body, main { overflow: visible !important; height: auto !important; background: white !important; }
+            .print-header { display: block !important; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        }
+        .print-header { display: none; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans h-[100dvh] w-full overflow-hidden flex flex-col md:flex-row">
@@ -63,7 +89,7 @@
         </div>
     </div>
 
-    <header class="md:hidden h-16 bg-indigo-900 text-white flex items-center justify-between px-4 fixed top-0 w-full z-40 shadow-md">
+    <header class="md:hidden h-16 bg-indigo-900 text-white flex items-center justify-between px-4 fixed top-0 w-full z-40 shadow-md no-print">
         <div class="flex items-center gap-2">
             <i class="fas fa-shield-alt text-indigo-300"></i>
             <span class="font-bold text-lg tracking-wide">AdminPanel</span>
@@ -73,7 +99,7 @@
         </button>
     </header>
 
-    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-indigo-900 text-white shadow-2xl z-50 flex flex-col transform -translate-x-full md:translate-x-0 md:relative md:w-64">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-indigo-900 text-white shadow-2xl z-50 flex flex-col transform -translate-x-full md:translate-x-0 md:relative md:w-64 no-print">
         <div class="h-16 flex items-center justify-between px-6 bg-indigo-950 border-b border-indigo-800 shrink-0">
             <span class="text-xl font-bold tracking-wide">Menu</span>
             <button type="button" onclick="toggleMenu()" class="md:hidden p-2 text-indigo-300 hover:text-white cursor-pointer"><i class="fas fa-times text-xl"></i></button>
@@ -82,12 +108,12 @@
             <ul class="space-y-2">
                 <li><a href="index.html" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer text-indigo-200"><i class="fas fa-arrow-left w-5 text-center"></i><span class="font-medium">Back to Website</span></a></li>
                 <li class="my-2 border-t border-indigo-800"></li>
-                
+                 
                 <li><button type="button" onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item active w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-chart-line w-5 text-center"></i><span class="font-medium">Dashboard</span></button></li>
                 <li class="px-6 pt-4 pb-1 text-xs font-bold text-indigo-400 uppercase">Inventory</li>
                 <li><button type="button" onclick="showAllFleet()" id="nav-fleet" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-car w-5 text-center"></i><span class="font-medium">Fleet Inventory</span></button></li>
                 <li><button type="button" onclick="switchTab('add-car', true)" id="nav-add-car" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-plus-circle w-5 text-center"></i><span class="font-medium">Add New Car</span></button></li>
-                
+                 
                 <li class="px-6 pt-4 pb-1 text-xs font-bold text-indigo-400 uppercase">Operations</li>
                 <li>
                     <button type="button" onclick="switchTab('bookings')" id="nav-bookings" class="nav-item w-full flex items-center justify-between px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer">
@@ -101,6 +127,11 @@
                         <span id="badge-service" class="hidden bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">0</span>
                     </button>
                 </li>
+                <li>
+                    <button type="button" onclick="switchTab('finance')" id="nav-finance" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer">
+                        <i class="fas fa-calculator w-5 text-center"></i><span class="font-medium">Finance & Reports</span>
+                    </button>
+                </li>
             </ul>
         </nav>
         <div class="p-4 pb-8 md:pb-4 border-t border-indigo-800 bg-indigo-950 shrink-0">
@@ -108,18 +139,18 @@
         </div>
     </aside>
 
-    <div id="mobileOverlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/50 z-45 hidden md:hidden backdrop-blur-sm"></div>
+    <div id="mobileOverlay" onclick="toggleMenu()" class="fixed inset-0 bg-black/50 z-45 hidden md:hidden backdrop-blur-sm no-print"></div>
 
     <main class="flex-1 flex flex-col h-full overflow-hidden relative w-full bg-gray-50 z-0">
-        <header class="hidden md:flex h-16 bg-white shadow-sm items-center justify-between px-8 border-b border-gray-200 shrink-0 z-10">
+        <header class="hidden md:flex h-16 bg-white shadow-sm items-center justify-between px-8 border-b border-gray-200 shrink-0 z-10 no-print">
             <h2 id="desktopTitle" class="text-xl font-bold text-gray-800">Dashboard Overview</h2>
         </header>
 
         <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 pt-20 md:p-8 md:pt-8 w-full custom-scroll">
-            
+             
             <div id="view-dashboard" class="page-view animate-fade-in block space-y-6">
                 <h2 class="md:hidden text-2xl font-bold text-gray-800 mb-4">Dashboard Overview</h2>
-                
+                 
                 <div id="dashboard-notifs" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 shadow-sm animate-fade-in">
                     <h3 class="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2"><i class="fas fa-bell text-amber-600"></i> Action Required</h3>
                     <ul id="dashboard-notif-list" class="space-y-1 text-sm text-amber-700 font-medium"></ul>
@@ -131,7 +162,7 @@
                     <div onclick="showFilteredFleet('Rented')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-orange-50 transition border-orange-100"><div><p class="text-xs font-bold text-gray-400 uppercase">Rented</p><h3 class="text-3xl font-bold text-orange-600 mt-1" id="stat-rented">0</h3></div><div class="h-10 w-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center"><i class="fas fa-key"></i></div></div>
                     <div onclick="showFilteredFleet('Maintenance')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-red-50 transition border-red-100"><div><p class="text-xs font-bold text-gray-400 uppercase">Maintenance</p><h3 class="text-3xl font-bold text-red-600 mt-1" id="stat-maintenance">0</h3></div><div class="h-10 w-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center"><i class="fas fa-tools"></i></div></div>
                 </div>
-                
+                 
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 mb-4"><i class="fas fa-chart-pie text-2xl"></i></div>
                     <h3 class="text-lg font-bold text-gray-900">Quick Actions</h3>
@@ -220,7 +251,7 @@
                 </button>
 
                 <h2 class="text-2xl font-bold text-gray-800">Booking Memos</h2>
-                
+                 
                 <div id="notification-center" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 shadow-sm">
                     <h3 class="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2"><i class="fas fa-bell text-amber-600"></i> Today's Alerts</h3>
                     <ul id="notification-list" class="space-y-1 text-sm text-amber-700 font-medium"></ul>
@@ -229,11 +260,11 @@
                 <div class="bg-indigo-50 text-indigo-700 p-4 rounded-lg text-sm mb-4">
                     <i class="fas fa-info-circle mr-2"></i> Internal memos only.
                 </div>
-                
+                 
                 <form id="bookingMemoForm" class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-200 mb-6 overflow-hidden">
-                     <input type="hidden" id="editMemoId">
-                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end min-w-0">
-                        <div class="md:col-span-1 min-w-0">
+                      <input type="hidden" id="editMemoId">
+                      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end min-w-0">
+                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Car Name <span class="text-red-500">*</span></label>
                             <input type="text" id="memoCar" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Dacia Logan" required>
                         </div>
@@ -250,6 +281,12 @@
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Daily Price (DH) <span class="text-red-500">*</span></label>
                             <input type="number" id="memoPrice" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
                         </div>
+                        
+                        <div class="md:col-span-1 min-w-0">
+                             <label class="block text-xs font-bold text-green-600 mb-1 uppercase tracking-wide">Amount Received (Advance)</label>
+                             <input type="number" id="memoReceived" class="w-full h-12 px-4 bg-gray-50 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
+                        </div>
+                        
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Client Name</label>
                             <input type="text" id="memoClient" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="Client Name">
@@ -287,7 +324,7 @@
                                 <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
                             </div>
                         </div>
-                        
+                         
                         <div class="md:col-span-3 min-w-0 mt-4 flex gap-2">
                             <button type="button" onclick="resetMemoForm()" id="cancelMemoEdit" class="hidden w-1/3 h-12 bg-gray-200 text-gray-600 font-bold rounded-lg hover:bg-gray-300 transition text-sm">Cancel</button>
                             <button type="submit" id="memoSubmitBtn" class="flex-1 h-12 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2 text-sm"><i class="fas fa-plus"></i> Add Booking Memo</button>
@@ -321,7 +358,7 @@
                 </button>
 
                 <h2 class="text-2xl font-bold text-gray-800">Task Manager</h2>
-                
+                 
                 <div id="service-notification-center" class="hidden bg-red-50 border border-red-200 rounded-xl p-4 mb-4 shadow-sm">
                     <h3 class="text-sm font-bold text-red-800 mb-2 flex items-center gap-2"><i class="fas fa-exclamation-triangle text-red-600"></i> Due Soon (48h)</h3>
                     <ul id="service-notification-list" class="space-y-1 text-sm text-red-700 font-medium"></ul>
@@ -386,6 +423,76 @@
                 <div id="service-list-pending" class="service-list grid gap-3 pb-20"></div>
                 <div id="service-list-history" class="service-list grid gap-3 pb-20 hidden"></div>
             </div>
+
+            <div id="view-finance" class="page-view hidden space-y-6">
+                <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2 no-print">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </button>
+                
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 no-print" id="finance-controls">
+                    <h2 class="text-2xl font-bold text-gray-800">Detailed Finance Reports</h2>
+                    <div class="flex flex-wrap gap-2">
+                         <select id="financePeriod" onchange="renderFinanceDashboard()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white font-medium text-sm h-10">
+                            <option value="this_month">This Month</option>
+                            <option value="last_month">Last Month</option>
+                            <option value="this_year">This Year</option>
+                            <option value="all">All Time</option>
+                         </select>
+                         <select id="financeStatus" onchange="renderFinanceDashboard()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white font-medium text-sm h-10">
+                             <option value="all">All Bookings</option>
+                             <option value="active">Active Only</option>
+                             <option value="past">History Only</option>
+                         </select>
+                         <button onclick="window.print()" class="px-4 py-2 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 transition flex items-center gap-2 shadow-sm h-10"><i class="fas fa-print"></i> Print PDF</button>
+                    </div>
+                </div>
+
+                <div id="finance-report-container" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    
+                    <div class="print-header hidden">
+                        <h1 class="text-2xl font-bold uppercase">Black Iris Fleet - Financial Report</h1>
+                        <p id="print-date-range" class="text-gray-500 text-sm mt-1"></p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
+                            <p class="text-xs font-bold text-indigo-500 uppercase tracking-wide mb-1">Total Expected Revenue</p>
+                            <h3 class="text-3xl font-bold text-indigo-700" id="fin-total-revenue">0 DH</h3>
+                            <p class="text-xs text-indigo-400 mt-1">Based on daily price × days</p>
+                        </div>
+                        <div class="p-4 bg-green-50 rounded-lg border border-green-100">
+                            <p class="text-xs font-bold text-green-600 uppercase tracking-wide mb-1">Cash Collected (Received)</p>
+                            <h3 class="text-3xl font-bold text-green-700" id="fin-total-received">0 DH</h3>
+                            <p class="text-xs text-green-500 mt-1">Total advance payments</p>
+                        </div>
+                        <div class="p-4 bg-orange-50 rounded-lg border border-orange-100">
+                            <p class="text-xs font-bold text-orange-600 uppercase tracking-wide mb-1">Balance Due (Rest)</p>
+                            <h3 class="text-3xl font-bold text-orange-700" id="fin-total-rest">0 DH</h3>
+                            <p class="text-xs text-orange-500 mt-1">Pending collection</p>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wide">
+                                    <th class="py-3 px-2">Date (Out)</th>
+                                    <th class="py-3 px-2">Car</th>
+                                    <th class="py-3 px-2">Client</th>
+                                    <th class="py-3 px-2">Days</th>
+                                    <th class="py-3 px-2 text-right">Total</th>
+                                    <th class="py-3 px-2 text-right text-green-600">Paid</th>
+                                    <th class="py-3 px-2 text-right text-orange-600">Rest</th>
+                                </tr>
+                            </thead>
+                            <tbody id="finance-table-body" class="text-sm text-gray-700 font-medium">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="h-20"></div>
+            </div>
+
         </div>
     </main>
 
@@ -427,10 +534,15 @@
                 'fleet': 'Fleet Inventory',
                 'add-car': 'Add New Vehicle',
                 'bookings': 'Booking Memos',
-                'service': 'Tasks & Alerts'
+                'service': 'Tasks & Alerts',
+                'finance': 'Finance & Reports'
             };
             const titleEl = document.getElementById('desktopTitle');
             if(titleEl) titleEl.innerText = titles[tabName] || 'Admin Panel';
+
+            if(tabName === 'finance') {
+                renderFinanceDashboard();
+            }
         }
 
         function resetForm() {
@@ -728,6 +840,10 @@
                 snapshot.forEach(doc => allBookings.push({id: doc.id, ...doc.data()}));
                 renderBookings();
                 updateGlobalNotifications();
+                // Also update Finance if open
+                if(!document.getElementById('view-finance').classList.contains('hidden')) {
+                    renderFinanceDashboard();
+                }
             });
         }
 
@@ -876,7 +992,6 @@
             toggleRepeatLimit();
         }
 
-        // REDESIGNED COMPACT TASK CARD (WITH OVERDUE RED ALERT)
         function renderServices() {
             const pendingContainer = document.getElementById('service-list-pending');
             const historyContainer = document.getElementById('service-list-history');
@@ -898,7 +1013,6 @@
 
             const now = new Date();
 
-            // RENDER PENDING
             if(pending.length === 0) {
                 pendingContainer.innerHTML = `<div class="text-center text-gray-400 py-10 border-2 border-dashed border-gray-100 rounded-2xl">No upcoming tasks.</div>`;
             } else {
@@ -907,12 +1021,8 @@
                     const dateStr = dateObj.toLocaleDateString('en-GB');
                     const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
                     
-                    // --- NEW: CHECK IF OVERDUE ---
                     const isOverdue = dateObj < now;
                     
-                    // STYLE LOGIC: 
-                    // If Overdue: Red Border + Light Red Background
-                    // If Normal: Gray Border + White Background
                     const boxClass = isOverdue 
                         ? "bg-red-50 border-red-300 shadow-red-100" 
                         : "bg-white border-gray-100 hover:shadow-md";
@@ -931,7 +1041,6 @@
                     }
 
                     const div = document.createElement('div');
-                    // APPLY THE DYNAMIC CLASSES
                     div.className = `${boxClass} p-3 rounded-xl border shadow-sm transition-all flex items-center gap-3 relative overflow-hidden group`;
                     
                     div.innerHTML = `
@@ -958,7 +1067,6 @@
                 });
             }
 
-            // RENDER HISTORY (Keep this same as before)
             if(history.length === 0) {
                 historyContainer.innerHTML = `<div class="text-center text-gray-400 py-10 border-2 border-dashed border-gray-100 rounded-2xl">No completed history.</div>`;
             } else {
@@ -993,14 +1101,11 @@
 
             if(confirm("Mark this task as completed?")) {
                 const batch = writeBatch(db);
-
-                // 1. Mark current as done
                 batch.update(doc(db, serviceCollection, id), {
                     status: 'done',
                     completedAt: serverTimestamp()
                 });
 
-                // 2. Handle Recurrence
                 if (task.recurrence && task.recurrence !== 'none') {
                     const currentCount = task.repeatCount || 1;
                     const limit = task.repeatLimit; 
@@ -1029,7 +1134,6 @@
                         });
                     }
                 }
-
                 await batch.commit();
             }
         }
@@ -1040,7 +1144,84 @@
             }
         }
 
-        // REDESIGNED BOOKING CARD
+        // --- NEW: FINANCE DASHBOARD LOGIC ---
+        window.renderFinanceDashboard = function() {
+            const period = document.getElementById('financePeriod').value;
+            const statusFilter = document.getElementById('financeStatus').value;
+            const tableBody = document.getElementById('finance-table-body');
+            const now = new Date();
+            
+            // Clear table
+            tableBody.innerHTML = '';
+            
+            // Filter Data
+            let filtered = allBookings.filter(b => {
+                // Status Filter
+                if (statusFilter === 'active' && (b.returned || new Date(b.end) < now)) return false;
+                if (statusFilter === 'past' && (!b.returned && new Date(b.end) >= now)) return false;
+                
+                // Date Filter
+                const bDate = new Date(b.start);
+                if (period === 'this_month') {
+                    return bDate.getMonth() === now.getMonth() && bDate.getFullYear() === now.getFullYear();
+                }
+                if (period === 'last_month') {
+                    const lastMonth = new Date();
+                    lastMonth.setMonth(now.getMonth() - 1);
+                    return bDate.getMonth() === lastMonth.getMonth() && bDate.getFullYear() === lastMonth.getFullYear();
+                }
+                if (period === 'this_year') {
+                    return bDate.getFullYear() === now.getFullYear();
+                }
+                return true; // All Time
+            });
+            
+            // Sort by Date Descending
+            filtered.sort((a,b) => new Date(b.start) - new Date(a.start));
+            
+            // Update Print Header Date
+            document.getElementById('print-date-range').innerText = `Report Period: ${period.replace('_', ' ').toUpperCase()} | Generated on ${now.toLocaleDateString()}`;
+
+            let totalRev = 0;
+            let totalRec = 0;
+            
+            filtered.forEach(item => {
+                const startD = new Date(item.start);
+                const endD = new Date(item.end);
+                const diffTime = Math.abs(endD - startD);
+                let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if(diffDays < 1) diffDays = 1;
+                
+                const dailyPrice = Number(item.price) || 0;
+                const totalVal = dailyPrice * diffDays;
+                const receivedVal = Number(item.amountReceived) || 0;
+                const restVal = totalVal - receivedVal;
+                
+                totalRev += totalVal;
+                totalRec += receivedVal;
+                
+                // Add Row
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-gray-100 hover:bg-gray-50";
+                tr.innerHTML = `
+                    <td class="py-3 px-2">${startD.toLocaleDateString()}</td>
+                    <td class="py-3 px-2 font-bold">${item.carName}</td>
+                    <td class="py-3 px-2">${item.clientName || '-'}</td>
+                    <td class="py-3 px-2">${diffDays}</td>
+                    <td class="py-3 px-2 text-right font-bold">${totalVal.toLocaleString()}</td>
+                    <td class="py-3 px-2 text-right text-green-600 font-bold">${receivedVal > 0 ? receivedVal.toLocaleString() : '-'}</td>
+                    <td class="py-3 px-2 text-right ${restVal > 0 ? 'text-orange-600 font-bold' : 'text-gray-400'}">${restVal > 0 ? restVal.toLocaleString() : '0'}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+            
+            // Update Cards
+            document.getElementById('fin-total-revenue').innerText = totalRev.toLocaleString() + ' DH';
+            document.getElementById('fin-total-received').innerText = totalRec.toLocaleString() + ' DH';
+            document.getElementById('fin-total-rest').innerText = (totalRev - totalRec).toLocaleString() + ' DH';
+        }
+
+        // --- BOOKING LOGIC ---
         document.getElementById('bookingSearch').addEventListener('input', (e) => {
             renderBookings();
         });
@@ -1164,7 +1345,6 @@
                 return;
             }
 
-            // --- START CHANGE: Calculate Total ---
             let totalRevenue = 0;
             list.forEach(item => {
                 if(item.price && item.start && item.end) {
@@ -1178,9 +1358,7 @@
                 }
             });
 
-            // Create Summary Card
             const summaryDiv = document.createElement('div');
-            // different styling based on type
             const bgClass = type === 'active' ? 'bg-indigo-50 border-indigo-200 text-indigo-800' : 'bg-blue-50 border-blue-200 text-blue-800';
             const title = type === 'active' ? 'Total Active Value' : 'Total Upcoming Value';
             
@@ -1195,7 +1373,6 @@
                 </div>
             `;
             el.appendChild(summaryDiv);
-            // --- END CHANGE ---
 
             list.forEach(item => el.appendChild(createBookingCard(item, type)));
         }
@@ -1227,6 +1404,13 @@
                 if(diffDays < 1) diffDays = 1;
                 totalCost = dailyPrice * diffDays;
             }
+            
+            // Financial Status for card
+            const received = Number(item.amountReceived) || 0;
+            const rest = totalCost - received;
+            const financeStatus = rest > 0 
+                ? `<span class="text-orange-600 font-bold text-xs bg-orange-50 px-2 py-0.5 rounded border border-orange-100">Rest: ${rest} DH</span>` 
+                : `<span class="text-green-600 font-bold text-xs bg-green-50 px-2 py-0.5 rounded border border-green-100">Paid</span>`;
 
             const formatDate = (dateStr) => {
                 const d = new Date(dateStr);
@@ -1238,7 +1422,6 @@
             };
 
             const div = document.createElement('div');
-            // CLEAN CARD DESIGN: Not too big, not too small
             div.className = `bg-white rounded-xl shadow-sm border border-gray-100 mb-3 relative group hover:shadow-md transition-all p-4 ${borderColorClass}`;
 
             let actions = '';
@@ -1302,7 +1485,8 @@
                     <div class="text-right">
                         ${item.price ? `
                             <div class="text-gray-900 font-bold text-xl leading-none">${totalCost} <span class="text-sm font-normal text-gray-400">DH</span></div>
-                            <div class="text-[10px] text-gray-400 mt-1 font-medium bg-gray-50 px-1.5 py-0.5 rounded inline-block">${item.price} × ${diffDays} days</div>
+                            <div class="text-[10px] text-gray-400 mt-1 font-medium bg-gray-50 px-1.5 py-0.5 rounded inline-block mb-1">${item.price} × ${diffDays} days</div>
+                            <div>${financeStatus}</div>
                         ` : ''}
                     </div>
                 </div>
@@ -1326,11 +1510,13 @@
             document.getElementById('memoClient').value = memo.clientName || '';
             document.getElementById('memoLocation').value = memo.location || '';
             document.getElementById('memoPrice').value = memo.price || '';
+            document.getElementById('memoReceived').value = memo.amountReceived || ''; // NEW
             document.getElementById('memoAgent').value = memo.agent || '';
             document.getElementById('memoDepositAmount').value = memo.depositAmount || '';
             document.getElementById('memoDepositMethod').value = memo.depositMethod || 'Cash';
-            document.getElementById('memoStart').value = memo.start;
-            document.getElementById('memoEnd').value = memo.end;
+            // Slice to ensure datetime-local format works
+            document.getElementById('memoStart').value = memo.start ? memo.start.slice(0, 16) : '';
+            document.getElementById('memoEnd').value = memo.end ? memo.end.slice(0, 16) : '';
 
             // Update button to show it's an update
             const btn = document.getElementById('memoSubmitBtn');
@@ -1361,6 +1547,7 @@
             const clientName = document.getElementById('memoClient').value;
             const location = document.getElementById('memoLocation').value;
             const price = document.getElementById('memoPrice').value;
+            const amountReceived = document.getElementById('memoReceived').value; // NEW
             const agent = document.getElementById('memoAgent').value;
             const depositAmount = document.getElementById('memoDepositAmount').value;
             const depositMethod = document.getElementById('memoDepositMethod').value;
@@ -1374,7 +1561,7 @@
             if(end.length > 16) end = roundToHour(end);
 
             const data = {
-                carName, clientName, location, price, agent, depositAmount, depositMethod, start, end, 
+                carName, clientName, location, price, amountReceived, agent, depositAmount, depositMethod, start, end, 
                 updatedAt: serverTimestamp()
             };
 
