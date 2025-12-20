@@ -35,7 +35,6 @@
             min-height: 3rem; 
         }
         
-        /* PRINT STYLES */
         @media print {
             #sidebar, header, #view-dashboard, #view-fleet, #view-add-car, #view-service, #view-bookings, #finance-controls, #mobileOverlay, .no-print {
                 display: none !important;
@@ -151,19 +150,16 @@
              
             <div id="view-dashboard" class="page-view animate-fade-in block space-y-6">
                 <h2 class="md:hidden text-2xl font-bold text-gray-800 mb-4">Dashboard Overview</h2>
-                 
                 <div id="dashboard-notifs" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 shadow-sm animate-fade-in">
                     <h3 class="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2"><i class="fas fa-bell text-amber-600"></i> Action Required</h3>
                     <ul id="dashboard-notif-list" class="space-y-1 text-sm text-amber-700 font-medium"></ul>
                 </div>
-
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div onclick="showAllFleet()" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition"><div><p class="text-xs font-bold text-gray-400 uppercase">Total Fleet</p><h3 class="text-3xl font-bold text-gray-800 mt-1" id="stat-total">0</h3></div><div class="h-10 w-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center"><i class="fas fa-car"></i></div></div>
                     <div onclick="showFilteredFleet('Available')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-green-50 transition border-green-100"><div><p class="text-xs font-bold text-gray-400 uppercase">Available</p><h3 class="text-3xl font-bold text-green-600 mt-1" id="stat-available">0</h3></div><div class="h-10 w-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><i class="fas fa-check"></i></div></div>
                     <div onclick="showFilteredFleet('Rented')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-orange-50 transition border-orange-100"><div><p class="text-xs font-bold text-gray-400 uppercase">Rented</p><h3 class="text-3xl font-bold text-orange-600 mt-1" id="stat-rented">0</h3></div><div class="h-10 w-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center"><i class="fas fa-key"></i></div></div>
                     <div onclick="showFilteredFleet('Maintenance')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-red-50 transition border-red-100"><div><p class="text-xs font-bold text-gray-400 uppercase">Maintenance</p><h3 class="text-3xl font-bold text-red-600 mt-1" id="stat-maintenance">0</h3></div><div class="h-10 w-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center"><i class="fas fa-tools"></i></div></div>
                 </div>
-                 
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
                     <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 mb-4"><i class="fas fa-chart-pie text-2xl"></i></div>
                     <h3 class="text-lg font-bold text-gray-900">Quick Actions</h3>
@@ -175,234 +171,48 @@
             </div>
 
             <div id="view-fleet" class="page-view hidden space-y-4">
-                <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2">
-                    <i class="fas fa-arrow-left"></i> Back to Dashboard
-                </button>
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <h2 class="text-2xl font-bold text-gray-800" id="fleetTitle">Fleet Inventory</h2>
-                    <div class="relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="searchInput" placeholder="Search cars..." class="w-full md:w-64 pl-10 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none"></div>
-                </div>
-                <div id="loading" class="py-12 text-center"><i class="fas fa-spinner fa-spin text-3xl text-indigo-600 mb-2"></i><p class="text-gray-500">Loading fleet...</p></div>
-                <div id="carsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-20"></div>
+                <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2"><i class="fas fa-arrow-left"></i> Back</button>
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4"><h2 class="text-2xl font-bold text-gray-800" id="fleetTitle">Fleet Inventory</h2><div class="relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="searchInput" placeholder="Search cars..." class="w-full md:w-64 pl-10 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none"></div></div>
+                <div id="loading" class="py-12 text-center"><i class="fas fa-spinner fa-spin text-3xl text-indigo-600 mb-2"></i><p class="text-gray-500">Loading fleet...</p></div><div id="carsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-20"></div>
             </div>
 
             <div id="view-add-car" class="page-view hidden space-y-4">
-                <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2">
-                    <i class="fas fa-arrow-left"></i> Back to Dashboard
-                </button>
+                <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2"><i class="fas fa-arrow-left"></i> Back</button>
                 <h2 id="formPageTitle" class="text-2xl font-bold text-gray-800">Add New Vehicle</h2>
-                <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-                    <form id="addCarForm" class="p-5 md:p-8 space-y-6">
-                        <input type="hidden" id="editCarId">
-                        <input type="hidden" id="carOrder" value="999">
-                        <div><label class="block text-sm font-bold text-gray-700 mb-2">Name of Car</label><input type="text" id="carName" required class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="e.g. BMW X5"></div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Category</label>
-                            <div class="relative">
-                                <select id="carCategory" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none">
-                                    <option value="Sedan">Sedan</option>
-                                    <option value="Hatchback">Hatchback</option>
-                                    <option value="Coupe">Coupe</option>
-                                    <option value="SUV">SUV</option>
-                                    <option value="Crossover">Crossover</option>
-                                    <option value="Luxury SUV">Luxury SUV</option>
-                                    <option value="Luxury">Luxury</option>
-                                    <option value="Sports">Sports</option>
-                                    <option value="Convertible">Convertible</option>
-                                    <option value="Van">Van</option>
-                                    <option value="Truck">Truck</option>
-                                </select>
-                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Price/Day</label><input type="number" id="carPrice" required class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0"></div>
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Seats</label><input type="number" id="carSeats" value="5" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Transmission</label><div class="relative"><select id="carTransmission" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none"><option value="Automatic">Auto</option><option value="Manual">Manual</option></select><i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i></div></div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Fuel</label>
-                                <div class="relative">
-                                    <select id="carFuel" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none">
-                                        <option value="Petrol">Essence</option>
-                                        <option value="Diesel">Diesel</option>
-                                        <option value="Electric">Electric</option>
-                                        <option value="Hybrid">Hybrid</option>
-                                    </select>
-                                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div><label class="block text-sm font-bold text-gray-700 mb-2">Status</label><div class="relative"><select id="carStatus" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none"><option value="Available">Available</option><option value="Rented">Rented</option><option value="Maintenance">Maintenance</option></select><i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i></div></div>
-                        <div><label class="block text-sm font-bold text-gray-700 mb-2">Image URL</label><input type="url" id="carImage" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="https://..."></div>
-                        <div><label class="block text-sm font-bold text-gray-700 mb-2">Description</label><textarea id="carDescription" rows="3" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea></div>
-                        <button type="submit" id="submitBtn" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg active:scale-[0.98] transition-transform cursor-pointer">Save Vehicle</button>
-                    </form>
-                </div>
+                <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden"><form id="addCarForm" class="p-5 md:p-8 space-y-6"><input type="hidden" id="editCarId"><input type="hidden" id="carOrder" value="999"><div><label class="block text-sm font-bold text-gray-700 mb-2">Name of Car</label><input type="text" id="carName" required class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="e.g. BMW X5"></div><div><label class="block text-sm font-bold text-gray-700 mb-2">Category</label><select id="carCategory" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"><option value="Sedan">Sedan</option><option value="SUV">SUV</option><option value="Luxury">Luxury</option><option value="Sports">Sports</option></select></div><div class="grid grid-cols-2 gap-4"><div><label class="block text-sm font-bold text-gray-700 mb-2">Price/Day</label><input type="number" id="carPrice" required class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></div><div><label class="block text-sm font-bold text-gray-700 mb-2">Seats</label><input type="number" id="carSeats" value="5" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg"></div></div><div class="grid grid-cols-2 gap-4"><div><label class="block text-sm font-bold text-gray-700 mb-2">Transmission</label><select id="carTransmission" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg"><option value="Automatic">Auto</option><option value="Manual">Manual</option></select></div><div><label class="block text-sm font-bold text-gray-700 mb-2">Fuel</label><select id="carFuel" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg"><option value="Petrol">Essence</option><option value="Diesel">Diesel</option></select></div></div><div><label class="block text-sm font-bold text-gray-700 mb-2">Status</label><select id="carStatus" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg"><option value="Available">Available</option><option value="Rented">Rented</option><option value="Maintenance">Maintenance</option></select></div><div><label class="block text-sm font-bold text-gray-700 mb-2">Image URL</label><input type="url" id="carImage" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg"></div><div><label class="block text-sm font-bold text-gray-700 mb-2">Description</label><textarea id="carDescription" rows="3" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg"></textarea></div><button type="submit" id="submitBtn" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg">Save Vehicle</button></form></div>
             </div>
 
             <div id="view-bookings" class="page-view hidden space-y-4">
-                <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2">
-                    <i class="fas fa-arrow-left"></i> Back to Dashboard
-                </button>
+                <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2"><i class="fas fa-arrow-left"></i> Back</button>
                 <h2 class="text-2xl font-bold text-gray-800">Booking Memos</h2>
-                <div id="notification-center" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 shadow-sm">
-                    <h3 class="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2"><i class="fas fa-bell text-amber-600"></i> Today's Alerts</h3>
-                    <ul id="notification-list" class="space-y-1 text-sm text-amber-700 font-medium"></ul>
-                </div>
-                <div class="bg-indigo-50 text-indigo-700 p-4 rounded-lg text-sm mb-4">
-                    <i class="fas fa-info-circle mr-2"></i> Internal memos only.
-                </div>
+                <div id="notification-center" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 shadow-sm"><h3 class="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2"><i class="fas fa-bell text-amber-600"></i> Today's Alerts</h3><ul id="notification-list" class="space-y-1 text-sm text-amber-700 font-medium"></ul></div>
                 <form id="bookingMemoForm" class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-200 mb-6 overflow-hidden">
                       <input type="hidden" id="editMemoId">
                       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end min-w-0">
-                         <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Car Name <span class="text-red-500">*</span></label>
-                            <input type="text" id="memoCar" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Dacia Logan" required>
-                        </div>
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-blue-600 mb-1 uppercase tracking-wide">Departure <span class="text-red-500">*</span></label>
-                            <input type="datetime-local" id="memoStart" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
-                        </div>
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return <span class="text-red-500">*</span></label>
-                            <input type="datetime-local" id="memoEnd" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
-                        </div>
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Daily Price (DH) <span class="text-red-500">*</span></label>
-                            <input type="number" id="memoPrice" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
-                        </div>
-                        <div class="md:col-span-1 min-w-0">
-                             <label class="block text-xs font-bold text-green-600 mb-1 uppercase tracking-wide">Amount Received (Advance)</label>
-                             <input type="number" id="memoReceived" class="w-full h-12 px-4 bg-gray-50 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
-                        </div>
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Client Name</label>
-                            <input type="text" id="memoClient" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="Client Name">
-                        </div>
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Location</label>
-                            <input type="text" id="memoLocation" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Airport">
-                        </div>
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Agent</label>
-                            <div class="relative">
-                                <select id="memoAgent" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium appearance-none">
-                                    <option value="" disabled selected>Select Agent</option>
-                                    <option value="Anas">Anas</option>
-                                    <option value="Amine">Amine</option>
-                                    <option value="Mustapha">Mustapha</option>
-                                </select>
-                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
-                            </div>
-                        </div>
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Deposit Amount (DH)</label>
-                            <input type="number" id="memoDepositAmount" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
-                        </div>
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Deposit Method</label>
-                            <div class="relative">
-                                <select id="memoDepositMethod" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium appearance-none">
-                                    <option value="Cash">Cash</option>
-                                    <option value="Card">Card</option>
-                                    <option value="Cheque">Cheque</option>
-                                    <option value="Transfer">Transfer</option>
-                                </select>
-                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
-                            </div>
-                        </div>
-                        <div class="md:col-span-3 min-w-0 mt-4 flex gap-2">
-                            <button type="button" onclick="resetMemoForm()" id="cancelMemoEdit" class="hidden w-1/3 h-12 bg-gray-200 text-gray-600 font-bold rounded-lg hover:bg-gray-300 transition text-sm">Cancel</button>
-                            <button type="submit" id="memoSubmitBtn" class="flex-1 h-12 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2 text-sm"><i class="fas fa-plus"></i> Add Booking Memo</button>
-                        </div>
-                    </div>
+                         <div class="md:col-span-1 min-w-0"><label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Car Name <span class="text-red-500">*</span></label><input type="text" id="memoCar" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Dacia Logan" required></div>
+                         <div class="md:col-span-1 min-w-0"><label class="block text-xs font-bold text-blue-600 mb-1 uppercase tracking-wide">Departure <span class="text-red-500">*</span></label><input type="datetime-local" id="memoStart" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-700 text-sm font-medium" required></div>
+                         <div class="md:col-span-1 min-w-0"><label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return <span class="text-red-500">*</span></label><input type="datetime-local" id="memoEnd" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-gray-700 text-sm font-medium" required></div>
+                         <div class="md:col-span-1 min-w-0"><label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Daily Price (DH)</label><input type="number" id="memoPrice" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0"></div>
+                         <div class="md:col-span-1 min-w-0"><label class="block text-xs font-bold text-green-600 mb-1 uppercase tracking-wide">Received</label><input type="number" id="memoReceived" class="w-full h-12 px-4 bg-gray-50 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0"></div>
+                         <div class="md:col-span-1 min-w-0"><label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Client</label><input type="text" id="memoClient" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium"></div>
+                         <div class="md:col-span-1 min-w-0"><label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Location</label><input type="text" id="memoLocation" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium"></div>
+                         <div class="md:col-span-1 min-w-0"><label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Agent</label><select id="memoAgent" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium"><option value="" disabled selected>Select</option><option value="Anas">Anas</option><option value="Amine">Amine</option><option value="Mustapha">Mustapha</option></select></div>
+                         <div class="md:col-span-1 min-w-0"><label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Deposit (DH)</label><input type="number" id="memoDepositAmount" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0"></div>
+                         <div class="md:col-span-1 min-w-0"><label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Deposit Method</label><select id="memoDepositMethod" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium"><option value="Cash">Cash</option><option value="Card">Card</option><option value="Cheque">Cheque</option><option value="Transfer">Transfer</option></select></div>
+                         <div class="md:col-span-3 min-w-0 mt-4 flex gap-2"><button type="button" onclick="resetMemoForm()" id="cancelMemoEdit" class="hidden w-1/3 h-12 bg-gray-200 text-gray-600 font-bold rounded-lg hover:bg-gray-300 transition text-sm">Cancel</button><button type="submit" id="memoSubmitBtn" class="flex-1 h-12 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md flex items-center justify-center gap-2 text-sm"><i class="fas fa-plus"></i> Add Booking Memo</button></div>
+                      </div>
                 </form>
-
-                <div class="mb-4">
-                    <div class="relative">
-                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="bookingSearch" placeholder="Search by Car or Client..." class="w-full pl-11 pr-4 h-12 bg-white border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-                    </div>
-                </div>
-
-                <div class="flex space-x-2 mb-4 border-b border-gray-200 overflow-x-auto no-scrollbar">
-                    <button onclick="filterBookings('active')" id="tab-active" class="booking-tab whitespace-nowrap px-6 py-3 border-b-2 border-indigo-600 font-bold text-indigo-600 transition-colors">Active</button>
-                    <button onclick="filterBookings('upcoming')" id="tab-upcoming" class="booking-tab whitespace-nowrap px-6 py-3 border-b-2 border-transparent text-gray-500 hover:text-indigo-600 transition-colors">Upcoming</button>
-                    <button onclick="filterBookings('past')" id="tab-past" class="booking-tab whitespace-nowrap px-6 py-3 border-b-2 border-transparent text-gray-500 hover:text-indigo-600 transition-colors">History</button>
-                </div>
-
-                <div id="booking-lists-container" class="pb-20">
-                    <div id="list-active" class="booking-list space-y-3"></div>
-                    <div id="list-upcoming" class="booking-list space-y-3 hidden"></div>
-                    <div id="list-past" class="booking-list space-y-6 hidden"></div>
-                </div>
+                <div class="mb-4"><div class="relative"><i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i><input type="text" id="bookingSearch" placeholder="Search..." class="w-full pl-11 pr-4 h-12 bg-white border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"></div></div>
+                <div class="flex space-x-2 mb-4 border-b border-gray-200 overflow-x-auto no-scrollbar"><button onclick="filterBookings('active')" id="tab-active" class="booking-tab whitespace-nowrap px-6 py-3 border-b-2 border-indigo-600 font-bold text-indigo-600 transition-colors">Active</button><button onclick="filterBookings('upcoming')" id="tab-upcoming" class="booking-tab whitespace-nowrap px-6 py-3 border-b-2 border-transparent text-gray-500 hover:text-indigo-600 transition-colors">Upcoming</button><button onclick="filterBookings('past')" id="tab-past" class="booking-tab whitespace-nowrap px-6 py-3 border-b-2 border-transparent text-gray-500 hover:text-indigo-600 transition-colors">History</button></div>
+                <div id="booking-lists-container" class="pb-20"><div id="list-active" class="booking-list space-y-3"></div><div id="list-upcoming" class="booking-list space-y-3 hidden"></div><div id="list-past" class="booking-list space-y-6 hidden"></div></div>
             </div>
 
             <div id="view-service" class="page-view hidden space-y-4">
-                <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2">
-                    <i class="fas fa-arrow-left"></i> Back to Dashboard
-                </button>
+                <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2"><i class="fas fa-arrow-left"></i> Back</button>
                 <h2 class="text-2xl font-bold text-gray-800">Task Manager</h2>
-                <div id="service-notification-center" class="hidden bg-red-50 border border-red-200 rounded-xl p-4 mb-4 shadow-sm">
-                    <h3 class="text-sm font-bold text-red-800 mb-2 flex items-center gap-2"><i class="fas fa-exclamation-triangle text-red-600"></i> Due Soon (48h)</h3>
-                    <ul id="service-notification-list" class="space-y-1 text-sm text-red-700 font-medium"></ul>
-                </div>
-                <form id="serviceForm" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mb-6">
-                    <input type="hidden" id="editingServiceId">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Description</label>
-                            <input type="text" id="serviceDesc" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium" placeholder="e.g. Pay Rent, Car Oil Change, Check to collect..." required>
-                        </div>
-                        <div class="md:col-span-1">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Category</label>
-                            <div class="relative">
-                                <select id="serviceType" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium appearance-none">
-                                    <option value="general">General Task</option>
-                                    <option value="finance">Finance / Check / Money</option>
-                                    <option value="maintenance">Car Maintenance</option>
-                                    <option value="urgent">Urgent / Important</option>
-                                </select>
-                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
-                            </div>
-                        </div>
-                        <div class="md:col-span-1">
-                            <label class="block text-xs font-bold text-green-600 mb-1 uppercase tracking-wide">Cost (DH) - Optional</label>
-                            <input type="number" id="serviceCost" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-gray-700 font-medium" placeholder="0">
-                        </div>
-                        <div class="md:col-span-1">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Repeat?</label>
-                            <div class="relative">
-                                <select id="serviceRecurrence" onchange="toggleRepeatLimit()" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium appearance-none">
-                                    <option value="none">One-time Task</option>
-                                    <option value="weekly">Weekly</option>
-                                    <option value="monthly">Monthly</option>
-                                    <option value="yearly">Yearly</option>
-                                </select>
-                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
-                            </div>
-                        </div>
-                        <div class="md:col-span-1 hidden" id="repeatLimitContainer">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Stop after how many times?</label>
-                            <input type="number" id="serviceRepeatLimit" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium" placeholder="e.g. 12 (Leave empty for forever)">
-                        </div>
-                        <div class="md:col-span-1">
-                            <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Due Date</label>
-                            <input type="datetime-local" id="serviceDate" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-gray-700 font-medium" required>
-                        </div>
-                        <div class="md:col-span-1">
-                            <button type="submit" id="serviceSubmitBtn" class="w-full h-12 bg-gray-800 text-white font-bold rounded-lg hover:bg-gray-900 transition shadow-md flex items-center justify-center gap-2"><i class="fas fa-plus-circle"></i> Create Task</button>
-                        </div>
-                    </div>
-                </form>
-                <div class="flex space-x-2 mb-4 border-b border-gray-200 overflow-x-auto no-scrollbar">
-                    <button onclick="filterService('pending')" id="tab-service-pending" class="service-tab whitespace-nowrap px-6 py-3 border-b-2 border-indigo-600 font-bold text-indigo-600 transition-colors">Pending Tasks</button>
-                    <button onclick="filterService('history')" id="tab-service-history" class="service-tab whitespace-nowrap px-6 py-3 border-b-2 border-transparent text-gray-500 hover:text-indigo-600 transition-colors">History</button>
-                </div>
-                <div id="service-list-pending" class="service-list grid gap-3 pb-20"></div>
-                <div id="service-list-history" class="service-list grid gap-3 pb-20 hidden"></div>
+                <div id="service-notification-center" class="hidden bg-red-50 border border-red-200 rounded-xl p-4 mb-4 shadow-sm"><h3 class="text-sm font-bold text-red-800 mb-2 flex items-center gap-2"><i class="fas fa-exclamation-triangle text-red-600"></i> Due Soon</h3><ul id="service-notification-list" class="space-y-1 text-sm text-red-700 font-medium"></ul></div>
+                <form id="serviceForm" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mb-6"><input type="hidden" id="editingServiceId"><div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end"><div class="md:col-span-2"><label class="block text-xs font-bold text-gray-500 mb-1">Description</label><input type="text" id="serviceDesc" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium" placeholder="Task..." required></div><div class="md:col-span-1"><label class="block text-xs font-bold text-gray-500 mb-1">Category</label><select id="serviceType" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"><option value="general">General</option><option value="maintenance">Maintenance</option><option value="urgent">Urgent</option></select></div><div class="md:col-span-1"><label class="block text-xs font-bold text-green-600 mb-1">Cost (Optional)</label><input type="number" id="serviceCost" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" placeholder="0"></div><div class="md:col-span-1"><label class="block text-xs font-bold text-gray-500 mb-1">Repeat?</label><select id="serviceRecurrence" onchange="toggleRepeatLimit()" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"><option value="none">One-time</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></div><div class="md:col-span-1 hidden" id="repeatLimitContainer"><label class="block text-xs font-bold text-gray-500 mb-1">Stop after?</label><input type="number" id="serviceRepeatLimit" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg"></div><div class="md:col-span-1"><label class="block text-xs font-bold text-red-600 mb-1">Due Date</label><input type="datetime-local" id="serviceDate" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none" required></div><div class="md:col-span-1"><button type="submit" id="serviceSubmitBtn" class="w-full h-12 bg-gray-800 text-white font-bold rounded-lg hover:bg-gray-900 transition shadow-md">Create Task</button></div></div></form>
+                <div class="flex space-x-2 mb-4 border-b border-gray-200 overflow-x-auto no-scrollbar"><button onclick="filterService('pending')" id="tab-service-pending" class="service-tab whitespace-nowrap px-6 py-3 border-b-2 border-indigo-600 font-bold text-indigo-600 transition-colors">Pending</button><button onclick="filterService('history')" id="tab-service-history" class="service-tab whitespace-nowrap px-6 py-3 border-b-2 border-transparent text-gray-500 hover:text-indigo-600 transition-colors">History</button></div><div id="service-list-pending" class="service-list grid gap-3 pb-20"></div><div id="service-list-history" class="service-list grid gap-3 pb-20 hidden"></div>
             </div>
 
             <div id="view-finance" class="page-view hidden space-y-6">
@@ -447,7 +257,27 @@
                          <div class="flex gap-2 mt-2">
                              <button onclick="renderFinanceDashboard()" class="flex-1 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2 py-2.5 shadow-sm"><i class="fas fa-search"></i> Search</button>
                              <button onclick="downloadPDF()" class="flex-1 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 transition flex items-center justify-center gap-2 py-2.5 shadow-sm"><i class="fas fa-file-download"></i> Download PDF</button>
+                             <button onclick="toggleExpenseForm()" class="px-4 bg-red-50 text-red-600 rounded-lg font-bold hover:bg-red-100 transition flex items-center justify-center gap-2 py-2.5 shadow-sm border border-red-100"><i class="fas fa-plus"></i> Add Expense</button>
                          </div>
+                    </div>
+                    
+                    <div id="addExpenseForm" class="hidden bg-white p-4 rounded-xl border border-gray-200 shadow-sm animate-fade-in">
+                        <h3 class="text-sm font-bold text-red-600 mb-3 uppercase tracking-wide">Record Expense</h3>
+                        <form id="expenseFormInner" class="flex flex-col md:flex-row gap-3 items-end">
+                            <div class="flex-1 w-full">
+                                <label class="block text-xs font-bold text-gray-500 mb-1">Description</label>
+                                <input type="text" id="expDesc" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="e.g. Office Rent, Salary..." required>
+                            </div>
+                            <div class="w-full md:w-32">
+                                <label class="block text-xs font-bold text-gray-500 mb-1">Amount (DH)</label>
+                                <input type="number" id="expAmount" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="0" required>
+                            </div>
+                            <div class="w-full md:w-40">
+                                <label class="block text-xs font-bold text-gray-500 mb-1">Date</label>
+                                <input type="date" id="expDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" required>
+                            </div>
+                            <button type="submit" class="w-full md:w-auto px-6 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 text-sm h-[38px]">Add</button>
+                        </form>
                     </div>
                 </div>
 
@@ -485,7 +315,8 @@
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto custom-scroll pb-2">
+                    <h4 class="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Revenue (Bookings)</h4>
+                    <div class="overflow-x-auto custom-scroll pb-2 mb-8">
                         <table class="w-full text-left border-collapse min-w-[600px] md:min-w-0">
                             <thead>
                                 <tr class="border-b-2 border-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wide">
@@ -497,8 +328,22 @@
                                     <th class="py-3 px-2 text-right text-orange-600">Rest</th>
                                 </tr>
                             </thead>
-                            <tbody id="finance-table-body" class="text-sm text-gray-700">
-                                </tbody>
+                            <tbody id="finance-table-body" class="text-sm text-gray-700"></tbody>
+                        </table>
+                    </div>
+
+                    <h4 class="text-sm font-bold text-red-600 uppercase tracking-wide mb-3">Expenses</h4>
+                    <div class="overflow-x-auto custom-scroll pb-2">
+                        <table class="w-full text-left border-collapse min-w-[400px] md:min-w-0">
+                            <thead>
+                                <tr class="border-b-2 border-red-50 text-xs font-bold text-red-400 uppercase tracking-wide">
+                                    <th class="py-3 px-2">Date</th>
+                                    <th class="py-3 px-2">Description</th>
+                                    <th class="py-3 px-2 text-right">Amount</th>
+                                    <th class="py-3 px-2 text-right no-print">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="finance-expenses-body" class="text-sm text-gray-700"></tbody>
                         </table>
                     </div>
 
@@ -542,14 +387,7 @@
             const navBtn = document.getElementById('nav-' + tabName);
             if(navBtn) navBtn.classList.add('active');
             
-            const titles = {
-                'dashboard': 'Dashboard Overview',
-                'fleet': 'Fleet Inventory',
-                'add-car': 'Add New Vehicle',
-                'bookings': 'Booking Memos',
-                'service': 'Tasks & Alerts',
-                'finance': 'Finance Reports'
-            };
+            const titles = { 'dashboard': 'Dashboard', 'fleet': 'Inventory', 'add-car': 'Add Vehicle', 'bookings': 'Bookings', 'service': 'Tasks', 'finance': 'Reports' };
             const titleEl = document.getElementById('desktopTitle');
             if(titleEl) titleEl.innerText = titles[tabName] || 'Admin Panel';
 
@@ -579,6 +417,12 @@
             const container = document.getElementById('repeatLimitContainer');
             if(val === 'none') container.classList.add('hidden');
             else container.classList.remove('hidden');
+        }
+        
+        function toggleExpenseForm() {
+            const form = document.getElementById('addExpenseForm');
+            if(form.classList.contains('hidden')) form.classList.remove('hidden');
+            else form.classList.add('hidden');
         }
 
         window.filterBookings = function(tab) {
@@ -630,12 +474,14 @@
         const collectionPath = 'cars'; 
         const bookingCollection = 'admin_bookings'; 
         const serviceCollection = 'service_memos';
+        const expenseCollection = 'admin_expenses'; // NEW COLLECTION
 
         let currentUser = null;
         let carsData = [];
         let sortable = null;
         let allBookings = [];
         let allServices = [];
+        let allExpenses = []; // NEW ARRAY
         
         onAuthStateChanged(auth, (user) => {
             const loginScreen = document.getElementById('login-screen');
@@ -645,6 +491,7 @@
                 loadCars();
                 loadBookings();
                 loadServices();
+                loadExpenses(); // NEW LOAD
             } else {
                 currentUser = null;
                 loginScreen.classList.remove('hidden'); 
@@ -870,6 +717,14 @@
                 snapshot.forEach(doc => allServices.push({id: doc.id, ...doc.data()}));
                 renderServices();
                 updateGlobalNotifications();
+            });
+        }
+
+        function loadExpenses() {
+            onSnapshot(collection(db, expenseCollection), (snapshot) => {
+                allExpenses = [];
+                snapshot.forEach(doc => allExpenses.push({id: doc.id, ...doc.data()}));
+                if(!document.getElementById('view-finance').classList.contains('hidden')) renderFinanceDashboard();
             });
         }
 
@@ -1156,6 +1011,28 @@
             }
         }
 
+        // --- NEW: EXPENSE FORM LOGIC ---
+        document.getElementById('expenseFormInner').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const desc = document.getElementById('expDesc').value;
+            const amount = document.getElementById('expAmount').value;
+            const date = document.getElementById('expDate').value;
+            
+            try {
+                await addDoc(collection(db, expenseCollection), { description: desc, amount: Number(amount), date: date, createdAt: serverTimestamp() });
+                document.getElementById('expenseFormInner').reset();
+                // Set date back to today
+                document.getElementById('expDate').valueAsDate = new Date();
+                toggleExpenseForm();
+            } catch(e) { alert("Error adding expense: " + e.message); }
+        });
+
+        window.deleteExpense = async function(id) {
+            if(confirm("Delete this expense?")) {
+                await deleteDoc(doc(db, expenseCollection, id));
+            }
+        }
+
         // --- INSTANT PDF DOWNLOAD ---
         window.downloadPDF = function() {
             const element = document.getElementById('finance-report-container');
@@ -1178,16 +1055,18 @@
             });
         }
 
-        // --- REVISED FINANCE DASHBOARD LOGIC (DATE RANGE + SORT + EXPENSES) ---
+        // --- REVISED FINANCE DASHBOARD LOGIC (REVENUE - EXPENSES) ---
         window.renderFinanceDashboard = function() {
             const startDateVal = document.getElementById('finStartDate').value;
             const endDateVal = document.getElementById('finEndDate').value;
             const statusFilter = document.getElementById('financeStatus').value;
             const sortVal = document.getElementById('financeSort').value; 
             const tableBody = document.getElementById('finance-table-body');
+            const expensesBody = document.getElementById('finance-expenses-body');
             const now = new Date();
             
             tableBody.innerHTML = '';
+            expensesBody.innerHTML = '';
             
             // 1. FILTER BOOKINGS
             let filtered = allBookings.filter(b => {
@@ -1261,13 +1140,21 @@
                 tableBody.appendChild(tr);
             });
 
-            // 4. CALCULATE EXPENSES (From Task Manager)
+            // 4. FILTER EXPENSES & LIST
             let totalExpenses = 0;
-            allServices.forEach(s => {
+            allExpenses.forEach(exp => {
                 // Filter by the same date range as the report
-                const d = s.dueDate.split('T')[0];
-                if(d >= startDateVal && d <= endDateVal && s.cost) {
-                    totalExpenses += Number(s.cost);
+                if(exp.date >= startDateVal && exp.date <= endDateVal) {
+                    totalExpenses += Number(exp.amount);
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-red-50 hover:bg-red-50/50";
+                    tr.innerHTML = `
+                        <td class="py-3 px-2 text-gray-500 text-xs">${new Date(exp.date).toLocaleDateString()}</td>
+                        <td class="py-3 px-2 font-bold text-gray-700">${exp.description}</td>
+                        <td class="py-3 px-2 text-right font-bold text-red-600">-${Number(exp.amount).toLocaleString()}</td>
+                        <td class="py-3 px-2 text-right no-print"><button onclick="deleteExpense('${exp.id}')" class="text-gray-400 hover:text-red-600"><i class="fas fa-trash text-xs"></i></button></td>
+                    `;
+                    expensesBody.appendChild(tr);
                 }
             });
 
