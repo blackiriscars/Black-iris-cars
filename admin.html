@@ -79,30 +79,36 @@
         </div>
         <nav class="flex-1 overflow-y-auto py-4">
             <ul class="space-y-2">
-                <li><a href="index.html" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer text-indigo-200"><i class="fas fa-arrow-left w-5 text-center"></i><span class="font-medium">Back to Website</span></a></li>
+                <li><a href="#" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer text-indigo-200"><i class="fas fa-globe w-5 text-center"></i><span class="font-medium">Website</span></a></li>
                 <li class="my-2 border-t border-indigo-800"></li>
                  
                 <li><button type="button" onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item active w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-chart-line w-5 text-center"></i><span class="font-medium">Dashboard</span></button></li>
-                <li class="px-6 pt-4 pb-1 text-xs font-bold text-indigo-400 uppercase">Inventory</li>
-                <li><button type="button" onclick="showAllFleet()" id="nav-fleet" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-car w-5 text-center"></i><span class="font-medium">Fleet Inventory</span></button></li>
-                <li><button type="button" onclick="switchTab('add-car', true)" id="nav-add-car" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-plus-circle w-5 text-center"></i><span class="font-medium">Add New Car</span></button></li>
+                
+                <li class="px-6 pt-4 pb-1 text-xs font-bold text-indigo-400 uppercase">Fleet</li>
+                <li><button type="button" onclick="showAllFleet()" id="nav-fleet" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-car w-5 text-center"></i><span class="font-medium">Inventory</span></button></li>
+                <li><button type="button" onclick="switchTab('add-car', true)" id="nav-add-car" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer"><i class="fas fa-plus-circle w-5 text-center"></i><span class="font-medium">Add Vehicle</span></button></li>
                  
-                <li class="px-6 pt-4 pb-1 text-xs font-bold text-indigo-400 uppercase">Operations</li>
+                <li class="px-6 pt-4 pb-1 text-xs font-bold text-indigo-400 uppercase">Business</li>
                 <li>
                     <button type="button" onclick="switchTab('bookings')" id="nav-bookings" class="nav-item w-full flex items-center justify-between px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer">
-                        <div class="flex items-center gap-3"><i class="fas fa-calendar-alt w-5 text-center"></i><span class="font-medium">Bookings (Memo)</span></div>
+                        <div class="flex items-center gap-3"><i class="fas fa-calendar-alt w-5 text-center"></i><span class="font-medium">Bookings</span></div>
                         <span id="badge-bookings" class="hidden bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">0</span>
                     </button>
                 </li>
                 <li>
                     <button type="button" onclick="switchTab('service')" id="nav-service" class="nav-item w-full flex items-center justify-between px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer">
-                        <div class="flex items-center gap-3"><i class="fas fa-tasks w-5 text-center"></i><span class="font-medium">Tasks & Alerts</span></div>
+                        <div class="flex items-center gap-3"><i class="fas fa-tools w-5 text-center"></i><span class="font-medium">Tasks / Maint.</span></div>
                         <span id="badge-service" class="hidden bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">0</span>
                     </button>
                 </li>
                 <li>
+                    <button type="button" onclick="switchTab('expenses')" id="nav-expenses" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer">
+                        <i class="fas fa-receipt w-5 text-center"></i><span class="font-medium">General Expenses</span>
+                    </button>
+                </li>
+                <li>
                     <button type="button" onclick="switchTab('finance')" id="nav-finance" class="nav-item w-full flex items-center gap-3 px-6 py-4 hover:bg-indigo-800 transition-colors text-left cursor-pointer">
-                        <i class="fas fa-wallet w-5 text-center"></i><span class="font-medium">Finance Reports</span>
+                        <i class="fas fa-wallet w-5 text-center"></i><span class="font-medium">Financial Reports</span>
                     </button>
                 </li>
             </ul>
@@ -135,15 +141,6 @@
                     <div onclick="showFilteredFleet('Rented')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-orange-50 transition border-orange-100"><div><p class="text-xs font-bold text-gray-400 uppercase">Rented</p><h3 class="text-3xl font-bold text-orange-600 mt-1" id="stat-rented">0</h3></div><div class="h-10 w-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center"><i class="fas fa-key"></i></div></div>
                     <div onclick="showFilteredFleet('Maintenance')" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center cursor-pointer hover:bg-red-50 transition border-red-100"><div><p class="text-xs font-bold text-gray-400 uppercase">Maintenance</p><h3 class="text-3xl font-bold text-red-600 mt-1" id="stat-maintenance">0</h3></div><div class="h-10 w-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center"><i class="fas fa-tools"></i></div></div>
                 </div>
-                 
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
-                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 mb-4"><i class="fas fa-chart-pie text-2xl"></i></div>
-                    <h3 class="text-lg font-bold text-gray-900">Quick Actions</h3>
-                    <div class="flex flex-col sm:flex-row justify-center gap-3 mt-4">
-                        <button type="button" onclick="showAllFleet()" class="w-full sm:w-auto px-6 py-3 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg shadow-sm active:bg-gray-50 hover:bg-gray-50 transition-colors cursor-pointer relative z-10">View Inventory</button>
-                        <button type="button" onclick="switchTab('add-car', true)" class="w-full sm:w-auto px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg shadow-md active:bg-indigo-700 hover:bg-indigo-700 transition-colors cursor-pointer relative z-10">Add Vehicle</button>
-                    </div>
-                </div>
             </div>
 
             <div id="view-fleet" class="page-view hidden space-y-4">
@@ -173,16 +170,11 @@
                             <div class="relative">
                                 <select id="carCategory" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none">
                                     <option value="Sedan">Sedan</option>
-                                    <option value="Hatchback">Hatchback</option>
-                                    <option value="Coupe">Coupe</option>
                                     <option value="SUV">SUV</option>
-                                    <option value="Crossover">Crossover</option>
-                                    <option value="Luxury SUV">Luxury SUV</option>
                                     <option value="Luxury">Luxury</option>
                                     <option value="Sports">Sports</option>
-                                    <option value="Convertible">Convertible</option>
+                                    <option value="Hatchback">Hatchback</option>
                                     <option value="Van">Van</option>
-                                    <option value="Truck">Truck</option>
                                 </select>
                                 <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
                             </div>
@@ -193,22 +185,10 @@
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Transmission</label><div class="relative"><select id="carTransmission" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none"><option value="Automatic">Auto</option><option value="Manual">Manual</option></select><i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i></div></div>
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Fuel</label>
-                                <div class="relative">
-                                    <select id="carFuel" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none">
-                                        <option value="Petrol">Essence</option>
-                                        <option value="Diesel">Diesel</option>
-                                        <option value="Electric">Electric</option>
-                                        <option value="Hybrid">Hybrid</option>
-                                    </select>
-                                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
-                                </div>
-                            </div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Fuel</label><div class="relative"><select id="carFuel" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none"><option value="Petrol">Essence</option><option value="Diesel">Diesel</option><option value="Electric">Electric</option><option value="Hybrid">Hybrid</option></select><i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i></div></div>
                         </div>
                         <div><label class="block text-sm font-bold text-gray-700 mb-2">Status</label><div class="relative"><select id="carStatus" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg appearance-none focus:ring-2 focus:ring-indigo-500 outline-none"><option value="Available">Available</option><option value="Rented">Rented</option><option value="Maintenance">Maintenance</option></select><i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i></div></div>
                         <div><label class="block text-sm font-bold text-gray-700 mb-2">Image URL</label><input type="url" id="carImage" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="https://..."></div>
-                        <div><label class="block text-sm font-bold text-gray-700 mb-2">Description</label><textarea id="carDescription" rows="3" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea></div>
                         <button type="submit" id="submitBtn" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg active:scale-[0.98] transition-transform cursor-pointer">Save Vehicle</button>
                     </form>
                 </div>
@@ -223,67 +203,41 @@
                     <h3 class="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2"><i class="fas fa-bell text-amber-600"></i> Today's Alerts</h3>
                     <ul id="notification-list" class="space-y-1 text-sm text-amber-700 font-medium"></ul>
                 </div>
-                <div class="bg-indigo-50 text-indigo-700 p-4 rounded-lg text-sm mb-4">
-                    <i class="fas fa-info-circle mr-2"></i> Internal memos only.
-                </div>
+                
                 <form id="bookingMemoForm" class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-200 mb-6 overflow-hidden">
                       <input type="hidden" id="editMemoId">
                       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end min-w-0">
-                         <div class="md:col-span-1 min-w-0">
+                        <div class="md:col-span-1 min-w-0">
+                            <label class="block text-xs font-bold text-indigo-600 mb-1 uppercase tracking-wide">Contract No. <span class="text-red-500">*</span></label>
+                            <input type="text" id="memoContract" class="w-full h-12 px-4 bg-gray-50 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-bold" placeholder="e.g. 2025-001" required>
+                        </div>
+                         <div class="md:col-span-2 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Car Name <span class="text-red-500">*</span></label>
-                            <input type="text" id="memoCar" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Dacia Logan" required>
+                            <input type="text" id="memoCar" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 text-sm font-medium" placeholder="e.g. Dacia Logan" required>
                         </div>
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-blue-600 mb-1 uppercase tracking-wide">Departure <span class="text-red-500">*</span></label>
-                            <input type="datetime-local" id="memoStart" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
+                            <input type="datetime-local" id="memoStart" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-gray-700 text-sm font-medium" required>
                         </div>
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Return <span class="text-red-500">*</span></label>
-                            <input type="datetime-local" id="memoEnd" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all text-gray-700 text-sm font-medium" required>
+                            <input type="datetime-local" id="memoEnd" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-gray-700 text-sm font-medium" required>
                         </div>
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Daily Price (DH) <span class="text-red-500">*</span></label>
-                            <input type="number" id="memoPrice" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
+                            <input type="number" id="memoPrice" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 text-sm font-medium" placeholder="0">
                         </div>
                         <div class="md:col-span-1 min-w-0">
-                             <label class="block text-xs font-bold text-green-600 mb-1 uppercase tracking-wide">Amount Received (Advance)</label>
-                             <input type="number" id="memoReceived" class="w-full h-12 px-4 bg-gray-50 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
+                             <label class="block text-xs font-bold text-green-600 mb-1 uppercase tracking-wide">Advance Received</label>
+                             <input type="number" id="memoReceived" class="w-full h-12 px-4 bg-gray-50 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-gray-700 text-sm font-medium" placeholder="0">
                         </div>
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Client Name</label>
-                            <input type="text" id="memoClient" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="Client Name">
+                            <input type="text" id="memoClient" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 text-sm font-medium" placeholder="Client Name">
                         </div>
                         <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Location</label>
-                            <input type="text" id="memoLocation" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="e.g. Airport">
-                        </div>
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Agent</label>
-                            <div class="relative">
-                                <select id="memoAgent" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium appearance-none">
-                                    <option value="" disabled selected>Select Agent</option>
-                                    <option value="Anas">Anas</option>
-                                    <option value="Amine">Amine</option>
-                                    <option value="Mustapha">Mustapha</option>
-                                </select>
-                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
-                            </div>
-                        </div>
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Deposit Amount (DH)</label>
-                            <input type="number" id="memoDepositAmount" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
-                        </div>
-                        <div class="md:col-span-1 min-w-0">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Deposit Method</label>
-                            <div class="relative">
-                                <select id="memoDepositMethod" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium appearance-none">
-                                    <option value="Cash">Cash</option>
-                                    <option value="Card">Card</option>
-                                    <option value="Cheque">Cheque</option>
-                                    <option value="Transfer">Transfer</option>
-                                </select>
-                                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
-                            </div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Location / Agent</label>
+                            <input type="text" id="memoLocation" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 text-sm font-medium" placeholder="e.g. Airport (Anas)">
                         </div>
                         <div class="md:col-span-3 min-w-0 mt-4 flex gap-2">
                             <button type="button" onclick="resetMemoForm()" id="cancelMemoEdit" class="hidden w-1/3 h-12 bg-gray-200 text-gray-600 font-bold rounded-lg hover:bg-gray-300 transition text-sm">Cancel</button>
@@ -295,7 +249,7 @@
                 <div class="mb-4">
                     <div class="relative">
                         <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="bookingSearch" placeholder="Search by Car or Client..." class="w-full pl-11 pr-4 h-12 bg-white border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                        <input type="text" id="bookingSearch" placeholder="Search by Contract, Car, Client, Agent..." class="w-full pl-11 pr-4 h-12 bg-white border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
                     </div>
                 </div>
 
@@ -316,7 +270,7 @@
                 <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2">
                     <i class="fas fa-arrow-left"></i> Back to Dashboard
                 </button>
-                <h2 class="text-2xl font-bold text-gray-800">Task Manager</h2>
+                <h2 class="text-2xl font-bold text-gray-800">Tasks & Maintenance</h2>
                 <div id="service-notification-center" class="hidden bg-red-50 border border-red-200 rounded-xl p-4 mb-4 shadow-sm">
                     <h3 class="text-sm font-bold text-red-800 mb-2 flex items-center gap-2"><i class="fas fa-exclamation-triangle text-red-600"></i> Due Soon (48h)</h3>
                     <ul id="service-notification-list" class="space-y-1 text-sm text-red-700 font-medium"></ul>
@@ -326,29 +280,28 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                         <div class="md:col-span-2">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Description</label>
-                            <input type="text" id="serviceDesc" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium" placeholder="e.g. Pay Rent, Car Oil Change, Check to collect..." required>
+                            <input type="text" id="serviceDesc" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium" placeholder="e.g. Oil Change, Check Brakes..." required>
                         </div>
                         <div class="md:col-span-1">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Category</label>
                             <div class="relative">
                                 <select id="serviceType" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium appearance-none">
-                                    <option value="general">General Task</option>
-                                    <option value="finance">Finance / Check / Money</option>
                                     <option value="maintenance">Car Maintenance</option>
-                                    <option value="urgent">Urgent / Important</option>
+                                    <option value="general">General Task</option>
+                                    <option value="urgent">Urgent</option>
                                 </select>
                                 <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
                             </div>
                         </div>
                         <div class="md:col-span-1">
-                            <label class="block text-xs font-bold text-green-600 mb-1 uppercase tracking-wide">Cost (DH) - Optional</label>
-                            <input type="number" id="serviceCost" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-gray-700 font-medium" placeholder="0">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Due Date</label>
+                            <input type="datetime-local" id="serviceDate" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-gray-700 font-medium" required>
                         </div>
                         <div class="md:col-span-1">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Repeat?</label>
                             <div class="relative">
-                                <select id="serviceRecurrence" onchange="toggleRepeatLimit()" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium appearance-none">
-                                    <option value="none">One-time Task</option>
+                                <select id="serviceRecurrence" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium appearance-none">
+                                    <option value="none">One-time</option>
                                     <option value="weekly">Weekly</option>
                                     <option value="monthly">Monthly</option>
                                     <option value="yearly">Yearly</option>
@@ -356,25 +309,44 @@
                                 <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
                             </div>
                         </div>
-                        <div class="md:col-span-1 hidden" id="repeatLimitContainer">
-                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Stop after how many times?</label>
-                            <input type="number" id="serviceRepeatLimit" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium" placeholder="e.g. 12 (Leave empty for forever)">
-                        </div>
-                        <div class="md:col-span-1">
-                            <label class="block text-xs font-bold text-red-600 mb-1 uppercase tracking-wide">Due Date</label>
-                            <input type="datetime-local" id="serviceDate" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-gray-700 font-medium" required>
-                        </div>
                         <div class="md:col-span-1">
                             <button type="submit" id="serviceSubmitBtn" class="w-full h-12 bg-gray-800 text-white font-bold rounded-lg hover:bg-gray-900 transition shadow-md flex items-center justify-center gap-2"><i class="fas fa-plus-circle"></i> Create Task</button>
                         </div>
                     </div>
                 </form>
-                <div class="flex space-x-2 mb-4 border-b border-gray-200 overflow-x-auto no-scrollbar">
-                    <button onclick="filterService('pending')" id="tab-service-pending" class="service-tab whitespace-nowrap px-6 py-3 border-b-2 border-indigo-600 font-bold text-indigo-600 transition-colors">Pending Tasks</button>
-                    <button onclick="filterService('history')" id="tab-service-history" class="service-tab whitespace-nowrap px-6 py-3 border-b-2 border-transparent text-gray-500 hover:text-indigo-600 transition-colors">History</button>
+                <div id="service-list-pending" class="grid gap-3 pb-20"></div>
+            </div>
+
+            <div id="view-expenses" class="page-view hidden space-y-4">
+                <button onclick="switchTab('dashboard')" class="text-indigo-600 font-medium hover:text-indigo-800 flex items-center gap-2 mb-2">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </button>
+                <h2 class="text-2xl font-bold text-gray-800">General Business Expenses</h2>
+                <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-3 text-sm text-indigo-700 mb-2">
+                    <i class="fas fa-info-circle mr-2"></i> These expenses are separate from bookings and car maintenance. They are subtracted from the Net Profit in reports.
                 </div>
-                <div id="service-list-pending" class="service-list grid gap-3 pb-20"></div>
-                <div id="service-list-history" class="service-list grid gap-3 pb-20 hidden"></div>
+
+                <form id="expenseForm" class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Expense Title</label>
+                            <input type="text" id="expTitle" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium" placeholder="e.g. Office Rent, Electricity..." required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Amount (DH)</label>
+                            <input type="number" id="expAmount" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium" placeholder="0" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Date</label>
+                            <input type="date" id="expDate" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium" required>
+                        </div>
+                        <div class="md:col-span-4">
+                             <button type="submit" class="w-full h-12 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition shadow-md flex items-center justify-center gap-2"><i class="fas fa-minus-circle"></i> Add Expense</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="expenses-list" class="space-y-3 pb-20"></div>
             </div>
 
             <div id="view-finance" class="page-view hidden space-y-6">
@@ -386,7 +358,7 @@
                     <h2 class="text-2xl font-bold text-gray-800">Financial Reports</h2>
                     
                     <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-3">
-                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                              <div>
                                  <label class="block text-xs font-bold text-gray-500 mb-1">Status</label>
                                  <select id="financeStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
@@ -403,21 +375,18 @@
                                  <label class="block text-xs font-bold text-gray-500 mb-1">End Date</label>
                                  <input type="date" id="finEndDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
                              </div>
-                             <div class="sm:col-span-2 md:col-span-1">
-                                 <label class="block text-xs font-bold text-gray-500 mb-1">Sort By (Trier par)</label>
+                             <div>
+                                 <label class="block text-xs font-bold text-gray-500 mb-1">Sort By</label>
                                  <select id="financeSort" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
-                                     <option value="date_desc">Date (Newest First)</option>
-                                     <option value="date_asc">Date (Oldest First)</option>
-                                     <option value="days_desc">Days (High to Low)</option>
-                                     <option value="days_asc">Days (Low to High)</option>
-                                     <option value="total_desc">Total Amount (High to Low)</option>
-                                     <option value="total_asc">Total Amount (Low to High)</option>
-                                     <option value="rest_desc">Rest/Debt (High to Low)</option>
+                                     <option value="date_desc">Date (Newest)</option>
+                                     <option value="date_asc">Date (Oldest)</option>
+                                     <option value="total_desc">Total Amount (High-Low)</option>
+                                     <option value="rest_desc">Rest/Debt (High-Low)</option>
                                  </select>
                              </div>
                          </div>
                          <div class="flex gap-2 mt-2">
-                             <button onclick="renderFinanceDashboard()" class="flex-1 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2 py-2.5 shadow-sm"><i class="fas fa-search"></i> Search</button>
+                             <button onclick="renderFinanceDashboard()" class="flex-1 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2 py-2.5 shadow-sm"><i class="fas fa-sync"></i> Refresh Report</button>
                              <button onclick="downloadPDF()" class="flex-1 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 transition flex items-center justify-center gap-2 py-2.5 shadow-sm"><i class="fas fa-file-download"></i> Download PDF</button>
                          </div>
                     </div>
@@ -439,34 +408,63 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 border-b border-gray-100 pb-8">
-                        <div class="bg-gray-50 md:bg-white p-4 md:p-0 rounded-lg">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Expected</p>
-                            <h3 class="text-3xl md:text-4xl font-bold text-gray-900" id="fin-total-revenue">0</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Expected (Gross)</p>
+                            <h3 class="text-3xl font-bold text-gray-900" id="fin-total-revenue">0</h3>
                         </div>
-                        <div class="bg-gray-50 md:bg-white p-4 md:p-0 rounded-lg">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Cash Received</p>
-                            <h3 class="text-3xl md:text-4xl font-bold text-green-600" id="fin-total-received">0</h3>
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <p class="text-[10px] font-bold text-green-700 uppercase tracking-widest mb-1">Cash Received (Gross)</p>
+                            <h3 class="text-3xl font-bold text-green-700" id="fin-total-received">0</h3>
                         </div>
-                        <div class="bg-gray-50 md:bg-white p-4 md:p-0 rounded-lg">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Balance Due</p>
-                            <h3 class="text-3xl md:text-4xl font-bold text-orange-600" id="fin-total-rest">0</h3>
+                        <div class="bg-orange-50 p-4 rounded-lg">
+                            <p class="text-[10px] font-bold text-orange-700 uppercase tracking-widest mb-1">Balance Due</p>
+                            <h3 class="text-3xl font-bold text-orange-700" id="fin-total-rest">0</h3>
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto custom-scroll pb-2">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 border-b border-gray-100 pb-8">
+                        <div class="bg-red-50 p-4 rounded-lg">
+                            <p class="text-[10px] font-bold text-red-700 uppercase tracking-widest mb-1">Total Expenses</p>
+                            <h3 class="text-2xl font-bold text-red-700" id="fin-total-expenses">0</h3>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Net Expected (Profit)</p>
+                            <h3 class="text-2xl font-bold text-gray-800" id="fin-net-expected">0</h3>
+                        </div>
+                         <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Net Cash Flow</p>
+                            <h3 class="text-2xl font-bold text-gray-800" id="fin-net-cash">0</h3>
+                        </div>
+                    </div>
+
+                    <h4 class="font-bold text-gray-800 mb-4">Bookings Detail</h4>
+                    <div class="overflow-x-auto custom-scroll pb-2 mb-8">
                         <table class="w-full text-left border-collapse min-w-[600px] md:min-w-0">
                             <thead>
                                 <tr class="border-b-2 border-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wide">
+                                    <th class="py-3 px-2">Contract</th>
                                     <th class="py-3 px-2">Date</th>
                                     <th class="py-3 px-2">Car / Client</th>
-                                    <th class="py-3 px-2">Days</th>
                                     <th class="py-3 px-2 text-right">Total</th>
                                     <th class="py-3 px-2 text-right text-green-600">Paid</th>
                                     <th class="py-3 px-2 text-right text-orange-600">Rest</th>
                                 </tr>
                             </thead>
-                            <tbody id="finance-table-body" class="text-sm text-gray-700">
-                                </tbody>
+                            <tbody id="finance-table-body" class="text-sm text-gray-700"></tbody>
+                        </table>
+                    </div>
+
+                    <h4 class="font-bold text-gray-800 mb-4">Expenses Detail</h4>
+                    <div class="overflow-x-auto custom-scroll pb-2">
+                        <table class="w-full text-left border-collapse min-w-[600px] md:min-w-0">
+                            <thead>
+                                <tr class="border-b-2 border-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wide">
+                                    <th class="py-2 px-2">Date</th>
+                                    <th class="py-2 px-2">Expense Description</th>
+                                    <th class="py-2 px-2 text-right text-red-600">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="finance-expenses-body" class="text-sm text-gray-700"></tbody>
                         </table>
                     </div>
 
@@ -516,13 +514,13 @@
                 'add-car': 'Add New Vehicle',
                 'bookings': 'Booking Memos',
                 'service': 'Tasks & Alerts',
+                'expenses': 'General Expenses',
                 'finance': 'Finance Reports'
             };
             const titleEl = document.getElementById('desktopTitle');
             if(titleEl) titleEl.innerText = titles[tabName] || 'Admin Panel';
 
             if(tabName === 'finance') {
-                // Set default dates if empty
                 if(!document.getElementById('finStartDate').value) {
                     const now = new Date();
                     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -531,6 +529,12 @@
                     document.getElementById('finEndDate').value = lastDay.toISOString().split('T')[0];
                 }
                 renderFinanceDashboard();
+            }
+            // Defaults for expenses
+            if(tabName === 'expenses') {
+                if(!document.getElementById('expDate').value) {
+                    document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
+                }
             }
         }
 
@@ -541,13 +545,6 @@
             document.getElementById('formPageTitle').innerText = 'Add New Vehicle';
             document.getElementById('submitBtn').innerText = 'Save Vehicle';
             document.getElementById('carSeats').value = 5; 
-        }
-        
-        function toggleRepeatLimit() {
-            const val = document.getElementById('serviceRecurrence').value;
-            const container = document.getElementById('repeatLimitContainer');
-            if(val === 'none') container.classList.add('hidden');
-            else container.classList.remove('hidden');
         }
 
         window.filterBookings = function(tab) {
@@ -561,19 +558,6 @@
 
             document.querySelectorAll('.booking-list').forEach(l => l.classList.add('hidden'));
             document.getElementById('list-' + tab).classList.remove('hidden');
-        }
-
-        window.filterService = function(tab) {
-            document.querySelectorAll('.service-tab').forEach(b => {
-                b.classList.remove('border-indigo-600', 'text-indigo-600', 'font-bold');
-                b.classList.add('border-transparent', 'text-gray-500');
-            });
-            const activeBtn = document.getElementById('tab-service-' + tab);
-            activeBtn.classList.remove('border-transparent', 'text-gray-500');
-            activeBtn.classList.add('border-indigo-600', 'text-indigo-600', 'font-bold');
-
-            document.querySelectorAll('.service-list').forEach(l => l.classList.add('hidden'));
-            document.getElementById('service-list-' + tab).classList.remove('hidden');
         }
     </script>
 
@@ -599,12 +583,14 @@
         const collectionPath = 'cars'; 
         const bookingCollection = 'admin_bookings'; 
         const serviceCollection = 'service_memos';
+        const expenseCollection = 'general_expenses';
 
         let currentUser = null;
         let carsData = [];
         let sortable = null;
         let allBookings = [];
         let allServices = [];
+        let allExpenses = [];
         
         onAuthStateChanged(auth, (user) => {
             const loginScreen = document.getElementById('login-screen');
@@ -614,6 +600,7 @@
                 loadCars();
                 loadBookings();
                 loadServices();
+                loadExpenses();
             } else {
                 currentUser = null;
                 loginScreen.classList.remove('hidden'); 
@@ -664,7 +651,6 @@
             if (!car) return;
 
             switchTab('add-car', false);
-
             document.getElementById('editCarId').value = car.id;
             document.getElementById('carOrder').value = car.sortOrder || 999;
             document.getElementById('carName').value = car.name;
@@ -675,20 +661,12 @@
             document.getElementById('carFuel').value = car.fuelType; 
             document.getElementById('carStatus').value = car.status;
             document.getElementById('carImage').value = car.imageUrl || ''; 
-            document.getElementById('carDescription').value = car.description || ''; 
-
-            document.getElementById('formPageTitle').innerText = 'Edit Vehicle';
-            document.getElementById('submitBtn').innerText = 'Update Vehicle';
             window.scrollTo(0, 0); 
         };
 
         window.deleteCar = async function(id) {
             if(confirm('Delete this car?')) {
-                try {
-                    await deleteDoc(doc(db, collectionPath, id));
-                } catch(e) {
-                    alert('Error: ' + e.message);
-                }
+                try { await deleteDoc(doc(db, collectionPath, id)); } catch(e) { alert('Error: ' + e.message); }
             }
         };
 
@@ -768,18 +746,15 @@
             try { await batch.commit(); } catch (err) { console.error("Error saving order:", err); }
         }
 
-        const searchInput = document.getElementById('searchInput');
-        if(searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                const term = e.target.value.toLowerCase();
-                const filtered = carsData.filter(c => 
-                    c.name.toLowerCase().includes(term) || 
-                    c.status.toLowerCase().includes(term) ||
-                    c.category.toLowerCase().includes(term)
-                );
-                renderCars(filtered);
-            });
-        }
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = carsData.filter(c => 
+                c.name.toLowerCase().includes(term) || 
+                c.status.toLowerCase().includes(term) ||
+                c.category.toLowerCase().includes(term)
+            );
+            renderCars(filtered);
+        });
 
         document.getElementById('addCarForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -804,7 +779,6 @@
                     fuelType: document.getElementById('carFuel').value, 
                     status: document.getElementById('carStatus').value,
                     imageUrl: document.getElementById('carImage').value,
-                    description: document.getElementById('carDescription').value,
                     updatedAt: serverTimestamp()
                 };
 
@@ -842,6 +816,17 @@
             });
         }
 
+        function loadExpenses() {
+            onSnapshot(collection(db, expenseCollection), (snapshot) => {
+                allExpenses = [];
+                snapshot.forEach(doc => allExpenses.push({id: doc.id, ...doc.data()}));
+                renderExpenses();
+                if(!document.getElementById('view-finance').classList.contains('hidden')) {
+                    renderFinanceDashboard();
+                }
+            });
+        }
+
         // --- NOTIFICATION LOGIC ---
         function updateGlobalNotifications() {
             const now = new Date();
@@ -849,12 +834,10 @@
             const bookingAlerts = [];
             const serviceAlerts = [];
 
-            // 1. Check Bookings
             allBookings.forEach(b => {
                 if(b.returned) return;
                 const startStr = b.start.split('T')[0];
                 const endStr = b.end.split('T')[0];
-                
                 if(startStr === todayStr && new Date(b.start) > now) {
                     bookingAlerts.push(`${b.carName} Going Out Today at ${b.start.split('T')[1].slice(0,5)}`);
                 } else if (endStr === todayStr) {
@@ -862,10 +845,9 @@
                 }
             });
 
-            // 2. Check Services
             const twoDaysInMs = 2 * 24 * 60 * 60 * 1000;
             allServices.forEach(s => {
-                if(s.status === 'done') return; // Skip done services
+                if(s.status === 'done') return; 
                 const due = new Date(s.dueDate);
                 const diff = due - now;
                 if (diff > 0 && diff <= twoDaysInMs) {
@@ -873,11 +855,9 @@
                 }
             });
 
-            // 3. Update Sidebar Badges
             updateBadge('badge-bookings', bookingAlerts.length);
             updateBadge('badge-service', serviceAlerts.length);
-
-            // 4. Update Dashboard
+            
             const dashList = document.getElementById('dashboard-notif-list');
             const dashBox = document.getElementById('dashboard-notifs');
             const combined = [...bookingAlerts, ...serviceAlerts];
@@ -885,354 +865,240 @@
             if(combined.length > 0) {
                 dashBox.classList.remove('hidden');
                 dashList.innerHTML = combined.map(m => `<li>• ${m}</li>`).join('');
-            } else {
-                dashBox.classList.add('hidden');
-            }
+            } else { dashBox.classList.add('hidden'); }
 
-            // 5. Update Lists
             updatePageNotification('notification-center', 'notification-list', bookingAlerts);
             updatePageNotification('service-notification-center', 'service-notification-list', serviceAlerts);
         }
 
         function updateBadge(id, count) {
             const el = document.getElementById(id);
-            if(count > 0) {
-                el.innerText = count;
-                el.classList.remove('hidden');
-            } else {
-                el.classList.add('hidden');
-            }
+            if(count > 0) { el.innerText = count; el.classList.remove('hidden'); } else { el.classList.add('hidden'); }
         }
 
         function updatePageNotification(boxId, listId, alerts) {
             const box = document.getElementById(boxId);
             const list = document.getElementById(listId);
-            if(!box || !list) return;
-
             if(alerts.length > 0) {
                 box.classList.remove('hidden');
                 list.innerHTML = alerts.map(m => `<li>• ${m}</li>`).join('');
-            } else {
-                box.classList.add('hidden');
+            } else { box.classList.add('hidden'); }
+        }
+
+        // --- EXPENSES LOGIC (NEW) ---
+        document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('expTitle').value;
+            const amount = Number(document.getElementById('expAmount').value);
+            const date = document.getElementById('expDate').value;
+            
+            try {
+                await addDoc(collection(db, expenseCollection), {
+                    title, amount, date, createdAt: serverTimestamp()
+                });
+                document.getElementById('expenseForm').reset();
+                document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
+            } catch(e) { alert("Error: " + e.message); }
+        });
+
+        window.deleteExpense = async function(id) {
+            if(confirm("Delete this expense record?")) {
+                await deleteDoc(doc(db, expenseCollection, id));
             }
         }
 
-        // --- SERVICE FUNCTIONS ---
+        function renderExpenses() {
+            const list = document.getElementById('expenses-list');
+            list.innerHTML = '';
+            const sorted = allExpenses.sort((a,b) => b.date.localeCompare(a.date));
+
+            sorted.forEach(exp => {
+                const div = document.createElement('div');
+                div.className = "bg-white p-4 rounded-lg border border-gray-200 flex justify-between items-center shadow-sm";
+                div.innerHTML = `
+                    <div>
+                        <h4 class="font-bold text-gray-800">${exp.title}</h4>
+                        <p class="text-xs text-gray-500">${new Date(exp.date).toLocaleDateString('en-GB')}</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="font-bold text-red-600">- ${exp.amount} DH</span>
+                        <button onclick="window.deleteExpense('${exp.id}')" class="text-gray-400 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // --- SERVICE LOGIC ---
         document.getElementById('serviceForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const description = document.getElementById('serviceDesc').value;
             const dueDate = document.getElementById('serviceDate').value;
             const type = document.getElementById('serviceType').value;
             const recurrence = document.getElementById('serviceRecurrence').value;
-            const cost = document.getElementById('serviceCost').value;
-            const repeatLimit = document.getElementById('serviceRepeatLimit').value;
-            const editId = document.getElementById('editingServiceId').value;
             const btn = document.getElementById('serviceSubmitBtn');
-
             btn.innerText = 'Saving...';
             
             try {
-                const data = {
-                    description, dueDate, type, recurrence, 
-                    cost: cost ? Number(cost) : 0,
-                    repeatLimit: repeatLimit ? Number(repeatLimit) : null,
-                    updatedAt: serverTimestamp()
-                };
-
-                if(editId) {
-                    await updateDoc(doc(db, serviceCollection, editId), data);
-                    resetServiceForm();
-                } else {
-                    data.status = 'pending';
-                    data.createdAt = serverTimestamp();
-                    data.repeatCount = 1;
-                    await addDoc(collection(db, serviceCollection), data);
-                    resetServiceForm();
-                }
+                const data = { description, dueDate, type, recurrence, updatedAt: serverTimestamp() };
+                await addDoc(collection(db, serviceCollection), { ...data, status: 'pending', createdAt: serverTimestamp() });
+                document.getElementById('serviceForm').reset();
             } catch(e) { alert("Error: " + e.message); }
             finally { btn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Task'; }
         });
 
-        window.editService = function(id) {
-            const task = allServices.find(s => s.id === id);
-            if(!task) return;
-
-            document.getElementById('editingServiceId').value = task.id;
-            document.getElementById('serviceDesc').value = task.description;
-            document.getElementById('serviceDate').value = task.dueDate;
-            document.getElementById('serviceType').value = task.type || 'general';
-            document.getElementById('serviceRecurrence').value = task.recurrence || 'none';
-            document.getElementById('serviceCost').value = task.cost || '';
-            document.getElementById('serviceRepeatLimit').value = task.repeatLimit || ''; 
-
-            toggleRepeatLimit();
-
-            document.getElementById('serviceSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Update Task';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.deleteService = async function(id) {
+            if(confirm("Delete this task?")) { await deleteDoc(doc(db, serviceCollection, id)); }
         }
-
-        function resetServiceForm() {
-            document.getElementById('serviceForm').reset();
-            document.getElementById('editingServiceId').value = '';
-            document.getElementById('serviceSubmitBtn').innerHTML = '<i class="fas fa-plus-circle"></i> Create Task';
-            toggleRepeatLimit();
+        
+        window.markServiceDone = async function(id) {
+            if(confirm("Mark done?")) { 
+                await updateDoc(doc(db, serviceCollection, id), {status: 'done'}); 
+                // Simple logic: if repeating, you would add a new doc here manually or via improved logic
+            }
         }
 
         function renderServices() {
-            const pendingContainer = document.getElementById('service-list-pending');
-            const historyContainer = document.getElementById('service-list-history');
-            
-            pendingContainer.innerHTML = '';
-            historyContainer.innerHTML = '';
-            
+            const container = document.getElementById('service-list-pending');
+            container.innerHTML = '';
             const pending = allServices.filter(s => s.status !== 'done').sort((a,b) => a.dueDate.localeCompare(b.dueDate));
-            const history = allServices.filter(s => s.status === 'done').sort((a,b) => b.dueDate.localeCompare(a.dueDate));
-
-            const getIcon = (type) => {
-                switch(type) {
-                    case 'finance': return '<div class="h-9 w-9 rounded-lg bg-white/50 text-green-700 flex items-center justify-center shrink-0 text-sm"><i class="fas fa-money-bill-wave"></i></div>';
-                    case 'maintenance': return '<div class="h-9 w-9 rounded-lg bg-white/50 text-red-700 flex items-center justify-center shrink-0 text-sm"><i class="fas fa-wrench"></i></div>';
-                    case 'urgent': return '<div class="h-9 w-9 rounded-lg bg-white/50 text-orange-700 flex items-center justify-center shrink-0 text-sm"><i class="fas fa-exclamation-triangle"></i></div>';
-                    default: return '<div class="h-9 w-9 rounded-lg bg-white/50 text-blue-700 flex items-center justify-center shrink-0 text-sm"><i class="fas fa-clipboard-list"></i></div>';
-                }
-            };
-
-            const now = new Date();
-
-            if(pending.length === 0) {
-                pendingContainer.innerHTML = `<div class="text-center text-gray-400 py-10 border-2 border-dashed border-gray-100 rounded-2xl">No upcoming tasks.</div>`;
-            } else {
-                pending.forEach(item => {
-                    const dateObj = new Date(item.dueDate);
-                    const dateStr = dateObj.toLocaleDateString('en-GB');
-                    const timeStr = dateObj.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
-                    
-                    const isOverdue = dateObj < now;
-                    
-                    const boxClass = isOverdue 
-                        ? "bg-red-50 border-red-300 shadow-red-100" 
-                        : "bg-white border-gray-100 hover:shadow-md";
-
-                    const textClass = isOverdue ? "text-red-800" : "text-gray-800";
-                    const timeClass = isOverdue ? "text-red-600 font-bold" : "text-gray-500";
-                    const badgeText = isOverdue ? `<span class="bg-red-200 text-red-800 text-[10px] font-bold px-2 py-0.5 rounded ml-2">OVERDUE</span>` : "";
-                    
-                    let badges = '';
-                    if(item.recurrence && item.recurrence !== 'none') {
-                        const countStr = item.repeatLimit ? ` (${item.repeatCount || 1}/${item.repeatLimit})` : '';
-                        badges += `<span class="text-indigo-600 text-[10px] font-bold uppercase tracking-wide ml-2"><i class="fas fa-sync-alt"></i> ${item.recurrence}${countStr}</span>`;
-                    }
-                    if(item.cost) {
-                        badges += `<span class="text-green-600 text-[10px] font-bold uppercase tracking-wide ml-2"><i class="fas fa-tag"></i> ${item.cost} DH</span>`;
-                    }
-
-                    const div = document.createElement('div');
-                    div.className = `${boxClass} p-3 rounded-xl border shadow-sm transition-all flex items-center gap-3 relative overflow-hidden group`;
-                    
-                    div.innerHTML = `
-                        ${getIcon(item.type)}
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center">
-                                <h4 class="font-bold ${textClass} text-sm truncate mr-2">${item.description}</h4>
-                                ${badgeText}
-                            </div>
-                            <div class="flex items-center text-xs ${timeClass} mt-0.5">
-                                <span>${dateStr} ${timeStr}</span>
-                                ${badges}
-                            </div>
-                        </div>
-                        <div class="flex gap-1">
-                             <button onclick="window.editService('${item.id}')" class="h-8 w-8 rounded-lg text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition flex items-center justify-center" title="Edit"><i class="fas fa-pencil-alt text-xs"></i></button>
-                             <button onclick="window.markServiceDone('${item.id}')" class="h-8 w-8 rounded-lg text-gray-400 hover:bg-green-50 hover:text-green-600 transition flex items-center justify-center" title="Mark Done"><i class="fas fa-check text-xs"></i></button>
-                             <button onclick="window.deleteService('${item.id}')" class="h-8 w-8 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600 transition flex items-center justify-center" title="Delete"><i class="fas fa-trash text-xs"></i></button>
-                        </div>
-                    `;
-                    pendingContainer.appendChild(div);
-                });
-            }
-
-            if(history.length === 0) {
-                historyContainer.innerHTML = `<div class="text-center text-gray-400 py-10 border-2 border-dashed border-gray-100 rounded-2xl">No completed history.</div>`;
-            } else {
-                history.forEach(item => {
-                    const dateObj = new Date(item.dueDate);
-                    const dateStr = dateObj.toLocaleDateString('en-GB');
-                    const costBadge = item.cost ? `<span class="ml-2 text-gray-400 text-[10px] font-bold">${item.cost} DH</span>` : '';
-                    
-                    const div = document.createElement('div');
-                    div.className = "bg-gray-50 p-3 rounded-xl border border-gray-100 flex justify-between items-center opacity-70 hover:opacity-100 transition";
-                    div.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <i class="fas fa-check-circle text-gray-300"></i>
-                            <div>
-                                <h4 class="font-bold text-gray-500 line-through text-sm flex items-center">${item.description} ${costBadge}</h4>
-                                <p class="text-[10px] text-gray-400 font-medium">Was due: ${dateStr}</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-1">
-                            <button onclick="window.editService('${item.id}')" class="text-gray-300 hover:text-blue-600 p-2" title="Edit"><i class="fas fa-pencil-alt text-xs"></i></button>
-                            <button onclick="window.deleteService('${item.id}')" class="text-gray-300 hover:text-red-600 p-2" title="Delete"><i class="fas fa-trash text-xs"></i></button>
-                        </div>
-                    `;
-                    historyContainer.appendChild(div);
-                });
-            }
+            
+            pending.forEach(item => {
+                const dateObj = new Date(item.dueDate);
+                const isOverdue = dateObj < new Date();
+                const boxClass = isOverdue ? "bg-red-50 border-red-200" : "bg-white border-gray-200";
+                
+                const div = document.createElement('div');
+                div.className = `${boxClass} p-3 rounded-xl border shadow-sm flex items-center justify-between`;
+                div.innerHTML = `
+                    <div>
+                        <h4 class="font-bold text-sm ${isOverdue?'text-red-800':'text-gray-800'}">${item.description}</h4>
+                        <p class="text-xs text-gray-500">${dateObj.toLocaleDateString()} ${dateObj.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
+                    </div>
+                    <div class="flex gap-2">
+                         <button onclick="window.markServiceDone('${item.id}')" class="h-8 w-8 bg-green-100 text-green-600 rounded-lg"><i class="fas fa-check"></i></button>
+                         <button onclick="window.deleteService('${item.id}')" class="h-8 w-8 bg-gray-100 text-gray-500 rounded-lg"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
         }
 
-        window.markServiceDone = async function(id) {
-            const task = allServices.find(s => s.id === id);
-            if(!task) return;
-
-            if(confirm("Mark this task as completed?")) {
-                const batch = writeBatch(db);
-                batch.update(doc(db, serviceCollection, id), {
-                    status: 'done',
-                    completedAt: serverTimestamp()
-                });
-
-                if (task.recurrence && task.recurrence !== 'none') {
-                    const currentCount = task.repeatCount || 1;
-                    const limit = task.repeatLimit; 
-                    
-                    if (!limit || currentCount < limit) {
-                        const currentDue = new Date(task.dueDate);
-                        let nextDue = new Date(currentDue);
-                        if (task.recurrence === 'weekly') nextDue.setDate(nextDue.getDate() + 7);
-                        if (task.recurrence === 'monthly') nextDue.setMonth(nextDue.getMonth() + 1);
-                        if (task.recurrence === 'yearly') nextDue.setFullYear(nextDue.getFullYear() + 1);
-                        const nextDueISO = nextDue.toISOString().slice(0, 16); 
-                        const newTaskRef = doc(collection(db, serviceCollection));
-                        batch.set(newTaskRef, {
-                            description: task.description,
-                            type: task.type || 'general',
-                            recurrence: task.recurrence,
-                            dueDate: nextDueISO,
-                            cost: task.cost, 
-                            repeatLimit: limit, 
-                            repeatCount: currentCount + 1, 
-                            status: 'pending',
-                            createdAt: serverTimestamp()
-                        });
-                    }
-                }
-                await batch.commit();
-            }
-        }
-
-        window.deleteService = async function(id) {
-            if(confirm("Permanently delete this task?")) {
-                await deleteDoc(doc(db, serviceCollection, id));
-            }
-        }
-
-        // --- INSTANT PDF DOWNLOAD ---
+        // --- PDF DOWNLOAD ---
         window.downloadPDF = function() {
             const element = document.getElementById('finance-report-container');
-            
-            // Show header temporarily
             const header = document.getElementById('pdf-header');
             header.classList.remove('hidden');
             document.getElementById('print-gen-date').innerText = new Date().toLocaleString();
 
             const opt = {
-                margin:       0.5,
-                filename:     `BlackIris_Report_${new Date().toISOString().split('T')[0]}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+                margin: 0.5,
+                filename: `BlackIris_Report_${new Date().toISOString().split('T')[0]}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(element).save().then(() => {
-                header.classList.add('hidden'); // Hide header after save
-            });
+            html2pdf().set(opt).from(element).save().then(() => { header.classList.add('hidden'); });
         }
 
-        // --- REVISED FINANCE DASHBOARD LOGIC (DATE RANGE + SORT) ---
+        // --- FINANCE DASHBOARD (REVISED WITH EXPENSES) ---
         window.renderFinanceDashboard = function() {
             const startDateVal = document.getElementById('finStartDate').value;
             const endDateVal = document.getElementById('finEndDate').value;
             const statusFilter = document.getElementById('financeStatus').value;
-            const sortVal = document.getElementById('financeSort').value; // NEW
+            const sortVal = document.getElementById('financeSort').value;
             const tableBody = document.getElementById('finance-table-body');
+            const expTableBody = document.getElementById('finance-expenses-body');
             const now = new Date();
             
             tableBody.innerHTML = '';
+            expTableBody.innerHTML = '';
             
-            // Filter Data
-            let filtered = allBookings.filter(b => {
+            // 1. Process Bookings
+            let filteredBookings = allBookings.filter(b => {
                 if (statusFilter === 'active' && (b.returned || new Date(b.end) < now)) return false;
                 if (statusFilter === 'past' && (!b.returned && new Date(b.end) >= now)) return false;
-                
                 const bDate = b.start.split('T')[0]; 
                 return bDate >= startDateVal && bDate <= endDateVal;
             });
             
-            // SORTING LOGIC
-            filtered.sort((a,b) => {
+            filteredBookings.sort((a,b) => {
                 const dateA = new Date(a.start);
                 const dateB = new Date(b.start);
-                
-                // Helper vars for calculation sort
-                const diffDaysA = Math.ceil(Math.abs(new Date(a.end) - dateA) / (86400000)) || 1;
-                const diffDaysB = Math.ceil(Math.abs(new Date(b.end) - dateB) / (86400000)) || 1;
-                const totalA = (Number(a.price)||0) * diffDaysA;
-                const totalB = (Number(b.price)||0) * diffDaysB;
+                const totalA = (Number(a.price)||0) * (Math.ceil(Math.abs(new Date(a.end)-dateA)/86400000)||1);
+                const totalB = (Number(b.price)||0) * (Math.ceil(Math.abs(new Date(b.end)-dateB)/86400000)||1);
                 const restA = totalA - (Number(a.amountReceived)||0);
                 const restB = totalB - (Number(b.amountReceived)||0);
 
-                switch(sortVal) {
-                    case 'date_desc': return dateB - dateA; // Newest first
-                    case 'date_asc': return dateA - dateB;  // Oldest first
-                    case 'days_desc': return diffDaysB - diffDaysA;
-                    case 'days_asc': return diffDaysA - diffDaysB;
-                    case 'total_desc': return totalB - totalA;
-                    case 'total_asc': return totalA - totalB;
-                    case 'rest_desc': return restB - restA;
-                    default: return dateB - dateA;
-                }
+                if(sortVal === 'date_asc') return dateA - dateB;
+                if(sortVal === 'total_desc') return totalB - totalA;
+                if(sortVal === 'rest_desc') return restB - restA;
+                return dateB - dateA; // default date_desc
             });
             
-            // Format for Print
-            const sDate = new Date(startDateVal).toLocaleDateString();
-            const eDate = new Date(endDateVal).toLocaleDateString();
-            document.getElementById('print-date-range').innerText = `Period: ${sDate} - ${eDate}`;
+            // 2. Process Expenses
+            let filteredExpenses = allExpenses.filter(e => {
+                return e.date >= startDateVal && e.date <= endDateVal;
+            });
+            filteredExpenses.sort((a,b) => b.date.localeCompare(a.date));
 
-            let totalRev = 0;
-            let totalRec = 0;
+            // 3. Calculate Totals
+            let totalRevenue = 0;
+            let totalReceived = 0;
+            let totalExpenses = 0;
             
-            filtered.forEach(item => {
+            // Render Bookings Table
+            filteredBookings.forEach(item => {
                 const startD = new Date(item.start);
-                const diffTime = Math.abs(new Date(item.end) - startD);
-                let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                let diffDays = Math.ceil(Math.abs(new Date(item.end) - startD) / (86400000));
                 if(diffDays < 1) diffDays = 1;
                 
-                const dailyPrice = Number(item.price) || 0;
-                const totalVal = dailyPrice * diffDays;
+                const totalVal = (Number(item.price) || 0) * diffDays;
                 const receivedVal = Number(item.amountReceived) || 0;
                 const restVal = totalVal - receivedVal;
                 
-                totalRev += totalVal;
-                totalRec += receivedVal;
+                totalRevenue += totalVal;
+                totalReceived += receivedVal;
                 
                 const tr = document.createElement('tr');
-                tr.className = "border-b border-gray-100 hover:bg-gray-50 transition-colors";
+                tr.className = "border-b border-gray-100";
                 tr.innerHTML = `
-                    <td class="py-3 px-2 font-medium text-gray-500 whitespace-nowrap">${startD.toLocaleDateString()}</td>
-                    <td class="py-3 px-2">
-                        <div class="font-bold text-gray-900">${item.carName}</div>
-                        <div class="text-xs text-gray-400 truncate max-w-[100px]">${item.clientName || 'Unknown'}</div>
-                    </td>
-                    <td class="py-3 px-2 text-xs text-gray-500 font-medium whitespace-nowrap">${diffDays}d</td>
-                    <td class="py-3 px-2 text-right font-bold text-gray-900 whitespace-nowrap">${totalVal.toLocaleString()}</td>
-                    <td class="py-3 px-2 text-right text-green-600 font-bold whitespace-nowrap">${receivedVal > 0 ? receivedVal.toLocaleString() : '-'}</td>
-                    <td class="py-3 px-2 text-right ${restVal > 0 ? 'text-orange-600 font-bold' : 'text-gray-300'} whitespace-nowrap">${restVal > 0 ? restVal.toLocaleString() : '0'}</td>
+                    <td class="py-3 px-2 font-bold text-gray-700">${item.contractNumber || '-'}</td>
+                    <td class="py-3 px-2 text-gray-500 text-xs">${startD.toLocaleDateString()}</td>
+                    <td class="py-3 px-2"><div class="font-bold text-gray-900">${item.carName}</div><div class="text-xs text-gray-400">${item.clientName||''}</div></td>
+                    <td class="py-3 px-2 text-right font-bold text-gray-900">${totalVal.toLocaleString()}</td>
+                    <td class="py-3 px-2 text-right text-green-600 font-bold">${receivedVal.toLocaleString()}</td>
+                    <td class="py-3 px-2 text-right ${restVal > 0 ? 'text-orange-600 font-bold' : 'text-gray-300'}">${restVal.toLocaleString()}</td>
                 `;
                 tableBody.appendChild(tr);
             });
+
+            // Render Expenses Table
+            filteredExpenses.forEach(exp => {
+                totalExpenses += Number(exp.amount);
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-gray-100";
+                tr.innerHTML = `
+                    <td class="py-2 px-2 text-gray-500 text-xs">${new Date(exp.date).toLocaleDateString()}</td>
+                    <td class="py-2 px-2 font-medium text-gray-800">${exp.title}</td>
+                    <td class="py-2 px-2 text-right font-bold text-red-600">- ${exp.amount}</td>
+                `;
+                expTableBody.appendChild(tr);
+            });
+
+            // 4. Update Stats Cards
+            document.getElementById('print-date-range').innerText = `Period: ${startDateVal} - ${endDateVal}`;
             
-            document.getElementById('fin-total-revenue').innerHTML = totalRev.toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
-            document.getElementById('fin-total-received').innerHTML = totalRec.toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
-            document.getElementById('fin-total-rest').innerHTML = (totalRev - totalRec).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
+            // Gross (As requested)
+            document.getElementById('fin-total-revenue').innerText = totalRevenue.toLocaleString() + ' DH';
+            document.getElementById('fin-total-received').innerText = totalReceived.toLocaleString() + ' DH';
+            document.getElementById('fin-total-rest').innerText = (totalRevenue - totalReceived).toLocaleString() + ' DH';
+            
+            // Net (With Expenses)
+            document.getElementById('fin-total-expenses').innerText = totalExpenses.toLocaleString() + ' DH';
+            document.getElementById('fin-net-expected').innerText = (totalRevenue - totalExpenses).toLocaleString() + ' DH';
+            document.getElementById('fin-net-cash').innerText = (totalReceived - totalExpenses).toLocaleString() + ' DH';
         }
 
         // --- BOOKING LOGIC ---
@@ -1240,49 +1106,22 @@
             renderBookings();
         });
 
-        function formatDateTime(isoString) {
-            if(!isoString) return '';
-            const date = new Date(isoString);
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            const hours = String(date.getHours()).padStart(2, '0');
-            return `${day}/${month}/${year} ${hours}:00`;
-        }
-
-        function roundToHour(isoString) {
-            const date = new Date(isoString);
-            date.setMinutes(0, 0, 0); 
-            const offset = date.getTimezoneOffset() * 60000;
-            return new Date(date.getTime() - offset).toISOString().slice(0, 16);
-        }
-
         function renderBookings() {
             const searchTerm = document.getElementById('bookingSearch').value.toLowerCase();
             const now = new Date();
-            
-            const active = [];
-            const upcoming = [];
-            const past = [];
+            const active = [], upcoming = [], past = [];
 
             allBookings.forEach(b => {
-                const match = b.carName.toLowerCase().includes(searchTerm) || 
-                              (b.clientName && b.clientName.toLowerCase().includes(searchTerm));
+                // Universal Search Check
+                const valuesToCheck = [b.carName, b.clientName, b.contractNumber, b.location, b.agent];
+                const match = valuesToCheck.some(val => val && String(val).toLowerCase().includes(searchTerm));
                 
                 if (!match) return;
 
-                const startDate = new Date(b.start);
-                const endDate = new Date(b.end);
-
-                if (b.returned) {
-                    past.push(b); 
-                } else if (endDate < now) {
-                    past.push(b); 
-                } else if (startDate > now) {
-                    upcoming.push(b);
-                } else {
-                    active.push(b);
-                }
+                if (b.returned) past.push(b); 
+                else if (new Date(b.end) < now) past.push(b); 
+                else if (new Date(b.start) > now) upcoming.push(b);
+                else active.push(b);
             });
 
             active.sort((a,b) => a.end.localeCompare(b.end)); 
@@ -1295,307 +1134,115 @@
 
             renderList('list-active', active, 'active');
             renderList('list-upcoming', upcoming, 'upcoming');
-            renderHistory(past);
-        }
-
-        function renderHistory(list) {
-            const el = document.getElementById('list-past');
-            el.innerHTML = '';
-            if(list.length === 0) {
-                el.innerHTML = `<div class="text-center py-10 border-2 border-dashed border-gray-100 rounded-2xl text-gray-400">No history found.</div>`;
-                return;
-            }
-
-            const revenueMap = {}; 
-            const itemsByMonth = {}; 
-
-            list.forEach(item => {
-                const endD = new Date(item.end);
-                const listKey = `${endD.getFullYear()}-${String(endD.getMonth() + 1).padStart(2, '0')}`;
-                if(!itemsByMonth[listKey]) itemsByMonth[listKey] = [];
-                itemsByMonth[listKey].push(item);
-
-                if(item.price && item.start && item.end) {
-                    const price = Number(item.price);
-                    const startObj = new Date(item.start);
-                    const endObj = new Date(item.end);
-                    const diffTime = Math.abs(endObj - startObj);
-                    let totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    if(totalDays < 1) totalDays = 1;
-
-                    let current = new Date(startObj);
-                    for(let i = 0; i < totalDays; i++) {
-                        const monthKey = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}`;
-                        revenueMap[monthKey] = (revenueMap[monthKey] || 0) + price;
-                        current.setDate(current.getDate() + 1);
-                    }
-                }
-            });
-
-            const keys = Object.keys(itemsByMonth).sort().reverse(); 
-
-            keys.forEach(key => {
-                const [year, month] = key.split('-');
-                const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
-                const monthlyTotal = revenueMap[key] || 0;
-
-                const header = document.createElement('div');
-                header.className = "flex justify-between items-center bg-gray-50 p-3 rounded-lg mt-6 mb-2 shadow-sm border border-gray-100";
-                header.innerHTML = `<h3 class="font-bold text-gray-800 text-sm">${monthName}</h3><span class="bg-green-50 text-green-700 px-2 py-0.5 rounded-lg text-xs font-bold border border-green-100">Rev: ${monthlyTotal} DH</span>`;
-                el.appendChild(header);
-
-                itemsByMonth[key].forEach(item => {
-                    el.appendChild(createBookingCard(item, 'past'));
-                });
-            });
+            renderList('list-past', past, 'past'); 
         }
 
         function renderList(elementId, list, type) {
             const el = document.getElementById(elementId);
             el.innerHTML = '';
-            
-            if(list.length === 0) {
-                el.innerHTML = `<div class="text-center py-10 border-2 border-dashed border-gray-100 rounded-2xl text-gray-400">No ${type} bookings found.</div>`;
-                return;
-            }
-
-            // ONLY SHOW SUMMARY FOR PAST (HISTORY)
-            if (type === 'past') {
-                let totalRevenue = 0;
-                list.forEach(item => {
-                    if(item.price && item.start && item.end) {
-                        const price = Number(item.price);
-                        const startD = new Date(item.start);
-                        const endD = new Date(item.end);
-                        const diffTime = Math.abs(endD - startD);
-                        let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        if(diffDays < 1) diffDays = 1;
-                        totalRevenue += (price * diffDays);
-                    }
-                });
-
-                const summaryDiv = document.createElement('div');
-                summaryDiv.className = `bg-blue-50 border border-blue-200 text-blue-800 border rounded-xl p-4 mb-4 flex justify-between items-center shadow-sm`;
-                summaryDiv.innerHTML = `
-                    <div>
-                        <h4 class="font-bold text-sm uppercase opacity-70">Total History Value</h4>
-                        <p class="text-xs font-medium opacity-70">${list.length} bookings</p>
-                    </div>
-                    <div class="text-2xl font-bold">
-                        ${totalRevenue.toLocaleString()} <span class="text-sm font-normal">DH</span>
-                    </div>
-                `;
-                el.appendChild(summaryDiv);
-            }
-
+            if(list.length === 0) { el.innerHTML = `<div class="text-center py-10 border-2 border-dashed border-gray-100 rounded-2xl text-gray-400">No bookings found.</div>`; return; }
             list.forEach(item => el.appendChild(createBookingCard(item, type)));
         }
 
         function createBookingCard(item, type) {
             const isActive = type === 'active';
             const isUpcoming = type === 'upcoming';
-            let borderColorClass = 'border-l-4 border-l-gray-300'; 
-            let badge = '';
-
-            if (isActive) {
-                borderColorClass = 'border-l-4 border-l-indigo-500';
-                badge = '<span class="text-indigo-600 text-[10px] font-bold uppercase tracking-wide bg-indigo-50 px-1.5 rounded">Active</span>';
-            } else if (isUpcoming) {
-                borderColorClass = 'border-l-4 border-l-blue-400';
-                badge = '<span class="text-blue-600 text-[10px] font-bold uppercase tracking-wide bg-blue-50 px-1.5 rounded">Upcoming</span>';
-            } else {
-                badge = '<span class="text-gray-400 text-[10px] font-bold uppercase tracking-wide bg-gray-100 px-1.5 rounded">Done</span>';
-            }
-
-            let totalCost = 0;
-            let diffDays = 0;
-            if (item.price) {
-                const dailyPrice = Number(item.price);
-                const startD = new Date(item.start);
-                const endD = new Date(item.end);
-                const diffTime = Math.abs(endD - startD);
-                diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-                if(diffDays < 1) diffDays = 1;
-                totalCost = dailyPrice * diffDays;
-            }
+            let borderColor = isActive ? 'border-l-indigo-500' : (isUpcoming ? 'border-l-blue-400' : 'border-l-gray-300');
             
-            // Financial Status for card
-            const received = Number(item.amountReceived) || 0;
+            const startD = new Date(item.start);
+            const endD = new Date(item.end);
+            let diffDays = Math.ceil(Math.abs(endD - startD) / (86400000));
+            if(diffDays < 1) diffDays = 1;
+            const totalCost = (Number(item.price)||0) * diffDays;
+            const received = Number(item.amountReceived)||0;
             const rest = totalCost - received;
-            const financeStatus = rest > 0 
-                ? `<span class="text-orange-600 font-bold text-xs bg-orange-50 px-2 py-0.5 rounded border border-orange-100">Rest: ${rest} DH</span>` 
-                : `<span class="text-green-600 font-bold text-xs bg-green-50 px-2 py-0.5 rounded border border-green-100">Paid</span>`;
-
-            const formatDate = (dateStr) => {
-                const d = new Date(dateStr);
-                return d.toLocaleDateString('en-GB', {day: 'numeric', month: 'short'});
-            };
-            const formatTime = (dateStr) => {
-                const d = new Date(dateStr);
-                return d.toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit'});
-            };
 
             const div = document.createElement('div');
-            div.className = `bg-white rounded-xl shadow-sm border border-gray-100 mb-3 relative group hover:shadow-md transition-all p-4 ${borderColorClass}`;
-
-            let actions = '';
-            const editBtn = `<button onclick="window.editMemo('${item.id}')" class="h-8 w-8 rounded-md bg-gray-50 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition border border-gray-100 flex items-center justify-center"><i class="fas fa-edit text-xs"></i></button>`;
-            const deleteBtn = `<button onclick="window.deleteMemo('${item.id}')" class="h-8 w-8 rounded-md bg-gray-50 text-gray-400 hover:text-red-500 hover:bg-red-50 transition border border-gray-100 flex items-center justify-center"><i class="fas fa-trash text-xs"></i></button>`;
-
-            if(isActive || isUpcoming) {
-                actions = `
-                    <div class="flex gap-2">
-                        ${isActive ? `<button onclick="window.markReturned('${item.id}')" class="h-8 px-2 rounded-md bg-indigo-50 text-indigo-600 font-bold text-[10px] hover:bg-indigo-100 transition border border-indigo-100 uppercase">Return</button>` : ''}
-                        ${editBtn}
-                        ${deleteBtn}
-                    </div>`;
-            } else {
-                actions = `
-                <div class="flex gap-2">
-                    ${editBtn}
-                    ${deleteBtn}
-                </div>`;
-            }
-
+            div.className = `bg-white rounded-xl shadow-sm border border-gray-100 mb-3 relative p-4 border-l-4 ${borderColor}`;
+            
             div.innerHTML = `
-                <div class="flex justify-between items-start mb-3">
+                <div class="flex justify-between items-start mb-2">
                     <div>
-                        <h4 class="font-bold text-gray-900 text-lg leading-tight">${item.carName}</h4>
-                        <div class="flex items-center gap-2 mt-1">
-                            ${badge}
-                            ${item.clientName ? `<span class="text-sm text-gray-500 font-medium"><i class="fas fa-user text-gray-400 mr-1"></i>${item.clientName}</span>` : ''}
+                        <div class="flex items-center gap-2">
+                            <span class="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px] font-bold">#${item.contractNumber || '---'}</span>
+                            <h4 class="font-bold text-gray-900 text-lg">${item.carName}</h4>
                         </div>
+                        <p class="text-sm text-gray-500 mt-1"><i class="fas fa-user text-gray-300 mr-1"></i>${item.clientName || 'Unknown'}</p>
                     </div>
-                    ${actions}
-                </div>
-
-                <div class="flex items-center gap-4 text-sm mb-4 border-b border-gray-50 pb-2">
-                    <div class="flex items-center gap-2 text-blue-700">
-                        <i class="fas fa-arrow-circle-right text-blue-500"></i>
-                        <div>
-                            <span class="text-xs font-bold uppercase text-blue-400 block leading-none mb-0.5">Out</span>
-                            <span class="font-bold">${formatDate(item.start)}</span> <span class="text-blue-400 text-xs">${formatTime(item.start)}</span>
-                        </div>
-                    </div>
-                    <div class="h-6 w-px bg-gray-200"></div>
-                    <div class="flex items-center gap-2 text-red-700">
-                        <i class="fas fa-arrow-circle-left text-red-500"></i>
-                        <div>
-                            <span class="text-xs font-bold uppercase text-red-400 block leading-none mb-0.5">In</span>
-                            <span class="font-bold">${formatDate(item.end)}</span> <span class="text-red-400 text-xs">${formatTime(item.end)}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex items-end justify-between">
-                    <div class="flex flex-col gap-1.5">
-                        <div class="flex flex-wrap gap-2 text-[10px]">
-                            ${item.agent ? `<div class="bg-gray-50 px-2 py-1 rounded border border-gray-100 text-gray-600 font-medium"><i class="fas fa-user-tie text-gray-400 mr-1"></i>${item.agent}</div>` : ''}
-                            ${item.location ? `<div class="bg-gray-50 px-2 py-1 rounded border border-gray-100 text-gray-500"><i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>${item.location}</div>` : ''}
-                        </div>
-                         ${item.depositAmount ? `<div class="text-[10px] text-gray-400 ml-1"><i class="fas fa-shield-alt text-gray-300 mr-1"></i>Deposit: ${item.depositAmount} DH (${item.depositMethod})</div>` : ''}
-                    </div>
-
                     <div class="text-right">
-                        ${item.price ? `
-                            <div class="text-gray-900 font-bold text-xl leading-none">${totalCost} <span class="text-sm font-normal text-gray-400">DH</span></div>
-                            <div class="text-[10px] text-gray-400 mt-1 font-medium bg-gray-50 px-1.5 py-0.5 rounded inline-block mb-1">${item.price} × ${diffDays} days</div>
-                            <div>${financeStatus}</div>
-                        ` : ''}
+                        <div class="font-bold text-lg">${totalCost} <span class="text-xs font-normal text-gray-400">DH</span></div>
+                        ${rest > 0 ? `<div class="text-xs font-bold text-orange-600 bg-orange-50 px-2 rounded">Rest: ${rest}</div>` : `<div class="text-xs font-bold text-green-600 bg-green-50 px-2 rounded">Paid</div>`}
                     </div>
+                </div>
+                <div class="flex items-center gap-4 text-xs text-gray-600 border-t border-gray-50 pt-2 mt-2">
+                    <div><span class="text-blue-500 font-bold">OUT:</span> ${startD.toLocaleDateString()} ${startD.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+                    <div><span class="text-red-500 font-bold">IN:</span> ${endD.toLocaleDateString()} ${endD.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+                </div>
+                <div class="mt-3 flex gap-2 justify-end">
+                    ${isActive ? `<button onclick="window.markReturned('${item.id}')" class="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded hover:bg-indigo-100">RETURN</button>` : ''}
+                    <button onclick="window.editMemo('${item.id}')" class="px-3 py-1 bg-gray-50 text-gray-500 text-xs font-bold rounded hover:bg-gray-100">EDIT</button>
+                    <button onclick="window.deleteMemo('${item.id}')" class="px-3 py-1 bg-red-50 text-red-500 text-xs font-bold rounded hover:bg-red-100">DEL</button>
                 </div>
             `;
             return div;
         }
 
         window.markReturned = async function(id) {
-            if(confirm("Mark this car as returned? It will move to History.")) {
-                await updateDoc(doc(db, bookingCollection, id), { returned: true });
-            }
+            if(confirm("Mark returned?")) await updateDoc(doc(db, bookingCollection, id), { returned: true });
+        }
+        
+        window.deleteMemo = async function(id) {
+            if(confirm("Delete this booking?")) await deleteDoc(doc(db, bookingCollection, id));
         }
 
-        // --- NEW EDIT MEMO LOGIC ---
         window.editMemo = function(id) {
             const memo = allBookings.find(b => b.id === id);
             if(!memo) return;
-
             document.getElementById('editMemoId').value = memo.id;
+            document.getElementById('memoContract').value = memo.contractNumber || '';
             document.getElementById('memoCar').value = memo.carName;
             document.getElementById('memoClient').value = memo.clientName || '';
             document.getElementById('memoLocation').value = memo.location || '';
             document.getElementById('memoPrice').value = memo.price || '';
-            document.getElementById('memoReceived').value = memo.amountReceived || ''; // NEW
-            document.getElementById('memoAgent').value = memo.agent || '';
-            document.getElementById('memoDepositAmount').value = memo.depositAmount || '';
-            document.getElementById('memoDepositMethod').value = memo.depositMethod || 'Cash';
-            // Slice to ensure datetime-local format works
+            document.getElementById('memoReceived').value = memo.amountReceived || '';
             document.getElementById('memoStart').value = memo.start ? memo.start.slice(0, 16) : '';
             document.getElementById('memoEnd').value = memo.end ? memo.end.slice(0, 16) : '';
 
-            // Update button to show it's an update
             const btn = document.getElementById('memoSubmitBtn');
-            btn.innerHTML = '<i class="fas fa-save"></i> Update Booking Memo';
-            btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
-            btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
-            
+            btn.innerHTML = '<i class="fas fa-save"></i> Update Booking';
+            btn.classList.add('bg-blue-600');
             document.getElementById('cancelMemoEdit').classList.remove('hidden');
-
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         window.resetMemoForm = function() {
             document.getElementById('bookingMemoForm').reset();
             document.getElementById('editMemoId').value = '';
-            
-            const btn = document.getElementById('memoSubmitBtn');
-            btn.innerHTML = '<i class="fas fa-plus"></i> Add Booking Memo';
-            btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-            btn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
-            
+            document.getElementById('memoSubmitBtn').innerHTML = '<i class="fas fa-plus"></i> Add Booking Memo';
+            document.getElementById('memoSubmitBtn').classList.remove('bg-blue-600');
             document.getElementById('cancelMemoEdit').classList.add('hidden');
         };
 
         document.getElementById('bookingMemoForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const contractNumber = document.getElementById('memoContract').value;
             const carName = document.getElementById('memoCar').value;
             const clientName = document.getElementById('memoClient').value;
             const location = document.getElementById('memoLocation').value;
             const price = document.getElementById('memoPrice').value;
-            const amountReceived = document.getElementById('memoReceived').value; // NEW
-            const agent = document.getElementById('memoAgent').value;
-            const depositAmount = document.getElementById('memoDepositAmount').value;
-            const depositMethod = document.getElementById('memoDepositMethod').value;
-            
-            let start = document.getElementById('memoStart').value;
-            let end = document.getElementById('memoEnd').value;
+            const amountReceived = document.getElementById('memoReceived').value;
+            const start = document.getElementById('memoStart').value;
+            const end = document.getElementById('memoEnd').value;
             const editId = document.getElementById('editMemoId').value;
 
-            // Ensure formatting if not edited
-            if(start.length > 16) start = roundToHour(start);
-            if(end.length > 16) end = roundToHour(end);
-
-            const data = {
-                carName, clientName, location, price, amountReceived, agent, depositAmount, depositMethod, start, end, 
-                updatedAt: serverTimestamp()
-            };
+            const data = { contractNumber, carName, clientName, location, price, amountReceived, start, end, updatedAt: serverTimestamp() };
 
             try {
-                if (editId) {
-                    await updateDoc(doc(db, bookingCollection, editId), data);
-                } else {
-                    data.createdAt = serverTimestamp();
-                    data.returned = false;
-                    await addDoc(collection(db, bookingCollection), data);
-                }
+                if (editId) await updateDoc(doc(db, bookingCollection, editId), data);
+                else await addDoc(collection(db, bookingCollection), { ...data, returned: false, createdAt: serverTimestamp() });
                 resetMemoForm();
-            } catch(e) { alert("Error saving memo: " + e.message); }
+            } catch(e) { alert("Error saving: " + e.message); }
         });
-
-        window.deleteMemo = async function(id) {
-            if(confirm("Delete this memo?")) {
-                await deleteDoc(doc(db, bookingCollection, id));
-            }
-        }
     </script>
 </body>
 </html>
