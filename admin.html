@@ -84,20 +84,28 @@
                             <span class="font-bold" id="modalDays">---</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Total Amount</span>
-                            <span class="font-bold text-gray-900" id="modalTotal">---</span>
+                            <span class="text-gray-500">Base Amount</span>
+                            <span class="font-bold text-gray-900" id="modalBase">---</span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-500">Advance Paid</span>
-                            <span class="font-bold text-green-600" id="modalAdvance">---</span>
-                        </div>
-                        <div id="modalExtraContainer" class="hidden bg-amber-50 p-2 rounded-lg border border-amber-100 mt-1">
+                        
+                        <div id="modalExtraContainer" class="hidden bg-amber-50 p-2 rounded-lg border border-amber-100 mt-1 mb-1">
                             <div class="flex justify-between items-center mb-1">
                                 <span class="text-amber-800 font-bold text-xs uppercase">Extra Added</span>
                                 <span class="font-bold text-amber-700" id="modalExtraAmount">---</span>
                             </div>
                             <p class="text-xs text-amber-600 italic" id="modalExtraReason">---</p>
                         </div>
+
+                        <div class="flex justify-between border-t border-dashed border-gray-200 pt-1">
+                            <span class="text-gray-800 font-bold">Total Expected</span>
+                            <span class="font-bold text-gray-900" id="modalTotalExpected">---</span>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Total Cash Received</span>
+                            <span class="font-bold text-green-600" id="modalTotalReceived">---</span>
+                        </div>
+                        
                         <div class="flex justify-between border-t border-gray-100 pt-2 mt-2">
                             <span class="text-gray-800 font-bold">Balance Due (Rest)</span>
                             <span class="font-bold text-orange-600 text-lg" id="modalRest">---</span>
@@ -613,6 +621,7 @@
                         <table class="w-full text-left border-collapse min-w-[600px] md:min-w-0">
                             <thead>
                                 <tr class="border-b-2 border-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wide">
+                                    <th class="py-3 px-2">#</th>
                                     <th class="py-3 px-2">Contract</th>
                                     <th class="py-3 px-2">Date</th>
                                     <th class="py-3 px-2">Car / Client</th>
@@ -1133,9 +1142,25 @@
         function renderExpenses() {
             const list = document.getElementById('expenses-list');
             list.innerHTML = '';
+            
+            // Sort by Date Descending
             const sorted = allExpenses.sort((a,b) => b.date.localeCompare(a.date));
+            
+            let lastMonth = '';
 
             sorted.forEach(exp => {
+                const dateObj = new Date(exp.date);
+                const currentMonth = dateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+                // Add Month Header if Changed
+                if (currentMonth !== lastMonth) {
+                    const header = document.createElement('div');
+                    header.className = "bg-gray-100 text-gray-600 font-bold text-xs uppercase px-4 py-2 rounded-lg mt-4 mb-2";
+                    header.innerText = currentMonth;
+                    list.appendChild(header);
+                    lastMonth = currentMonth;
+                }
+
                 const div = document.createElement('div');
                 div.className = "bg-white p-4 rounded-lg border border-gray-200 flex justify-between items-center shadow-sm";
                 div.innerHTML = `
@@ -1459,19 +1484,22 @@
             });
 
             // Render Bookings
-            filtered.forEach(item => {
+            filtered.forEach((item, index) => { // Added Index
                 const startD = new Date(item.start);
                 const diffTime = Math.abs(new Date(item.end) - startD);
                 let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 if(diffDays < 1) diffDays = 1;
                 
                 const dailyPrice = Number(item.price) || 0;
-                const totalVal = dailyPrice * diffDays;
-                const receivedVal = Number(item.amountReceived) || 0;
-                const restVal = totalVal - receivedVal;
                 
                 // Extra check
                 const extraVal = Number(item.extraAmount) || 0;
+                
+                const totalVal = (dailyPrice * diffDays) + extraVal; // Total now includes Extra
+                const receivedVal = (Number(item.amountReceived) || 0) + extraVal; // Received now includes Extra
+
+                const restVal = totalVal - receivedVal;
+                
                 
                 totalRev += totalVal;
                 totalRec += receivedVal;
@@ -1480,6 +1508,7 @@
                 tr.className = "border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer";
                 tr.onclick = () => window.goToBooking(item.id, item.contractNumber); // NEW CLICK HANDLER
                 tr.innerHTML = `
+                    <td class="py-3 px-2 font-bold text-gray-400 text-xs">${index + 1}</td>
                     <td class="py-3 px-2 font-medium text-gray-500 whitespace-nowrap">${item.contractNumber || '---'}</td>
                     <td class="py-3 px-2 font-medium text-gray-500 whitespace-nowrap">${startD.toLocaleDateString()}</td>
                     <td class="py-3 px-2">
@@ -1547,20 +1576,32 @@
             const upcoming = [];
             const past = [];
 
-            allBookings.forEach(b => {
-                // UPDATE: Search everything
-                const searchable = [
-                    b.carName, b.clientName, b.location, b.agent, 
-                    b.depositMethod, b.contractNumber
-                ].map(x => x ? String(x).toLowerCase() : '').join(' ');
+            // FILTER: If search EXACTLY matches a contract, prioritize it
+            let hasExactContractMatch = false;
+            
+            // First Check for exact contract matches to isolate them
+            const exactMatches = allBookings.filter(b => b.contractNumber && String(b.contractNumber).toLowerCase() === searchTerm);
+            
+            if (exactMatches.length > 0) {
+                 // If we found exact contract matches, use ONLY those
+                 exactMatches.forEach(b => processBookingIntoList(b));
+            } else {
+                 // Otherwise, do fuzzy search
+                 allBookings.forEach(b => {
+                    const searchable = [
+                        b.carName, b.clientName, b.location, b.agent, 
+                        b.depositMethod, b.contractNumber
+                    ].map(x => x ? String(x).toLowerCase() : '').join(' ');
 
-                const match = searchable.includes(searchTerm);
-                
-                if (!match) return;
+                    if (searchable.includes(searchTerm)) {
+                        processBookingIntoList(b);
+                    }
+                });
+            }
 
+            function processBookingIntoList(b) {
                 const startDate = new Date(b.start);
                 const endDate = new Date(b.end);
-
                 if (b.returned) {
                     past.push(b); 
                 } else if (endDate < now) {
@@ -1570,7 +1611,7 @@
                 } else {
                     active.push(b);
                 }
-            });
+            }
 
             active.sort((a,b) => a.end.localeCompare(b.end)); 
             upcoming.sort((a,b) => a.start.localeCompare(b.start)); 
@@ -1708,7 +1749,11 @@
             
             // Financial Status for card
             const received = Number(item.amountReceived) || 0;
-            const rest = totalCost - received;
+            const extra = Number(item.extraAmount) || 0; 
+            const totalWithExtra = totalCost + extra;
+            const receivedWithExtra = received + extra;
+            
+            const rest = totalWithExtra - receivedWithExtra;
             const financeStatus = rest > 0 
                 ? `<span class="text-orange-600 font-bold text-xs bg-orange-50 px-2 py-0.5 rounded border border-orange-100">Rest: ${rest} DH</span>` 
                 : `<span class="text-green-600 font-bold text-xs bg-green-50 px-2 py-0.5 rounded border border-green-100">Paid</span>`;
@@ -1826,13 +1871,22 @@
                 let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 if(diffDays < 1) diffDays = 1;
                 const totalVal = Number(item.price) * diffDays;
+                
                 const receivedVal = Number(item.amountReceived) || 0;
-                const restVal = totalVal - receivedVal;
+                const extraVal = Number(item.extraAmount) || 0;
+
+                // FIX: Modal logic matches table logic (Extra added to Cash Received)
+                const totalWithExtra = totalVal + extraVal;
+                const receivedWithExtra = receivedVal + extraVal;
+                const restVal = totalWithExtra - receivedWithExtra;
 
                 document.getElementById('modalPrice').innerText = item.price + ' DH';
                 document.getElementById('modalDays').innerText = diffDays + ' Days';
-                document.getElementById('modalTotal').innerText = totalVal + ' DH';
-                document.getElementById('modalAdvance').innerText = receivedVal + ' DH';
+                document.getElementById('modalBase').innerText = totalVal + ' DH'; // Base cost (days * price)
+                
+                document.getElementById('modalTotalExpected').innerText = totalWithExtra + ' DH';
+                document.getElementById('modalTotalReceived').innerText = receivedWithExtra + ' DH';
+                
                 document.getElementById('modalRest').innerText = restVal + ' DH';
             }
 
