@@ -1408,7 +1408,7 @@
             });
         }
 
-        // --- REVISED FINANCE DASHBOARD LOGIC (CASH FLOW + ROUNDING) ---
+        // --- REVISED FINANCE DASHBOARD LOGIC (EVENT BASED: ADVANCE ON START, REST ON END) ---
         window.renderFinanceDashboard = function() {
             const startDateVal = document.getElementById('finStartDate').value;
             const endDateVal = document.getElementById('finEndDate').value;
@@ -1421,35 +1421,30 @@
             tableBody.innerHTML = '';
             expTableBody.innerHTML = '';
 
-            const rangeStart = new Date(startDateVal);
-            const rangeEnd = new Date(endDateVal);
-            rangeEnd.setHours(23, 59, 59, 999);
-
-            // 1. Filter Expenses (Simple Date Match)
-            let filteredExpenses = allExpenses.filter(e => {
-                return e.date >= startDateVal && e.date <= endDateVal;
-            });
+            // 1. Filter Expenses
+            let filteredExpenses = allExpenses.filter(e => e.date >= startDateVal && e.date <= endDateVal);
             filteredExpenses.sort((a,b) => b.date.localeCompare(a.date));
 
-            // 2. Filter & Process Bookings
-            
             let reportItems = [];
-            let totalRev = 0; // "Total Expected" in this period (Received + Rest)
-            let totalRec = 0; // "Cash Received" in this period
-            let totalRest = 0; // "Balance Due" in this period
+            
+            // Financial Totals for the header
+            let totalRev = 0;    // Total Expected (Gross)
+            let totalRec = 0;    // Cash In Hand
+            let totalRest = 0;   // Money owed (Unpaid Rest)
 
             allBookings.forEach(b => {
-                // Global Status Filter
+                // Global Filters
                 if (statusFilter === 'active' && (b.returned || new Date(b.end) < now)) return;
                 if (statusFilter === 'past' && (!b.returned && new Date(b.end) >= now)) return;
 
                 const bStartStr = b.start.split('T')[0];
                 const bEndStr = b.end.split('T')[0];
                 
+                // CHECK: Does the Start or End fall in the selected range?
                 const startIn = bStartStr >= startDateVal && bStartStr <= endDateVal;
                 const endIn = bEndStr >= startDateVal && bEndStr <= endDateVal;
 
-                // Calculate Finances for this Booking (Using RAW values for math)
+                // Calculate Totals for this booking
                 const startD = new Date(b.start);
                 const endD = new Date(b.end);
                 const diffTime = Math.abs(endD - startD);
@@ -1458,92 +1453,91 @@
 
                 const dailyPrice = Number(b.price) || 0;
                 const extraVal = Number(b.extraAmount) || 0;
-                const receivedVal = (Number(b.amountReceived) || 0) + extraVal; // Advance
+                const advanceVal = Number(b.amountReceived) || 0; // This is the money paid at start
                 
-                const fullTotal = (dailyPrice * diffDays) + extraVal;
-                const restVal = fullTotal - receivedVal;
+                // Full calculation
+                const fullTotal = (dailyPrice * diffDays) + extraVal; 
+                const restVal = fullTotal - advanceVal;
 
-                // Determine what falls in this Report Period
+                // LOGIC: Distribute money based on dates
+                let periodExpected = 0;
                 let periodReceived = 0;
                 let periodRest = 0;
                 let include = false;
 
-                // Rule 1: Advance counts on Start Date
+                // 1. ADVANCE logic: Counts on START DATE
                 if (startIn) {
-                    periodReceived = receivedVal;
+                    periodExpected += advanceVal;
+                    periodReceived += advanceVal;
                     include = true;
                 }
 
-                // Rule 2: Rest counts on End Date (if there is rest)
-                if (endIn && restVal > 0) {
-                    periodRest = restVal;
+                // 2. REST & EXTRA logic: Counts on END DATE (Return Date)
+                if (endIn) {
+                    // The Rest and the Extra are "expected" on the return date
+                    periodExpected += restVal;
+                    
+                    if (b.restPaid) {
+                        // If you marked it as paid manually, it counts as Cash Received
+                        periodReceived += restVal;
+                    } else {
+                        // If not paid, it counts as Balance Due (Rest)
+                        periodRest += restVal;
+                    }
                     include = true;
                 }
                 
-                // Only include if it has financial relevance to this period
                 if (include) {
                     reportItems.push({
                         ...b,
+                        displayTotal: periodExpected,
                         displayReceived: periodReceived,
-                        displayRest: periodRest,
-                        displayTotal: periodReceived + periodRest, // Revenue relevant to period
+                        displayRest: periodRest, // Only shows unpaid rest
                         fullTotal: fullTotal,
-                        fullDays: diffDays
+                        fullDays: diffDays,
+                        isRestPaid: b.restPaid // To show checkmark in table
                     });
                     
+                    totalRev += periodExpected;
                     totalRec += periodReceived;
                     totalRest += periodRest;
-                    totalRev += (periodReceived + periodRest);
                 }
             });
 
-            // SORTING LOGIC
+            // Sorting
             reportItems.sort((a,b) => {
-                const dateA = new Date(a.start);
-                const dateB = new Date(b.start);
                 switch(sortVal) {
-                    case 'date_desc': return dateB - dateA; 
-                    case 'date_asc': return dateA - dateB;  
-                    case 'days_desc': return b.fullDays - a.fullDays;
-                    case 'days_asc': return a.fullDays - b.fullDays;
+                    case 'date_desc': return new Date(b.start) - new Date(a.start); 
+                    case 'date_asc': return new Date(a.start) - new Date(b.start);  
                     case 'total_desc': return b.displayTotal - a.displayTotal;
-                    case 'total_asc': return a.displayTotal - b.displayTotal;
-                    case 'rest_desc': return b.displayRest - a.displayRest;
-                    default: return dateB - dateA;
+                    default: return new Date(b.start) - new Date(a.start);
                 }
             });
             
-            // Format for Print
+            // Header Stats
             const sDate = new Date(startDateVal).toLocaleDateString();
             const eDate = new Date(endDateVal).toLocaleDateString();
             document.getElementById('print-date-range').innerText = `Period: ${sDate} - ${eDate}`;
 
             let totalExpenses = 0;
-            
-            // Render Expenses List (Apply Rounding to Expenses Sum)
-             filteredExpenses.forEach(exp => {
+            filteredExpenses.forEach(exp => {
                 totalExpenses += Number(exp.amount);
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-gray-100";
-                tr.innerHTML = `
-                    <td class="py-2 px-2 text-gray-500 text-xs">${new Date(exp.date).toLocaleDateString()}</td>
-                    <td class="py-2 px-2 font-medium text-gray-800">${exp.title}</td>
-                    <td class="py-2 px-2 text-right font-bold text-red-600">- ${Math.round(exp.amount)}</td>
-                `;
-                expTableBody.appendChild(tr);
+                expTableBody.innerHTML += `
+                    <tr class="border-b border-gray-100">
+                        <td class="py-2 px-2 text-gray-500 text-xs">${new Date(exp.date).toLocaleDateString()}</td>
+                        <td class="py-2 px-2 font-medium text-gray-800">${exp.title}</td>
+                        <td class="py-2 px-2 text-right font-bold text-red-600">- ${Math.round(exp.amount)}</td>
+                    </tr>`;
             });
 
-            // Render Bookings (Apply Rounding to Displayed Items)
             reportItems.forEach((item, index) => { 
                 const startD = new Date(item.start);
-                
                 const tr = document.createElement('tr');
                 tr.className = "border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer";
                 tr.onclick = () => window.goToBooking(item.id, item.contractNumber); 
                 
-                // Visual Indicator for Partial Display
-                const isPartial = item.displayTotal < item.fullTotal;
-                const note = isPartial ? `<i class="fas fa-info-circle text-[10px] text-blue-400 ml-1" title="Partial period amount"></i>` : '';
+                // Show a green check if Rest is paid but it was displayed in this row
+                const paidIcon = item.isRestPaid ? '<i class="fas fa-check-circle text-green-500 ml-1" title="Rest Paid"></i>' : '';
 
                 tr.innerHTML = `
                     <td class="py-3 px-2 font-bold text-gray-400 text-xs">${index + 1}</td>
@@ -1556,27 +1550,25 @@
                     <td class="py-3 px-2 text-xs text-gray-500 font-medium whitespace-nowrap">${item.fullDays}d</td>
                     
                     <td class="py-3 px-2 text-right font-bold text-gray-900 whitespace-nowrap">
-                        ${Math.round(item.displayTotal).toLocaleString()} ${note}
+                        ${Math.round(item.displayTotal).toLocaleString()}
                     </td>
                     <td class="py-3 px-2 text-right text-green-600 font-bold whitespace-nowrap">
-                        ${item.displayReceived > 0 ? Math.round(item.displayReceived).toLocaleString() : '-'}
+                        ${Math.round(item.displayReceived).toLocaleString()}
                     </td>
                     <td class="py-3 px-2 text-right text-amber-600 font-bold whitespace-nowrap">
-                        ${(item.extraAmount && item.displayReceived > 0) ? Math.round(item.extraAmount).toLocaleString() : '-'}
+                        ${item.extraAmount ? Math.round(item.extraAmount) : '-'}
                     </td>
                     <td class="py-3 px-2 text-right ${item.displayRest > 0 ? 'text-orange-600 font-bold' : 'text-gray-300'} whitespace-nowrap">
-                        ${item.displayRest > 0 ? Math.round(item.displayRest).toLocaleString() : '0'}
+                        ${item.displayRest > 0 ? Math.round(item.displayRest).toLocaleString() : '0'} ${paidIcon}
                     </td>
                 `;
                 tableBody.appendChild(tr);
             });
             
-            // GROSS (Rounded)
             document.getElementById('fin-total-revenue').innerHTML = Math.round(totalRev).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
             document.getElementById('fin-total-received').innerHTML = Math.round(totalRec).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
             document.getElementById('fin-total-rest').innerHTML = Math.round(totalRest).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
             
-            // NET (Rounded)
             document.getElementById('fin-total-expenses').innerHTML = Math.round(totalExpenses).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
             document.getElementById('fin-net-expected').innerHTML = Math.round(totalRev - totalExpenses).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
             document.getElementById('fin-net-cash').innerHTML = Math.round(totalRec - totalExpenses).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
@@ -1793,16 +1785,28 @@
                 totalCost = dailyPrice * diffDays;
             }
             
-            // Financial Status for card
+            // Financial Status Calculation
             const received = Number(item.amountReceived) || 0;
             const extra = Number(item.extraAmount) || 0; 
             const totalWithExtra = totalCost + extra;
-            const receivedWithExtra = received + extra;
+            const rest = totalWithExtra - received;
             
-            const rest = totalWithExtra - receivedWithExtra;
-            const financeStatus = rest > 0 
-                ? `<span class="text-orange-600 font-bold text-xs bg-orange-50 px-2 py-0.5 rounded border border-orange-100">Rest: ${Math.round(rest)} DH</span>` 
-                : `<span class="text-green-600 font-bold text-xs bg-green-50 px-2 py-0.5 rounded border border-green-100">Paid</span>`;
+            let financeStatus = '';
+            
+            if (rest > 0) {
+                if (item.restPaid) {
+                    financeStatus = `<span class="text-green-600 font-bold text-xs bg-green-50 px-2 py-0.5 rounded border border-green-100"><i class="fas fa-check-double"></i> All Paid</span>`;
+                } else {
+                    financeStatus = `
+                        <div class="flex items-center gap-2 justify-end">
+                            <span class="text-orange-600 font-bold text-xs bg-orange-50 px-2 py-1 rounded border border-orange-100">Rest: ${Math.round(rest)} DH</span>
+                            <button onclick="event.stopPropagation(); window.toggleRestPaid('${item.id}', true)" class="bg-green-100 hover:bg-green-200 text-green-700 text-[10px] font-bold px-2 py-1 rounded transition border border-green-200" title="Mark Rest as Paid"><i class="fas fa-check"></i> Pay</button>
+                        </div>
+                    `;
+                }
+            } else {
+                financeStatus = `<span class="text-green-600 font-bold text-xs bg-green-50 px-2 py-0.5 rounded border border-green-100">Paid</span>`;
+            }
 
             const formatDate = (dateStr) => {
                 const d = new Date(dateStr);
@@ -2051,6 +2055,20 @@
         window.deleteMemo = async function(id) {
             if(confirm("Delete this memo?")) {
                 await deleteDoc(doc(db, bookingCollection, id));
+            }
+        }
+
+        window.toggleRestPaid = async function(id, status) {
+            if(confirm(status ? "Confirm you received the rest of the money?" : "Mark as unpaid?")) {
+                try {
+                    const bookingRef = doc(db, bookingCollection, id);
+                    await updateDoc(bookingRef, { 
+                        restPaid: status,
+                        restPaidAt: serverTimestamp() 
+                    });
+                } catch(e) {
+                    alert("Error updating payment status: " + e.message);
+                }
             }
         }
     </script>
