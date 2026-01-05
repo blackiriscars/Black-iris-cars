@@ -289,7 +289,7 @@
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Price/Day</label><input type="number" id="carPrice" required class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0"></div>
+                            <div><label class="block text-sm font-bold text-gray-700 mb-2">Price/Day</label><input type="number" step="any" id="carPrice" required class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="0"></div>
                             <div><label class="block text-sm font-bold text-gray-700 mb-2">Seats</label><input type="number" id="carSeats" value="5" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></div>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
@@ -348,11 +348,11 @@
                         </div>
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Daily Price (DH) <span class="text-red-500">*</span></label>
-                            <input type="number" id="memoPrice" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
+                            <input type="number" step="any" id="memoPrice" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
                         </div>
                         <div class="md:col-span-1 min-w-0">
                              <label class="block text-xs font-bold text-green-600 mb-1 uppercase tracking-wide">Amount Received (Advance)</label>
-                             <input type="number" id="memoReceived" class="w-full h-12 px-4 bg-gray-50 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
+                             <input type="number" step="any" id="memoReceived" class="w-full h-12 px-4 bg-gray-50 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
                         </div>
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Client Name</label>
@@ -376,7 +376,7 @@
                         </div>
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Deposit Amount (DH)</label>
-                            <input type="number" id="memoDepositAmount" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
+                            <input type="number" step="any" id="memoDepositAmount" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="0">
                         </div>
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Deposit Method</label>
@@ -392,7 +392,7 @@
                         </div>
                         <div class="md:col-span-1 min-w-0">
                             <label class="block text-xs font-bold text-amber-600 mb-1 uppercase tracking-wide">Extra Amount (DH)</label>
-                            <input type="number" id="memoExtraAmount" class="w-full h-12 px-4 bg-amber-50 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="Optional">
+                            <input type="number" step="any" id="memoExtraAmount" class="w-full h-12 px-4 bg-amber-50 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition-all text-gray-700 text-sm font-medium" placeholder="Optional">
                         </div>
                         <div class="md:col-span-3 min-w-0">
                             <label class="block text-xs font-bold text-amber-600 mb-1 uppercase tracking-wide">Extra Reason / Note</label>
@@ -456,7 +456,7 @@
                         </div>
                         <div class="md:col-span-1">
                             <label class="block text-xs font-bold text-green-600 mb-1 uppercase tracking-wide">Cost (DH) - Optional</label>
-                            <input type="number" id="serviceCost" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-gray-700 font-medium" placeholder="0">
+                            <input type="number" step="any" id="serviceCost" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-gray-700 font-medium" placeholder="0">
                         </div>
                         <div class="md:col-span-1">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Repeat?</label>
@@ -508,7 +508,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Amount (DH)</label>
-                            <input type="number" id="expAmount" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium" placeholder="0" required>
+                            <input type="number" step="any" id="expAmount" class="w-full h-12 px-4 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 font-medium" placeholder="0" required>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase tracking-wide">Date</label>
@@ -1408,55 +1408,107 @@
             });
         }
 
-        // --- REVISED FINANCE DASHBOARD LOGIC (DATE RANGE + SORT) ---
+        // --- REVISED FINANCE DASHBOARD LOGIC (CASH FLOW + ROUNDING) ---
         window.renderFinanceDashboard = function() {
             const startDateVal = document.getElementById('finStartDate').value;
             const endDateVal = document.getElementById('finEndDate').value;
             const statusFilter = document.getElementById('financeStatus').value;
-            const sortVal = document.getElementById('financeSort').value; // NEW
+            const sortVal = document.getElementById('financeSort').value;
             const tableBody = document.getElementById('finance-table-body');
             const expTableBody = document.getElementById('finance-expenses-body');
             const now = new Date();
             
             tableBody.innerHTML = '';
             expTableBody.innerHTML = '';
-            
-            // Filter Bookings
-            let filtered = allBookings.filter(b => {
-                if (statusFilter === 'active' && (b.returned || new Date(b.end) < now)) return false;
-                if (statusFilter === 'past' && (!b.returned && new Date(b.end) >= now)) return false;
-                
-                const bDate = b.start.split('T')[0]; 
-                return bDate >= startDateVal && bDate <= endDateVal;
-            });
-            
-            // Filter Expenses
+
+            const rangeStart = new Date(startDateVal);
+            const rangeEnd = new Date(endDateVal);
+            rangeEnd.setHours(23, 59, 59, 999);
+
+            // 1. Filter Expenses (Simple Date Match)
             let filteredExpenses = allExpenses.filter(e => {
                 return e.date >= startDateVal && e.date <= endDateVal;
             });
             filteredExpenses.sort((a,b) => b.date.localeCompare(a.date));
+
+            // 2. Filter & Process Bookings
             
+            let reportItems = [];
+            let totalRev = 0; // "Total Expected" in this period (Received + Rest)
+            let totalRec = 0; // "Cash Received" in this period
+            let totalRest = 0; // "Balance Due" in this period
+
+            allBookings.forEach(b => {
+                // Global Status Filter
+                if (statusFilter === 'active' && (b.returned || new Date(b.end) < now)) return;
+                if (statusFilter === 'past' && (!b.returned && new Date(b.end) >= now)) return;
+
+                const bStartStr = b.start.split('T')[0];
+                const bEndStr = b.end.split('T')[0];
+                
+                const startIn = bStartStr >= startDateVal && bStartStr <= endDateVal;
+                const endIn = bEndStr >= startDateVal && bEndStr <= endDateVal;
+
+                // Calculate Finances for this Booking (Using RAW values for math)
+                const startD = new Date(b.start);
+                const endD = new Date(b.end);
+                const diffTime = Math.abs(endD - startD);
+                let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if(diffDays < 1) diffDays = 1;
+
+                const dailyPrice = Number(b.price) || 0;
+                const extraVal = Number(b.extraAmount) || 0;
+                const receivedVal = (Number(b.amountReceived) || 0) + extraVal; // Advance
+                
+                const fullTotal = (dailyPrice * diffDays) + extraVal;
+                const restVal = fullTotal - receivedVal;
+
+                // Determine what falls in this Report Period
+                let periodReceived = 0;
+                let periodRest = 0;
+                let include = false;
+
+                // Rule 1: Advance counts on Start Date
+                if (startIn) {
+                    periodReceived = receivedVal;
+                    include = true;
+                }
+
+                // Rule 2: Rest counts on End Date (if there is rest)
+                if (endIn && restVal > 0) {
+                    periodRest = restVal;
+                    include = true;
+                }
+                
+                // Only include if it has financial relevance to this period
+                if (include) {
+                    reportItems.push({
+                        ...b,
+                        displayReceived: periodReceived,
+                        displayRest: periodRest,
+                        displayTotal: periodReceived + periodRest, // Revenue relevant to period
+                        fullTotal: fullTotal,
+                        fullDays: diffDays
+                    });
+                    
+                    totalRec += periodReceived;
+                    totalRest += periodRest;
+                    totalRev += (periodReceived + periodRest);
+                }
+            });
+
             // SORTING LOGIC
-            filtered.sort((a,b) => {
+            reportItems.sort((a,b) => {
                 const dateA = new Date(a.start);
                 const dateB = new Date(b.start);
-                
-                // Helper vars for calculation sort
-                const diffDaysA = Math.ceil(Math.abs(new Date(a.end) - dateA) / (86400000)) || 1;
-                const diffDaysB = Math.ceil(Math.abs(new Date(b.end) - dateB) / (86400000)) || 1;
-                const totalA = (Number(a.price)||0) * diffDaysA;
-                const totalB = (Number(b.price)||0) * diffDaysB;
-                const restA = totalA - (Number(a.amountReceived)||0);
-                const restB = totalB - (Number(b.amountReceived)||0);
-
                 switch(sortVal) {
-                    case 'date_desc': return dateB - dateA; // Newest first
-                    case 'date_asc': return dateA - dateB;  // Oldest first
-                    case 'days_desc': return diffDaysB - diffDaysA;
-                    case 'days_asc': return diffDaysA - diffDaysB;
-                    case 'total_desc': return totalB - totalA;
-                    case 'total_asc': return totalA - totalB;
-                    case 'rest_desc': return restB - restA;
+                    case 'date_desc': return dateB - dateA; 
+                    case 'date_asc': return dateA - dateB;  
+                    case 'days_desc': return b.fullDays - a.fullDays;
+                    case 'days_asc': return a.fullDays - b.fullDays;
+                    case 'total_desc': return b.displayTotal - a.displayTotal;
+                    case 'total_asc': return a.displayTotal - b.displayTotal;
+                    case 'rest_desc': return b.displayRest - a.displayRest;
                     default: return dateB - dateA;
                 }
             });
@@ -1466,11 +1518,9 @@
             const eDate = new Date(endDateVal).toLocaleDateString();
             document.getElementById('print-date-range').innerText = `Period: ${sDate} - ${eDate}`;
 
-            let totalRev = 0;
-            let totalRec = 0;
             let totalExpenses = 0;
             
-            // Render Expenses List
+            // Render Expenses List (Apply Rounding to Expenses Sum)
              filteredExpenses.forEach(exp => {
                 totalExpenses += Number(exp.amount);
                 const tr = document.createElement('tr');
@@ -1478,35 +1528,23 @@
                 tr.innerHTML = `
                     <td class="py-2 px-2 text-gray-500 text-xs">${new Date(exp.date).toLocaleDateString()}</td>
                     <td class="py-2 px-2 font-medium text-gray-800">${exp.title}</td>
-                    <td class="py-2 px-2 text-right font-bold text-red-600">- ${exp.amount}</td>
+                    <td class="py-2 px-2 text-right font-bold text-red-600">- ${Math.round(exp.amount)}</td>
                 `;
                 expTableBody.appendChild(tr);
             });
 
-            // Render Bookings
-            filtered.forEach((item, index) => { // Added Index
+            // Render Bookings (Apply Rounding to Displayed Items)
+            reportItems.forEach((item, index) => { 
                 const startD = new Date(item.start);
-                const diffTime = Math.abs(new Date(item.end) - startD);
-                let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                if(diffDays < 1) diffDays = 1;
-                
-                const dailyPrice = Number(item.price) || 0;
-                
-                // Extra check
-                const extraVal = Number(item.extraAmount) || 0;
-                
-                const totalVal = (dailyPrice * diffDays) + extraVal; // Total now includes Extra
-                const receivedVal = (Number(item.amountReceived) || 0) + extraVal; // Received now includes Extra
-
-                const restVal = totalVal - receivedVal;
-                
-                
-                totalRev += totalVal;
-                totalRec += receivedVal;
                 
                 const tr = document.createElement('tr');
                 tr.className = "border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer";
-                tr.onclick = () => window.goToBooking(item.id, item.contractNumber); // NEW CLICK HANDLER
+                tr.onclick = () => window.goToBooking(item.id, item.contractNumber); 
+                
+                // Visual Indicator for Partial Display
+                const isPartial = item.displayTotal < item.fullTotal;
+                const note = isPartial ? `<i class="fas fa-info-circle text-[10px] text-blue-400 ml-1" title="Partial period amount"></i>` : '';
+
                 tr.innerHTML = `
                     <td class="py-3 px-2 font-bold text-gray-400 text-xs">${index + 1}</td>
                     <td class="py-3 px-2 font-medium text-gray-500 whitespace-nowrap">${item.contractNumber || '---'}</td>
@@ -1515,25 +1553,33 @@
                         <div class="font-bold text-gray-900">${item.carName}</div>
                         <div class="text-xs text-gray-400 truncate max-w-[100px]">${item.clientName || 'Unknown'}</div>
                     </td>
-                    <td class="py-3 px-2 text-xs text-gray-500 font-medium whitespace-nowrap">${diffDays}d</td>
-                    <td class="py-3 px-2 text-right font-bold text-gray-900 whitespace-nowrap">${totalVal.toLocaleString()}</td>
-                    <td class="py-3 px-2 text-right text-green-600 font-bold whitespace-nowrap">${receivedVal > 0 ? receivedVal.toLocaleString() : '-'}</td>
-                    <td class="py-3 px-2 text-right text-amber-600 font-bold whitespace-nowrap">${extraVal > 0 ? extraVal.toLocaleString() : '-'}</td>
-                    <td class="py-3 px-2 text-right ${restVal > 0 ? 'text-orange-600 font-bold' : 'text-gray-300'} whitespace-nowrap">${restVal > 0 ? restVal.toLocaleString() : '0'}</td>
+                    <td class="py-3 px-2 text-xs text-gray-500 font-medium whitespace-nowrap">${item.fullDays}d</td>
+                    
+                    <td class="py-3 px-2 text-right font-bold text-gray-900 whitespace-nowrap">
+                        ${Math.round(item.displayTotal).toLocaleString()} ${note}
+                    </td>
+                    <td class="py-3 px-2 text-right text-green-600 font-bold whitespace-nowrap">
+                        ${item.displayReceived > 0 ? Math.round(item.displayReceived).toLocaleString() : '-'}
+                    </td>
+                    <td class="py-3 px-2 text-right text-amber-600 font-bold whitespace-nowrap">
+                        ${(item.extraAmount && item.displayReceived > 0) ? Math.round(item.extraAmount).toLocaleString() : '-'}
+                    </td>
+                    <td class="py-3 px-2 text-right ${item.displayRest > 0 ? 'text-orange-600 font-bold' : 'text-gray-300'} whitespace-nowrap">
+                        ${item.displayRest > 0 ? Math.round(item.displayRest).toLocaleString() : '0'}
+                    </td>
                 `;
                 tableBody.appendChild(tr);
             });
             
-            // GROSS
-            document.getElementById('fin-total-revenue').innerHTML = totalRev.toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
-            document.getElementById('fin-total-received').innerHTML = totalRec.toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
-            document.getElementById('fin-total-rest').innerHTML = (totalRev - totalRec).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
+            // GROSS (Rounded)
+            document.getElementById('fin-total-revenue').innerHTML = Math.round(totalRev).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
+            document.getElementById('fin-total-received').innerHTML = Math.round(totalRec).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
+            document.getElementById('fin-total-rest').innerHTML = Math.round(totalRest).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
             
-            // NET (NEW)
-            document.getElementById('fin-total-expenses').innerHTML = totalExpenses.toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
-            document.getElementById('fin-net-expected').innerHTML = (totalRev - totalExpenses).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
-            document.getElementById('fin-net-cash').innerHTML = (totalRec - totalExpenses).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
-
+            // NET (Rounded)
+            document.getElementById('fin-total-expenses').innerHTML = Math.round(totalExpenses).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
+            document.getElementById('fin-net-expected').innerHTML = Math.round(totalRev - totalExpenses).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
+            document.getElementById('fin-net-cash').innerHTML = Math.round(totalRec - totalExpenses).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
         }
 
         // --- NEW FUNCTION: GO TO BOOKING FROM FINANCE ---
@@ -1665,7 +1711,7 @@
             keys.forEach(key => {
                 const [year, month] = key.split('-');
                 const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' });
-                const monthlyTotal = revenueMap[key] || 0;
+                const monthlyTotal = Math.round(revenueMap[key] || 0);
 
                 const header = document.createElement('div');
                 header.className = "flex justify-between items-center bg-gray-50 p-3 rounded-lg mt-6 mb-2 shadow-sm border border-gray-100";
@@ -1710,7 +1756,7 @@
                         <p class="text-xs font-medium opacity-70">${list.length} bookings</p>
                     </div>
                     <div class="text-2xl font-bold">
-                        ${totalRevenue.toLocaleString()} <span class="text-sm font-normal">DH</span>
+                        ${Math.round(totalRevenue).toLocaleString()} <span class="text-sm font-normal">DH</span>
                     </div>
                 `;
                 el.appendChild(summaryDiv);
@@ -1755,7 +1801,7 @@
             
             const rest = totalWithExtra - receivedWithExtra;
             const financeStatus = rest > 0 
-                ? `<span class="text-orange-600 font-bold text-xs bg-orange-50 px-2 py-0.5 rounded border border-orange-100">Rest: ${rest} DH</span>` 
+                ? `<span class="text-orange-600 font-bold text-xs bg-orange-50 px-2 py-0.5 rounded border border-orange-100">Rest: ${Math.round(rest)} DH</span>` 
                 : `<span class="text-green-600 font-bold text-xs bg-green-50 px-2 py-0.5 rounded border border-green-100">Paid</span>`;
 
             const formatDate = (dateStr) => {
@@ -1834,7 +1880,7 @@
 
                     <div class="text-right">
                         ${item.price ? `
-                            <div class="text-gray-900 font-bold text-xl leading-none">${totalCost} <span class="text-sm font-normal text-gray-400">DH</span></div>
+                            <div class="text-gray-900 font-bold text-xl leading-none">${Math.round(totalCost)} <span class="text-sm font-normal text-gray-400">DH</span></div>
                             <div class="text-[10px] text-gray-400 mt-1 font-medium bg-gray-50 px-1.5 py-0.5 rounded inline-block mb-1">${item.price} × ${diffDays} days</div>
                             <div>${financeStatus}</div>
                         ` : ''}
@@ -1882,19 +1928,19 @@
 
                 document.getElementById('modalPrice').innerText = item.price + ' DH';
                 document.getElementById('modalDays').innerText = diffDays + ' Days';
-                document.getElementById('modalBase').innerText = totalVal + ' DH'; // Base cost (days * price)
+                document.getElementById('modalBase').innerText = Math.round(totalVal) + ' DH'; // Base cost (days * price)
                 
-                document.getElementById('modalTotalExpected').innerText = totalWithExtra + ' DH';
-                document.getElementById('modalTotalReceived').innerText = receivedWithExtra + ' DH';
+                document.getElementById('modalTotalExpected').innerText = Math.round(totalWithExtra) + ' DH';
+                document.getElementById('modalTotalReceived').innerText = Math.round(receivedWithExtra) + ' DH';
                 
-                document.getElementById('modalRest').innerText = restVal + ' DH';
+                document.getElementById('modalRest').innerText = Math.round(restVal) + ' DH';
             }
 
             // EXTRA INFO LOGIC
             const extraContainer = document.getElementById('modalExtraContainer');
             if(item.extraAmount || item.extraReason) {
                 extraContainer.classList.remove('hidden');
-                document.getElementById('modalExtraAmount').innerText = item.extraAmount ? `+ ${item.extraAmount} DH` : '---';
+                document.getElementById('modalExtraAmount').innerText = item.extraAmount ? `+ ${Math.round(item.extraAmount)} DH` : '---';
                 document.getElementById('modalExtraReason').innerText = item.extraReason || 'No reason provided';
             } else {
                 extraContainer.classList.add('hidden');
