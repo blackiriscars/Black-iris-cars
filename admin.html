@@ -1327,7 +1327,7 @@
                             <i class="fas fa-check-circle text-gray-300"></i>
                             <div>
                                 <h4 class="font-bold text-gray-500 line-through text-sm flex items-center">${item.description} ${costBadge}</h4>
-                                <p class="text-[10px] text-gray-400 font-medium">Was due: ${dateStr}</p>
+                                <p class="text--[10px] text-gray-400 font-medium">Was due: ${dateStr}</p>
                             </div>
                         </div>
                         <div class="flex gap-1">
@@ -1408,7 +1408,7 @@
             });
         }
 
-        // --- REVISED FINANCE DASHBOARD LOGIC (EVENT BASED: ADVANCE ON START, REST ON END) ---
+        // --- REVISED FINANCE DASHBOARD LOGIC (FIXED FOR REST PAYMENT DATE) ---
         window.renderFinanceDashboard = function() {
             const startDateVal = document.getElementById('finStartDate').value;
             const endDateVal = document.getElementById('finEndDate').value;
@@ -1442,7 +1442,7 @@
                 
                 // CHECK: Does the Start or End fall in the selected range?
                 const startIn = bStartStr >= startDateVal && bStartStr <= endDateVal;
-                const endIn = bEndStr >= startDateVal && bEndStr <= endDateVal;
+                // Note: We don't use simple endIn anymore for Rest, we use calculated date below.
 
                 // Calculate Totals for this booking
                 const startD = new Date(b.start);
@@ -1472,16 +1472,33 @@
                     include = true;
                 }
 
-                // 2. REST & EXTRA logic: Counts on END DATE (Return Date)
-                if (endIn) {
-                    // The Rest and the Extra are "expected" on the return date
+                // 2. REST & EXTRA logic
+                // FIX: Determine effective date for the Rest payment
+                // If Paid: Use Actual Payment Date. If Unpaid: Use Return Date (Debt maturity).
+                let restDateStr = bEndStr; 
+
+                if (b.restPaid && b.restPaidAt) {
+                    try {
+                        let d;
+                        if(b.restPaidAt.toDate) d = b.restPaidAt.toDate();
+                        else if(b.restPaidAt.seconds) d = new Date(b.restPaidAt.seconds * 1000);
+                        else d = new Date(b.restPaidAt);
+                        
+                        restDateStr = d.toISOString().split('T')[0];
+                    } catch(e) { console.log('Date parse error', e); }
+                }
+
+                const restIn = restDateStr >= startDateVal && restDateStr <= endDateVal;
+
+                if (restIn) {
+                    // The Rest/Extra transaction belongs to this period
                     periodExpected += restVal;
                     
                     if (b.restPaid) {
-                        // If you marked it as paid manually, it counts as Cash Received
+                         // It was actually paid in this period
                         periodReceived += restVal;
                     } else {
-                        // If not paid, it counts as Balance Due (Rest)
+                        // It is unpaid debt due in this period
                         periodRest += restVal;
                     }
                     include = true;
