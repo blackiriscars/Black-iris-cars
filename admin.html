@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
       
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -532,13 +532,15 @@
                     <h2 class="text-2xl font-bold text-gray-800">Financial Reports</h2>
                     
                     <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-3">
-                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                              <div>
-                                 <label class="block text-xs font-bold text-gray-500 mb-1">Status</label>
-                                 <select id="financeStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
-                                     <option value="all">All</option>
-                                     <option value="active">Active Only</option>
-                                     <option value="past">History Only</option>
+                                 <label class="block text-xs font-bold text-gray-500 mb-1">Période Rapide</label>
+                                 <select id="financePeriod" onchange="handlePeriodChange()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                                     <option value="custom">Custom Dates</option>
+                                     <option value="thisMonth">Ce Mois (This Month)</option>
+                                     <option value="lastMonth">Mois Dernier (Last Month)</option>
+                                     <option value="thisYear">Cette Année (This Year)</option>
+                                     <option value="lastYear">L'année Dernière (Last Year)</option>
                                  </select>
                              </div>
                              <div>
@@ -549,7 +551,7 @@
                                  <label class="block text-xs font-bold text-gray-500 mb-1">End Date</label>
                                  <input type="date" id="finEndDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
                              </div>
-                             <div class="sm:col-span-2 md:col-span-1">
+                             <div>
                                  <label class="block text-xs font-bold text-gray-500 mb-1">Sort By (Trier par)</label>
                                  <select id="financeSort" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
                                      <option value="date_desc">Date (Newest First)</option>
@@ -564,26 +566,12 @@
                           </div>
                           <div class="flex gap-2 mt-2">
                               <button onclick="renderFinanceDashboard()" class="flex-1 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2 py-2.5 shadow-sm"><i class="fas fa-search"></i> Search</button>
-                              <button onclick="downloadPDF()" class="flex-1 bg-gray-800 text-white rounded-lg font-bold hover:bg-gray-900 transition flex items-center justify-center gap-2 py-2.5 shadow-sm"><i class="fas fa-file-download"></i> Download PDF</button>
+                              <button onclick="exportExcel()" class="flex-1 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition flex items-center justify-center gap-2 py-2.5 shadow-sm"><i class="fas fa-file-excel"></i> Export Excel</button>
                           </div>
                     </div>
                 </div>
 
                 <div id="finance-report-container" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 min-h-[600px]">
-                    
-                    <div class="mb-8 hidden" id="pdf-header">
-                        <div class="flex justify-between items-start border-b-2 border-gray-800 pb-4 mb-6">
-                            <div>
-                                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Black Iris Fleet</h1>
-                                <p class="text-gray-500 font-medium mt-1">Financial Statement</p>
-                            </div>
-                            <div class="text-right">
-                                <p id="print-date-range" class="text-sm font-bold text-gray-800"></p>
-                                <p class="text-xs text-gray-400 mt-1">Generated: <span id="print-gen-date"></span></p>
-                            </div>
-                        </div>
-                    </div>
-
                     <h3 class="font-bold text-gray-500 mb-2 uppercase text-xs">Income Overview (Gross)</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 border-b border-gray-100 pb-8">
                         <div class="bg-gray-50 md:bg-white p-4 md:p-0 rounded-lg">
@@ -672,6 +660,44 @@
         }
         document.getElementById('mobileOverlay').addEventListener('click', toggleMenu);
 
+        // NEW LOGIC FOR QUICK PERIOD FILTER
+        window.handlePeriodChange = function() {
+            const period = document.getElementById('financePeriod').value;
+            const startInput = document.getElementById('finStartDate');
+            const endInput = document.getElementById('finEndDate');
+            const now = new Date();
+            let start, end;
+
+            if (period === 'thisMonth') {
+                start = new Date(now.getFullYear(), now.getMonth(), 1);
+                end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            } else if (period === 'lastMonth') {
+                start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                end = new Date(now.getFullYear(), now.getMonth(), 0);
+            } else if (period === 'thisYear') {
+                start = new Date(now.getFullYear(), 0, 1);
+                end = new Date(now.getFullYear(), 11, 31);
+            } else if (period === 'lastYear') {
+                start = new Date(now.getFullYear() - 1, 0, 1);
+                end = new Date(now.getFullYear() - 1, 11, 31);
+            } else {
+                return; // custom, do nothing
+            }
+
+            const formatDate = (date) => {
+                const offset = date.getTimezoneOffset() * 60000;
+                return new Date(date.getTime() - offset).toISOString().split('T')[0];
+            };
+
+            startInput.value = formatDate(start);
+            endInput.value = formatDate(end);
+            
+            // Auto refresh if function is available
+            if(window.renderFinanceDashboard) {
+                window.renderFinanceDashboard();
+            }
+        };
+
         function switchTab(tabName, shouldReset = false) {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('mobileOverlay');
@@ -705,13 +731,11 @@
 
             if(tabName === 'finance') {
                 if(!document.getElementById('finStartDate').value) {
-                    const now = new Date();
-                    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-                    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-                    document.getElementById('finStartDate').value = firstDay.toISOString().split('T')[0];
-                    document.getElementById('finEndDate').value = lastDay.toISOString().split('T')[0];
+                    document.getElementById('financePeriod').value = 'thisMonth';
+                    window.handlePeriodChange();
+                } else {
+                    renderFinanceDashboard();
                 }
-                renderFinanceDashboard();
             }
              if(tabName === 'expenses') {
                 if(!document.getElementById('expDate').value) {
@@ -1386,33 +1410,115 @@
             }
         }
 
-        // --- INSTANT PDF DOWNLOAD ---
-        window.downloadPDF = function() {
-            const element = document.getElementById('finance-report-container');
-            
-            // Show header temporarily
-            const header = document.getElementById('pdf-header');
-            header.classList.remove('hidden');
-            document.getElementById('print-gen-date').innerText = new Date().toLocaleString();
+        // --- NEW EXCELJS PRO EXPORT FUNCTION ---
+        window.exportExcel = async function() {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Rapport Financier');
 
-            const opt = {
-                margin:       0.5,
-                filename:     `BlackIris_Report_${new Date().toISOString().split('T')[0]}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-            };
+            const totalRev = window.currentFinanceTotalRev || 0;
 
-            html2pdf().set(opt).from(element).save().then(() => {
-                header.classList.add('hidden'); // Hide header after save
+            // Row 1: Green Total Bar
+            const topRow = worksheet.addRow([`${Math.round(totalRev).toLocaleString()} MAD`]);
+            worksheet.mergeCells('A1:N1');
+            topRow.font = { bold: true };
+            topRow.alignment = { horizontal: 'center' };
+            topRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF92D050' } }; 
+
+            // Row 2: Headers exactly matching image
+            const headers = ['Mois', 'réserv', 'Loueur', 'MARQUI', 'Matricule', 'Nombre de jou', 'Départ', 'Retour', 'Heur', 'Prix', 'Total TTC', 'commataire', 'Franchi', 'Franchis'];
+            const headerRow = worksheet.addRow(headers);
+            headerRow.font = { bold: true, color: { argb: 'FF800080' } }; // Purple text
+            headerRow.alignment = { horizontal: 'center' };
+
+            // Add Data
+            const items = window.currentFinanceReportItems || [];
+            const frenchMonths = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+
+            items.forEach(item => {
+                const startD = new Date(item.start);
+                const endD = new Date(item.end);
+                const mois = frenchMonths[startD.getMonth()];
+                
+                // Splitting carName to get MARQUI and Matricule
+                let marque = '';
+                let matricule = '';
+                if(item.carName) {
+                    const parts = item.carName.split(' ');
+                    if(parts.length > 1) {
+                        marque = parts[0];
+                        matricule = parts.slice(1).join(' ');
+                    } else {
+                        matricule = item.carName;
+                    }
+                }
+
+                const departStr = startD.toLocaleDateString('en-GB');
+                const retourStr = endD.toLocaleDateString('en-GB');
+                const heurStr = startD.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+
+                const received = item.displayReceived || 0;
+                const rest = item.displayRest || 0;
+                const total = item.displayTotal || 0;
+                
+                let commataire = '';
+                let isRed = false;
+
+                // Match commataire logic to picture
+                if (rest > 0 && received === 0) {
+                    commataire = 'Pas encore payé';
+                    isRed = true;
+                } else if (rest > 0 && received > 0) {
+                    commataire = `Reste à payé ${Math.round(rest)}dh`;
+                }
+
+                const row = worksheet.addRow([
+                    mois,
+                    item.contractNumber || '',
+                    item.clientName || '',
+                    marque.toUpperCase(),
+                    matricule.toUpperCase(),
+                    item.fullDays || 0,
+                    departStr,
+                    retourStr,
+                    heurStr,
+                    item.price || '',
+                    Math.round(total) || '',
+                    commataire,
+                    item.depositAmount || '',
+                    item.depositMethod || ''
+                ]);
+
+                row.alignment = { horizontal: 'center' };
+
+                // Apply Red Background for unpaid rows
+                if (isRed) {
+                    for(let i = 10; i <= 14; i++) {
+                        row.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFF0000' } };
+                        row.getCell(i).font = { bold: true, color: { argb: 'FFFFFFFF' } }; // White text on red
+                    }
+                }
             });
-        }
 
-        // --- REVISED FINANCE DASHBOARD LOGIC (FIXED FOR REST PAYMENT DATE) ---
+            // Set simple column widths
+            worksheet.columns.forEach(column => { column.width = 15; });
+            worksheet.getColumn(3).width = 25; // Loueur
+            worksheet.getColumn(12).width = 25; // commataire
+
+            // Create and download file
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Rapport_Financier_${new Date().toISOString().split('T')[0]}.xlsx`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        };
+
+        // --- REVISED FINANCE DASHBOARD LOGIC ---
         window.renderFinanceDashboard = function() {
             const startDateVal = document.getElementById('finStartDate').value;
             const endDateVal = document.getElementById('finEndDate').value;
-            const statusFilter = document.getElementById('financeStatus').value;
             const sortVal = document.getElementById('financeSort').value;
             const tableBody = document.getElementById('finance-table-body');
             const expTableBody = document.getElementById('finance-expenses-body');
@@ -1421,30 +1527,21 @@
             tableBody.innerHTML = '';
             expTableBody.innerHTML = '';
 
-            // 1. Filter Expenses
             let filteredExpenses = allExpenses.filter(e => e.date >= startDateVal && e.date <= endDateVal);
             filteredExpenses.sort((a,b) => b.date.localeCompare(a.date));
 
             let reportItems = [];
             
-            // Financial Totals for the header
-            let totalRev = 0;    // Total Expected (Gross)
-            let totalRec = 0;    // Cash In Hand
-            let totalRest = 0;   // Money owed (Unpaid Rest)
+            let totalRev = 0;    
+            let totalRec = 0;    
+            let totalRest = 0;   
 
             allBookings.forEach(b => {
-                // Global Filters
-                if (statusFilter === 'active' && (b.returned || new Date(b.end) < now)) return;
-                if (statusFilter === 'past' && (!b.returned && new Date(b.end) >= now)) return;
-
                 const bStartStr = b.start.split('T')[0];
                 const bEndStr = b.end.split('T')[0];
                 
-                // CHECK: Does the Start or End fall in the selected range?
                 const startIn = bStartStr >= startDateVal && bStartStr <= endDateVal;
-                // Note: We don't use simple endIn anymore for Rest, we use calculated date below.
 
-                // Calculate Totals for this booking
                 const startD = new Date(b.start);
                 const endD = new Date(b.end);
                 const diffTime = Math.abs(endD - startD);
@@ -1453,28 +1550,22 @@
 
                 const dailyPrice = Number(b.price) || 0;
                 const extraVal = Number(b.extraAmount) || 0;
-                const advanceVal = Number(b.amountReceived) || 0; // This is the money paid at start
+                const advanceVal = Number(b.amountReceived) || 0; 
                 
-                // Full calculation
                 const fullTotal = (dailyPrice * diffDays) + extraVal; 
                 const restVal = fullTotal - advanceVal;
 
-                // LOGIC: Distribute money based on dates
                 let periodExpected = 0;
                 let periodReceived = 0;
                 let periodRest = 0;
                 let include = false;
 
-                // 1. ADVANCE logic: Counts on START DATE
                 if (startIn) {
                     periodExpected += advanceVal;
                     periodReceived += advanceVal;
                     include = true;
                 }
 
-                // 2. REST & EXTRA logic
-                // FIX: Determine effective date for the Rest payment
-                // If Paid: Use Actual Payment Date. If Unpaid: Use Return Date (Debt maturity).
                 let restDateStr = bEndStr; 
 
                 if (b.restPaid && b.restPaidAt) {
@@ -1491,14 +1582,11 @@
                 const restIn = restDateStr >= startDateVal && restDateStr <= endDateVal;
 
                 if (restIn) {
-                    // The Rest/Extra transaction belongs to this period
                     periodExpected += restVal;
                     
                     if (b.restPaid) {
-                         // It was actually paid in this period
                         periodReceived += restVal;
                     } else {
-                        // It is unpaid debt due in this period
                         periodRest += restVal;
                     }
                     include = true;
@@ -1509,10 +1597,10 @@
                         ...b,
                         displayTotal: periodExpected,
                         displayReceived: periodReceived,
-                        displayRest: periodRest, // Only shows unpaid rest
+                        displayRest: periodRest, 
                         fullTotal: fullTotal,
                         fullDays: diffDays,
-                        isRestPaid: b.restPaid // To show checkmark in table
+                        isRestPaid: b.restPaid 
                     });
                     
                     totalRev += periodExpected;
@@ -1521,7 +1609,6 @@
                 }
             });
 
-            // Sorting
             reportItems.sort((a,b) => {
                 switch(sortVal) {
                     case 'date_desc': return new Date(b.start) - new Date(a.start); 
@@ -1530,12 +1617,11 @@
                     default: return new Date(b.start) - new Date(a.start);
                 }
             });
-            
-            // Header Stats
-            const sDate = new Date(startDateVal).toLocaleDateString();
-            const eDate = new Date(endDateVal).toLocaleDateString();
-            document.getElementById('print-date-range').innerText = `Period: ${sDate} - ${eDate}`;
 
+            // Store items globally for the Excel Export function to use without recalculating
+            window.currentFinanceReportItems = reportItems;
+            window.currentFinanceTotalRev = totalRev;
+            
             let totalExpenses = 0;
             filteredExpenses.forEach(exp => {
                 totalExpenses += Number(exp.amount);
@@ -1553,7 +1639,6 @@
                 tr.className = "border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer";
                 tr.onclick = () => window.goToBooking(item.id, item.contractNumber); 
                 
-                // Show a green check if Rest is paid but it was displayed in this row
                 const paidIcon = item.isRestPaid ? '<i class="fas fa-check-circle text-green-500 ml-1" title="Rest Paid"></i>' : '';
 
                 tr.innerHTML = `
@@ -1591,13 +1676,12 @@
             document.getElementById('fin-net-cash').innerHTML = Math.round(totalRec - totalExpenses).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
         }
 
-        // --- NEW FUNCTION: GO TO BOOKING FROM FINANCE ---
         window.goToBooking = function(id, contract) {
             switchTab('bookings');
             const searchInput = document.getElementById('bookingSearch');
             if(contract) {
                 searchInput.value = contract;
-                renderBookings(); // Filter immediately
+                renderBookings(); 
             }
         }
 
@@ -1631,17 +1715,13 @@
             const upcoming = [];
             const past = [];
 
-            // FILTER: If search EXACTLY matches a contract, prioritize it
             let hasExactContractMatch = false;
             
-            // First Check for exact contract matches to isolate them
             const exactMatches = allBookings.filter(b => b.contractNumber && String(b.contractNumber).toLowerCase() === searchTerm);
             
             if (exactMatches.length > 0) {
-                 // If we found exact contract matches, use ONLY those
                  exactMatches.forEach(b => processBookingIntoList(b));
             } else {
-                 // Otherwise, do fuzzy search
                  allBookings.forEach(b => {
                     const searchable = [
                         b.carName, b.clientName, b.location, b.agent, 
@@ -1742,7 +1822,6 @@
                 return;
             }
 
-            // ONLY SHOW SUMMARY FOR PAST (HISTORY)
             if (type === 'past') {
                 let totalRevenue = 0;
                 list.forEach(item => {
@@ -1802,7 +1881,6 @@
                 totalCost = dailyPrice * diffDays;
             }
             
-            // Financial Status Calculation
             const received = Number(item.amountReceived) || 0;
             const extra = Number(item.extraAmount) || 0; 
             const totalWithExtra = totalCost + extra;
@@ -1835,12 +1913,10 @@
             };
 
             const div = document.createElement('div');
-            // ADDED onclick to open modal, and cursor-pointer
             div.className = `bg-white rounded-xl shadow-sm border border-gray-100 mb-3 relative group hover:shadow-md transition-all p-4 ${borderColorClass} cursor-pointer`;
             div.onclick = () => window.openBookingModal(item.id);
 
             let actions = '';
-            // Buttons now have event.stopPropagation() to prevent opening modal
             const editBtn = `<button onclick="event.stopPropagation(); window.editMemo('${item.id}')" class="h-8 w-8 rounded-md bg-gray-50 text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition border border-gray-100 flex items-center justify-center"><i class="fas fa-edit text-xs"></i></button>`;
             const deleteBtn = `<button onclick="event.stopPropagation(); window.deleteMemo('${item.id}')" class="h-8 w-8 rounded-md bg-gray-50 text-gray-400 hover:text-red-500 hover:bg-red-50 transition border border-gray-100 flex items-center justify-center"><i class="fas fa-trash text-xs"></i></button>`;
 
@@ -1911,28 +1987,23 @@
             return div;
         }
 
-        // --- MODAL LOGIC (NEW) ---
         window.openBookingModal = function(id) {
             const item = allBookings.find(b => b.id === id);
             if(!item) return;
 
-            // Fill Info
             document.getElementById('modalCarName').innerText = item.carName;
             document.getElementById('modalContract').innerText = 'Contract #' + (item.contractNumber || '---');
             document.getElementById('modalClient').innerText = item.clientName || 'Unknown';
             
-            // Dates
             const startD = new Date(item.start);
             const endD = new Date(item.end);
             document.getElementById('modalStart').innerText = startD.toLocaleString('en-GB');
             document.getElementById('modalEnd').innerText = endD.toLocaleString('en-GB');
 
-            // Agent / Loc / Deposit
             document.getElementById('modalAgent').innerText = item.agent || '---';
             document.getElementById('modalLocation').innerText = item.location || '---';
             document.getElementById('modalDeposit').innerText = item.depositAmount ? `${item.depositAmount} DH (${item.depositMethod})` : '---';
 
-            // Financials
             if(item.price) {
                 const diffTime = Math.abs(endD - startD);
                 let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -1942,14 +2013,13 @@
                 const receivedVal = Number(item.amountReceived) || 0;
                 const extraVal = Number(item.extraAmount) || 0;
 
-                // FIX: Modal logic matches table logic (Extra added to Cash Received)
                 const totalWithExtra = totalVal + extraVal;
                 const receivedWithExtra = receivedVal + extraVal;
                 const restVal = totalWithExtra - receivedWithExtra;
 
                 document.getElementById('modalPrice').innerText = item.price + ' DH';
                 document.getElementById('modalDays').innerText = diffDays + ' Days';
-                document.getElementById('modalBase').innerText = Math.round(totalVal) + ' DH'; // Base cost (days * price)
+                document.getElementById('modalBase').innerText = Math.round(totalVal) + ' DH'; 
                 
                 document.getElementById('modalTotalExpected').innerText = Math.round(totalWithExtra) + ' DH';
                 document.getElementById('modalTotalReceived').innerText = Math.round(receivedWithExtra) + ' DH';
@@ -1957,7 +2027,6 @@
                 document.getElementById('modalRest').innerText = Math.round(restVal) + ' DH';
             }
 
-            // EXTRA INFO LOGIC
             const extraContainer = document.getElementById('modalExtraContainer');
             if(item.extraAmount || item.extraReason) {
                 extraContainer.classList.remove('hidden');
@@ -1980,7 +2049,6 @@
             }
         }
 
-        // --- NEW EDIT MEMO LOGIC ---
         window.editMemo = function(id) {
             const memo = allBookings.find(b => b.id === id);
             if(!memo) return;
@@ -1995,15 +2063,12 @@
             document.getElementById('memoAgent').value = memo.agent || '';
             document.getElementById('memoDepositAmount').value = memo.depositAmount || '';
             document.getElementById('memoDepositMethod').value = memo.depositMethod || 'Cash';
-            // Slice to ensure datetime-local format works
             document.getElementById('memoStart').value = memo.start ? memo.start.slice(0, 16) : '';
             document.getElementById('memoEnd').value = memo.end ? memo.end.slice(0, 16) : '';
             
-            // NEW FIELDS POPULATE
             document.getElementById('memoExtraAmount').value = memo.extraAmount || '';
             document.getElementById('memoExtraReason').value = memo.extraReason || '';
 
-            // Update button to show it's an update
             const btn = document.getElementById('memoSubmitBtn');
             btn.innerHTML = '<i class="fas fa-save"></i> Update Booking Memo';
             btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
@@ -2038,7 +2103,6 @@
             const depositAmount = document.getElementById('memoDepositAmount').value;
             const depositMethod = document.getElementById('memoDepositMethod').value;
             
-            // NEW FIELDS CAPTURE
             const extraAmount = document.getElementById('memoExtraAmount').value;
             const extraReason = document.getElementById('memoExtraReason').value;
 
@@ -2046,7 +2110,6 @@
             let end = document.getElementById('memoEnd').value;
             const editId = document.getElementById('editMemoId').value;
 
-            // Ensure formatting if not edited
             if(start.length > 16) start = roundToHour(start);
             if(end.length > 16) end = roundToHour(end);
 
