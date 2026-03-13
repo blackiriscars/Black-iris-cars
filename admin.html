@@ -534,13 +534,14 @@
                     <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-3">
                          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                              <div>
-                                 <label class="block text-xs font-bold text-gray-500 mb-1">Période Rapide</label>
+                                 <label class="block text-xs font-bold text-gray-500 mb-1">Quick Period</label>
                                  <select id="financePeriod" onchange="handlePeriodChange()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
                                      <option value="custom">Custom Dates</option>
-                                     <option value="thisMonth">Ce Mois (This Month)</option>
-                                     <option value="lastMonth">Mois Dernier (Last Month)</option>
-                                     <option value="thisYear">Cette Année (This Year)</option>
-                                     <option value="lastYear">L'année Dernière (Last Year)</option>
+                                     <option value="allTime">All Time (À tout moment)</option>
+                                     <option value="thisMonth">This Month</option>
+                                     <option value="lastMonth">Last Month</option>
+                                     <option value="thisYear">This Year</option>
+                                     <option value="lastYear">Last Year</option>
                                  </select>
                              </div>
                              <div>
@@ -552,7 +553,7 @@
                                  <input type="date" id="finEndDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
                              </div>
                              <div>
-                                 <label class="block text-xs font-bold text-gray-500 mb-1">Sort By (Trier par)</label>
+                                 <label class="block text-xs font-bold text-gray-500 mb-1">Sort By</label>
                                  <select id="financeSort" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
                                      <option value="date_desc">Date (Newest First)</option>
                                      <option value="date_asc">Date (Oldest First)</option>
@@ -660,7 +661,7 @@
         }
         document.getElementById('mobileOverlay').addEventListener('click', toggleMenu);
 
-        // NEW LOGIC FOR QUICK PERIOD FILTER
+        // --- UPDATED PERIOD CHANGE LOGIC WITH ALL TIME ---
         window.handlePeriodChange = function() {
             const period = document.getElementById('financePeriod').value;
             const startInput = document.getElementById('finStartDate');
@@ -680,6 +681,9 @@
             } else if (period === 'lastYear') {
                 start = new Date(now.getFullYear() - 1, 0, 1);
                 end = new Date(now.getFullYear() - 1, 11, 31);
+            } else if (period === 'allTime') {
+                start = new Date(2000, 0, 1); 
+                end = new Date(2099, 11, 31);
             } else {
                 return; // custom, do nothing
             }
@@ -692,7 +696,6 @@
             startInput.value = formatDate(start);
             endInput.value = formatDate(end);
             
-            // Auto refresh if function is available
             if(window.renderFinanceDashboard) {
                 window.renderFinanceDashboard();
             }
@@ -1141,7 +1144,7 @@
             }
         }
         
-        // --- EXPENSES LOGIC (NEW) ---
+        // --- EXPENSES LOGIC ---
         document.getElementById('expenseForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const title = document.getElementById('expTitle').value;
@@ -1167,16 +1170,13 @@
             const list = document.getElementById('expenses-list');
             list.innerHTML = '';
             
-            // Sort by Date Descending
             const sorted = allExpenses.sort((a,b) => b.date.localeCompare(a.date));
-            
             let lastMonth = '';
 
             sorted.forEach(exp => {
                 const dateObj = new Date(exp.date);
                 const currentMonth = dateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
 
-                // Add Month Header if Changed
                 if (currentMonth !== lastMonth) {
                     const header = document.createElement('div');
                     header.className = "bg-gray-100 text-gray-600 font-bold text-xs uppercase px-4 py-2 rounded-lg mt-4 mb-2";
@@ -1200,7 +1200,6 @@
                 list.appendChild(div);
             });
         }
-
 
         // --- SERVICE FUNCTIONS ---
         document.getElementById('serviceForm').addEventListener('submit', async (e) => {
@@ -1410,36 +1409,104 @@
             }
         }
 
-        // --- NEW EXCELJS PRO EXPORT FUNCTION ---
+        // --- EXCELJS PRO EXPORT FUNCTION (FULLY REBUILT) ---
         window.exportExcel = async function() {
             const workbook = new ExcelJS.Workbook();
-            const worksheet = workbook.addWorksheet('Rapport Financier');
+            const worksheet = workbook.addWorksheet('Financial Report');
 
+            const items = window.currentFinanceReportItems || [];
+            
+            // 1. Calculate Monthly Totals for the Dashboard
+            const monthlyTotals = Array(12).fill(0);
+            items.forEach(item => {
+                const startD = new Date(item.start);
+                monthlyTotals[startD.getMonth()] += (item.displayTotal || 0);
+            });
+
+            const engMonthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const engMonthsFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+            // 2. Build the Top 12-Month Dashboard Layout
+            const dashHeaders = ['Month', 'Subtotal', 'Total', 'Month', 'Subtotal', 'Total', 'Month', 'Subtotal', 'Total', 'Month', 'Subtotal', 'Total'];
+            const r1 = worksheet.addRow(dashHeaders);
+            r1.font = { bold: true };
+            
+            // Set Dashboard Colors
+            const applyDashColor = (row, colStart, colEnd, argbColor) => {
+                for(let i = colStart; i <= colEnd; i++) {
+                    row.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: argbColor } };
+                }
+            };
+            
+            applyDashColor(r1, 1, 3, 'FFFFFF00'); // Q1 Yellow
+            applyDashColor(r1, 4, 6, 'FFFF0000'); // Q2 Red
+            applyDashColor(r1, 7, 9, 'FF92D050'); // Q3 Green
+            applyDashColor(r1, 10, 12, 'FF00B0F0'); // Q4 Blue
+
+            // Add the 3 months for each quarter
+            for(let m = 0; m < 3; m++) {
+                const rowObj = worksheet.addRow([
+                    `${engMonthsShort[m]}-26`, Math.round(monthlyTotals[m] / 1.2) || '', Math.round(monthlyTotals[m]) || '',
+                    `${engMonthsShort[m+3]}-26`, Math.round(monthlyTotals[m+3] / 1.2) || '', Math.round(monthlyTotals[m+3]) || '',
+                    `${engMonthsFull[m+6]}`, Math.round(monthlyTotals[m+6] / 1.2) || '', Math.round(monthlyTotals[m+6]) || '',
+                    `${engMonthsFull[m+9]}`, Math.round(monthlyTotals[m+9] / 1.2) || '', Math.round(monthlyTotals[m+9]) || ''
+                ]);
+                applyDashColor(rowObj, 1, 3, 'FFFFFF00');
+                applyDashColor(rowObj, 4, 6, 'FFFF0000');
+                applyDashColor(rowObj, 7, 9, 'FF92D050');
+                applyDashColor(rowObj, 10, 12, 'FF00B0F0');
+                
+                // Add borders to dashboard cells
+                for(let i = 1; i <= 12; i++) {
+                    rowObj.getCell(i).border = {
+                        top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'}
+                    };
+                }
+            }
+
+            // Dashboard Totals Row
+            const calcQTotal = (startM) => monthlyTotals[startM] + monthlyTotals[startM+1] + monthlyTotals[startM+2];
+            const q1T = calcQTotal(0), q2T = calcQTotal(3), q3T = calcQTotal(6), q4T = calcQTotal(9);
+            const rTotal = worksheet.addRow([
+                'Total', Math.round(q1T / 1.2) || '', Math.round(q1T) || '',
+                'Total', Math.round(q2T / 1.2) || '', Math.round(q2T) || '',
+                'Total', Math.round(q3T / 1.2) || '', Math.round(q3T) || '',
+                'Total', Math.round(q4T / 1.2) || '', Math.round(q4T) || ''
+            ]);
+            rTotal.font = { bold: true };
+            applyDashColor(rTotal, 1, 3, 'FFFFFF00');
+            applyDashColor(rTotal, 4, 6, 'FFFF0000');
+            applyDashColor(rTotal, 7, 9, 'FF92D050');
+            applyDashColor(rTotal, 10, 12, 'FF00B0F0');
+            for(let i = 1; i <= 12; i++) {
+                 rTotal.getCell(i).border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+            }
+
+            // 3. The Green Main Total Bar
             const totalRev = window.currentFinanceTotalRev || 0;
-
-            // Row 1: Green Total Bar
             const topRow = worksheet.addRow([`${Math.round(totalRev).toLocaleString()} MAD`]);
-            worksheet.mergeCells('A1:N1');
+            worksheet.mergeCells('A6:N6');
             topRow.font = { bold: true };
             topRow.alignment = { horizontal: 'center' };
             topRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF92D050' } }; 
 
-            // Row 2: Headers exactly matching image
-            const headers = ['Mois', 'réserv', 'Loueur', 'MARQUI', 'Matricule', 'Nombre de jou', 'Départ', 'Retour', 'Heur', 'Prix', 'Total TTC', 'commataire', 'Franchi', 'Franchis'];
+            // 4. Main Headers
+            const headers = ['Month', 'Contract #', 'Client Name', 'Make', 'License Plate', 'Days', 'Start Date', 'End Date', 'Time', 'Daily Price', 'Total Amount', 'Status / Comments', 'Deposit', 'Deposit Method'];
             const headerRow = worksheet.addRow(headers);
             headerRow.font = { bold: true, color: { argb: 'FF800080' } }; // Purple text
             headerRow.alignment = { horizontal: 'center' };
 
-            // Add Data
-            const items = window.currentFinanceReportItems || [];
-            const frenchMonths = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+            // Apply Auto-Filter
+            worksheet.autoFilter = 'A7:N7';
 
+            // 5. Populate Main Data
+            const today = new Date();
+            
             items.forEach(item => {
                 const startD = new Date(item.start);
                 const endD = new Date(item.end);
-                const mois = frenchMonths[startD.getMonth()];
+                const monthName = engMonthsFull[startD.getMonth()];
                 
-                // Splitting carName to get MARQUI and Matricule
                 let marque = '';
                 let matricule = '';
                 if(item.carName) {
@@ -1461,18 +1528,19 @@
                 const total = item.displayTotal || 0;
                 
                 let commataire = '';
-                let isRed = false;
+                let isRedRow = false;
+                let isYellowCell = false;
 
-                // Match commataire logic to picture
                 if (rest > 0 && received === 0) {
-                    commataire = 'Pas encore payé';
-                    isRed = true;
+                    commataire = 'Not Paid Yet';
+                    isRedRow = true;
                 } else if (rest > 0 && received > 0) {
-                    commataire = `Reste à payé ${Math.round(rest)}dh`;
+                    commataire = `Balance Due: ${Math.round(rest)} DH`;
+                    isYellowCell = true;
                 }
 
                 const row = worksheet.addRow([
-                    mois,
+                    monthName,
                     item.contractNumber || '',
                     item.clientName || '',
                     marque.toUpperCase(),
@@ -1489,28 +1557,45 @@
                 ]);
 
                 row.alignment = { horizontal: 'center' };
+                
+                // Add borders to data row
+                for(let i = 1; i <= 14; i++) {
+                    row.getCell(i).border = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+                }
 
-                // Apply Red Background for unpaid rows
-                if (isRed) {
+                // Check Overdue Return Date (strictly in the past)
+                if (endD < today) {
+                    row.getCell(8).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFF0000' } };
+                    row.getCell(8).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                }
+
+                // Apply Red Background for completely unpaid rows
+                if (isRedRow) {
                     for(let i = 10; i <= 14; i++) {
                         row.getCell(i).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFF0000' } };
-                        row.getCell(i).font = { bold: true, color: { argb: 'FFFFFFFF' } }; // White text on red
+                        row.getCell(i).font = { bold: true, color: { argb: 'FFFFFFFF' } };
                     }
+                }
+                
+                // Apply Yellow Background for partial payments
+                if (isYellowCell) {
+                    row.getCell(12).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF00' } };
+                    row.getCell(12).font = { bold: true, color: { argb: 'FF000000' } }; // Black text on yellow
                 }
             });
 
-            // Set simple column widths
+            // Clean up Column Widths
             worksheet.columns.forEach(column => { column.width = 15; });
-            worksheet.getColumn(3).width = 25; // Loueur
-            worksheet.getColumn(12).width = 25; // commataire
+            worksheet.getColumn(3).width = 25; // Client
+            worksheet.getColumn(12).width = 25; // Comments
 
-            // Create and download file
+            // Final Output Download
             const buffer = await workbook.xlsx.writeBuffer();
             const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Rapport_Financier_${new Date().toISOString().split('T')[0]}.xlsx`;
+            a.download = `Financial_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
             a.click();
             window.URL.revokeObjectURL(url);
         };
