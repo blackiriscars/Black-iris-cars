@@ -637,9 +637,9 @@
                             <p class="text-[10px] font-bold text-blue-700 uppercase tracking-widest mb-1">Bank Transfers</p>
                             <h3 class="text-2xl font-bold text-blue-700" id="fin-total-transfers">0</h3>
                         </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Net Expected (Profit)</p>
-                            <h3 class="text-2xl font-bold text-gray-800" id="fin-net-expected">0</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg" id="fin-pre-transfer-card">
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Net Cash (No Transfers)</p>
+                            <h3 class="text-2xl font-bold text-gray-800" id="fin-net-pre-transfers">0</h3>
                         </div>
                          <div class="bg-gray-50 p-4 rounded-lg">
                             <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Net Cash Flow</p>
@@ -1843,6 +1843,7 @@
             const periodVal = document.getElementById('financePeriod').value;
             const includeTransfers = ['allTime', 'thisYear', 'lastYear'].includes(periodVal);
             const transfersCard = document.getElementById('fin-transfers-card');
+            const preTransfersCard = document.getElementById('fin-pre-transfer-card');
             const profitGrid = document.getElementById('fin-profit-grid');
 
             if (includeTransfers) {
@@ -1850,13 +1851,17 @@
                     totalTransfers += Number(trans.amount);
                 });
                 transfersCard.classList.remove('hidden');
+                preTransfersCard.classList.remove('hidden');
+                profitGrid.classList.remove('md:grid-cols-2');
                 profitGrid.classList.remove('md:grid-cols-3');
                 profitGrid.classList.add('md:grid-cols-4');
                 document.getElementById('fin-total-transfers').innerHTML = Math.round(totalTransfers).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
             } else {
                 transfersCard.classList.add('hidden');
+                preTransfersCard.classList.add('hidden');
                 profitGrid.classList.remove('md:grid-cols-4');
-                profitGrid.classList.add('md:grid-cols-3');
+                profitGrid.classList.remove('md:grid-cols-3');
+                profitGrid.classList.add('md:grid-cols-2');
             }
 
             reportItems.forEach((item, index) => { 
@@ -1899,7 +1904,7 @@
             
             document.getElementById('fin-total-expenses').innerHTML = Math.round(totalExpenses).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
             
-            document.getElementById('fin-net-expected').innerHTML = Math.round(totalRev - totalExpenses).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
+            document.getElementById('fin-net-pre-transfers').innerHTML = Math.round(totalRec - totalExpenses).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
             document.getElementById('fin-net-cash').innerHTML = Math.round(totalRec - totalExpenses - totalTransfers).toLocaleString() + ' <span class="text-sm font-normal text-gray-400">DH</span>';
         }
 
